@@ -1,0 +1,71 @@
+generated: "2025-12-10"
+project: "jymap"
+project_type: "greenfield"
+selected_track: "bmad-method"
+field_type: "greenfield"
+workflow_path: "/home/kevin/Documents/RCodes/jymap/.bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+workflow_status:
+  - phase: 0
+    name: "Discovery (Optional)"
+    optional: true
+    workflows:
+      - id: "brainstorm-project"
+        agent: "analyst"
+        command: "brainstorm-project"
+        status: "optional"
+      - id: "research"
+        agent: "analyst"
+        command: "research"
+        status: "optional"
+      - id: "product-brief"
+        agent: "analyst"
+        command: "product-brief"
+        status: "completed"
+        completed_date: "2025-12-11"
+        output_file: "docs/analysis/product-brief-jymap-2025-12-11.md"
+  - phase: 1
+    name: "Planning"
+    required: true
+    workflows:
+      - id: "prd"
+        agent: "pm"
+        command: "prd"
+        status: "required"
+      - id: "create-ux-design"
+        agent: "ux-designer"
+        command: "create-ux-design"
+        status: "conditional"
+        condition: "if_has_ui"
+  - phase: 2
+    name: "Solutioning"
+    required: true
+    workflows:
+      - id: "create-architecture"
+        agent: "architect"
+        command: "create-architecture"
+        status: "required"
+      - id: "create-epics-and-stories"
+        agent: "pm"
+        command: "create-epics-and-stories"
+        status: "required"
+      - id: "test-design"
+        agent: "tea"
+        command: "test-design"
+        status: "recommended"
+      - id: "validate-architecture"
+        agent: "architect"
+        command: "validate-architecture"
+        status: "optional"
+      - id: "implementation-readiness"
+        agent: "architect"
+        command: "implementation-readiness"
+        status: "required"
+  - phase: 3
+    name: "Implementation"
+    required: true
+    workflows:
+      - id: "sprint-planning"
+        agent: "sm"
+        command: "sprint-planning"
+        status: "required"
+
