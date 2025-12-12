@@ -36,8 +36,9 @@ workflow_status:
       - id: "create-ux-design"
         agent: "ux-designer"
         command: "create-ux-design"
-        status: "conditional"
-        condition: "if_has_ui"
+        status: "completed"
+        completed_date: "2025-12-12"
+        output_file: "docs/ux-design-specification.md"
   - phase: 2
     name: "Solutioning"
     required: true
