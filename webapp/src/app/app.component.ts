@@ -1,17 +1,20 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DataService } from './core/services/data.service';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
+import { MapContainerComponent } from './features/map/components/map-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule],
+  imports: [RouterOutlet, CommonModule, MapContainerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, AfterViewInit {
+  @ViewChild(MapContainerComponent) mapComponent!: MapContainerComponent;
+
   title = 'jymap';
   events: ValidatedEvent[] = [];
   timeline: ValidatedTimelineItem[] = [];
@@ -70,10 +73,23 @@ export class AppComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    // 地圖組件初始化後，如果資料已載入，更新地圖標記
+    if (this.events.length > 0 && this.mapComponent) {
+      this.mapComponent.updateMarkers(this.events);
+    }
+  }
+
   private checkLoadingComplete(): void {
     // 只要事件資料載入完成即可（時間軸載入失敗不影響主要功能）
     if (this.events.length > 0) {
       this.loading = false;
+      // 更新地圖標記
+      if (this.mapComponent) {
+        setTimeout(() => {
+          this.mapComponent.updateMarkers(this.events);
+        }, 500);
+      }
     }
   }
 

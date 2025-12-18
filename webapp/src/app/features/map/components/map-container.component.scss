@@ -1,0 +1,91 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 600px;
+  min-height: 600px;
+}
+
+.map-container {
+  width: 100% !important;
+  height: 600px !important;
+  min-height: 600px !important;
+  position: relative;
+  z-index: 0;
+  display: block;
+  background-color: #f4e4bc; // 復古紙張底色，如果地圖未載入可以看到背景
+
+  // 確保 Leaflet 地圖容器正確顯示
+  :host ::ng-deep {
+    .leaflet-container {
+      width: 100%;
+      height: 100%;
+      font-family: inherit;
+      background-color: #f4e4bc; // 復古紙張底色
+    }
+
+    // Old Maps 風格底圖樣式
+    .old-maps-layer {
+      // 添加復古濾鏡效果，增強歷史地圖的視覺特徵
+      filter: sepia(20%) contrast(1.1) brightness(0.95);
+      
+      // 確保底圖與標記有足夠的對比度（符合 WCAG 2.1 AA 標準）
+      // 透過調整對比度和亮度，確保文字和標記清晰可見
+    }
+
+    .leaflet-popup-content-wrapper {
+      border-radius: 8px;
+    }
+
+    .marker-popup {
+      h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.1rem;
+        color: #333;
+      }
+
+      p {
+        margin: 0.25rem 0;
+        font-size: 0.9rem;
+        color: #666;
+      }
+    }
+
+    // 中國水墨風格標記樣式
+    .ink-marker {
+      background: transparent;
+      border: none;
+    }
+
+    .ink-marker-inner {
+      // 寬高由 JavaScript 動態設定，根據縮放級別調整
+      min-width: 20px;
+      min-height: 20px;
+      max-width: 32px;
+      max-height: 32px;
+      // 增強標記對比度，確保在 Old Maps 底圖上清晰可見（符合 WCAG 2.1 AA 標準）
+      background: radial-gradient(circle, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.5) 50%, transparent 100%);
+      border-radius: 50%;
+      border: 2px solid rgba(0, 0, 0, 0.8);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 255, 255, 0.8);
+      cursor: pointer;
+      // 使用 GPU 加速的動畫屬性，確保 60fps（符合 NFR8）
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, width 0.2s ease-out, height 0.2s ease-out;
+      will-change: transform, opacity;
+      // 確保標記可讀性（符合 NFR35）
+      pointer-events: auto;
+
+      &:hover {
+        transform: scale(1.2);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.6), 0 0 0 3px rgba(255, 255, 255, 1);
+      }
+
+      // 觸控裝置優化（符合 NFR31, NFR32）
+      @media (hover: none) and (pointer: coarse) {
+        // 觸控裝置上增大點擊區域
+        min-width: 24px;
+        min-height: 24px;
+      }
+    }
+  }
+}
+

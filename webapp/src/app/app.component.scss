@@ -26,9 +26,42 @@
 .app-main {
   flex: 1;
   padding: 2rem;
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+}
+
+.map-section {
+  margin-bottom: 2rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h2 {
+    margin: 0 0 1rem 0;
+    font-size: 1.5rem;
+    color: #333;
+    border-bottom: 2px solid #4a90e2;
+    padding-bottom: 0.5rem;
+  }
+
+  app-map-container {
+    display: block;
+    width: 100%;
+    height: 600px;
+    min-height: 600px;
+    border-radius: 4px;
+    overflow: hidden;
+    
+    // 確保內部地圖容器有尺寸
+    ::ng-deep .map-container {
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 600px !important;
+    }
+  }
 }
 
 .loading {

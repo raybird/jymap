@@ -19,6 +19,16 @@
     }
 
     @if (!loading && !error) {
+      <!-- 地圖區域 -->
+      <section class="map-section">
+        <h2>地圖視圖</h2>
+        <app-map-container 
+          [events]="events"
+          [center]="[35.0, 105.0]"
+          [zoom]="5">
+        </app-map-container>
+      </section>
+
       <div class="data-preview">
         @if (validationStats) {
           <section class="validation-stats">
