@@ -20,17 +20,64 @@
 
     @if (!loading && !error) {
       <div class="data-preview">
+        @if (validationStats) {
+          <section class="validation-stats">
+            <h2>資料驗證統計</h2>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">總數：</span>
+                <span class="stat-value">{{ validationStats.total }}</span>
+              </div>
+              <div class="stat-item stat-valid">
+                <span class="stat-label">有效：</span>
+                <span class="stat-value">{{ validationStats.valid }}</span>
+              </div>
+              <div class="stat-item stat-warning">
+                <span class="stat-label">座標無效：</span>
+                <span class="stat-value">{{ validationStats.invalidCoordinates }}</span>
+                <span class="stat-rate">({{ validationStats.invalidCoordinatesRate.toFixed(2) }}%)</span>
+              </div>
+              <div class="stat-item stat-warning">
+                <span class="stat-label">資料不完整：</span>
+                <span class="stat-value">{{ validationStats.incompleteData }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">必填欄位覆蓋率：</span>
+                <span class="stat-value" [class.stat-good]="validationStats.requiredFieldsCoverage >= 95"
+                      [class.stat-bad]="validationStats.requiredFieldsCoverage < 95">
+                  {{ validationStats.requiredFieldsCoverage.toFixed(2) }}%
+                </span>
+              </div>
+            </div>
+          </section>
+        }
+
         <section class="events-section">
           <h2>事件資料 ({{ events.length }} 筆)</h2>
           <ul class="events-list">
             @for (event of events; track event.id) {
-              <li class="event-item">
-                <h3>{{ event.title }}</h3>
+              <li class="event-item" [class.event-invalid]="event.validationStatus !== 'valid'">
+                <div class="event-header">
+                  <h3>{{ event.title }}</h3>
+                  <span class="status-badge" [ngClass]="getStatusBadgeClass(event.validationStatus)">
+                    {{ getStatusText(event.validationStatus) }}
+                  </span>
+                </div>
                 <p><strong>朝代：</strong>{{ event.dynasty }} | <strong>年份：</strong>{{ event.year }}</p>
                 <p><strong>作品：</strong>{{ event.novel }}</p>
                 <p><strong>人物：</strong>{{ event.characters.join(', ') }}</p>
                 @if (event.description) {
                   <p class="description">{{ event.description }}</p>
+                }
+                @if (event.validationErrors && event.validationErrors.length > 0) {
+                  <div class="validation-errors">
+                    <strong>驗證問題：</strong>
+                    <ul>
+                      @for (error of event.validationErrors; track $index) {
+                        <li>{{ error }}</li>
+                      }
+                    </ul>
+                  </div>
                 }
               </li>
             }
@@ -41,9 +88,12 @@
           <h2>時間軸資料 ({{ timeline.length }} 筆)</h2>
           <ul class="timeline-list">
             @for (item of timeline; track item.year) {
-              <li class="timeline-item">
+              <li class="timeline-item" [class.timeline-invalid]="item.validationStatus !== 'valid'">
                 <strong>{{ item.year }}</strong> ({{ item.dynasty }}) - 
                 事件數：{{ item.eventIds.length }}
+                @if (item.validationStatus !== 'valid') {
+                  <span class="status-badge badge-invalid">⚠ 無效</span>
+                }
               </li>
             }
           </ul>
