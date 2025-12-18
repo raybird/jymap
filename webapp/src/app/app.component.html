@@ -29,6 +29,12 @@
         </app-map-container>
       </section>
 
+      <!-- 時間軸區域 -->
+      <section class="timeline-section-main">
+        <h2>時間軸</h2>
+        <app-timeline-container [timelineItems]="timeline"></app-timeline-container>
+      </section>
+
       <div class="data-preview">
         @if (validationStats) {
           <section class="validation-stats">

@@ -1,0 +1,52 @@
+<div class="timeline-wrapper">
+  <div 
+    class="timeline-container" 
+    #timelineContainer
+    [class.dragging]="isDragging">
+    <div class="timeline-track" #timelineTrack>
+      <!-- 朝代視覺帶 -->
+      <div class="dynasty-bands">
+        @for (band of dynastyBands; track band.name) {
+          <div 
+            class="dynasty-band" 
+            [style.left]="getDynastyBandStyle(band).left"
+            [style.width]="getDynastyBandStyle(band).width"
+            [style.background-color]="band.color">
+            <span class="dynasty-label">{{ band.name }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- 年份刻度 -->
+      <div class="year-ticks">
+        @for (year of getYearTicks(); track year) {
+          <div 
+            class="year-tick" 
+            [class.major-tick]="year % 100 === 0"
+            [class.minor-tick]="year % 50 === 0 && year % 100 !== 0"
+            [style.left]="getYearPosition(year) + '%'">
+            @if (year % 100 === 0 || year % 50 === 0) {
+              <span class="year-label">{{ formatYear(year) }}</span>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- 時間範圍選擇區域（Story 3.4） -->
+      @if (selectedStartYear !== null && selectedEndYear !== null) {
+        <div 
+          class="time-selection" 
+          [style.left]="getSelectionStyle()?.left"
+          [style.width]="getSelectionStyle()?.width">
+          <div class="selection-handle selection-handle-start" title="拖曳調整起始時間"></div>
+          <div class="selection-handle selection-handle-end" title="拖曳調整結束時間"></div>
+          <div class="selection-label">
+            <span>{{ formatYear(selectedStartYear) }} - {{ formatYear(selectedEndYear) }}</span>
+            <button class="clear-selection" (click)="clearSelection()" aria-label="清除選擇">×</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+

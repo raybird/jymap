@@ -4,11 +4,12 @@ import { CommonModule } from '@angular/common';
 import { DataService } from './core/services/data.service';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
 import { MapContainerComponent } from './features/map/components/map-container.component';
+import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MapContainerComponent],
+  imports: [RouterOutlet, CommonModule, MapContainerComponent, TimelineContainerComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
