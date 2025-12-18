@@ -1,0 +1,56 @@
+<div class="app-container">
+  <header class="app-header">
+    <h1>{{ title }}</h1>
+    <p>金庸世界時空地圖</p>
+  </header>
+
+  <main class="app-main">
+    @if (loading) {
+      <div class="loading">
+        <p>載入資料中...</p>
+      </div>
+    }
+
+    @if (error) {
+      <div class="error">
+        <p>❌ {{ error }}</p>
+        <button (click)="loadData()">重試</button>
+      </div>
+    }
+
+    @if (!loading && !error) {
+      <div class="data-preview">
+        <section class="events-section">
+          <h2>事件資料 ({{ events.length }} 筆)</h2>
+          <ul class="events-list">
+            @for (event of events; track event.id) {
+              <li class="event-item">
+                <h3>{{ event.title }}</h3>
+                <p><strong>朝代：</strong>{{ event.dynasty }} | <strong>年份：</strong>{{ event.year }}</p>
+                <p><strong>作品：</strong>{{ event.novel }}</p>
+                <p><strong>人物：</strong>{{ event.characters.join(', ') }}</p>
+                @if (event.description) {
+                  <p class="description">{{ event.description }}</p>
+                }
+              </li>
+            }
+          </ul>
+        </section>
+
+        <section class="timeline-section">
+          <h2>時間軸資料 ({{ timeline.length }} 筆)</h2>
+          <ul class="timeline-list">
+            @for (item of timeline; track item.year) {
+              <li class="timeline-item">
+                <strong>{{ item.year }}</strong> ({{ item.dynasty }}) - 
+                事件數：{{ item.eventIds.length }}
+              </li>
+            }
+          </ul>
+        </section>
+      </div>
+    }
+  </main>
+</div>
+
+<router-outlet />

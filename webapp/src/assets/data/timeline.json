@@ -1,0 +1,18 @@
+[
+  {
+    "year": 1127,
+    "dynasty": "北宋",
+    "eventIds": ["event-001"]
+  },
+  {
+    "year": 1200,
+    "dynasty": "南宋",
+    "eventIds": ["event-003"]
+  },
+  {
+    "year": 1267,
+    "dynasty": "南宋",
+    "eventIds": ["event-002"]
+  }
+]
+
