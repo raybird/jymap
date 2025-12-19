@@ -1,340 +1,220 @@
-.app-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+.app-viewport {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f4e4bc; // 復古底色
+  font-family: 'Inter', 'Noto Sans TC', sans-serif;
 }
 
-.app-header {
-  background: #f5f5f5;
-  padding: 1.5rem;
-  border-bottom: 1px solid #ddd;
-  text-align: center;
-
-  h1 {
-    margin: 0 0 0.5rem 0;
-    font-size: 2rem;
-    color: #333;
-  }
-
-  p {
-    margin: 0;
-    color: #666;
-    font-size: 1rem;
-  }
-}
-
-.app-main {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1400px;
-  margin: 0 auto;
+// 地圖層：底層，填滿全螢幕
+.map-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-}
-
-.search-section {
-  margin-bottom: 2rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.map-section {
-  margin-bottom: 2rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-  h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 0.5rem;
-  }
+  height: 100%;
+  z-index: 1;
+  background-color: #f4e4bc; // 確保有復古底色
 
   app-map-container {
     display: block;
     width: 100%;
-    height: 600px;
-    min-height: 600px;
-    border-radius: 4px;
-    overflow: hidden;
-    
-    // 確保內部地圖容器有尺寸
-    ::ng-deep .map-container {
-      width: 100% !important;
-      height: 100% !important;
-      min-height: 600px !important;
+    height: 100%;
+
+    ::ng-deep {
+
+      .map-container,
+      .leaflet-container {
+        width: 100% !important;
+        height: 100% !important;
+        background-color: transparent !important;
+      }
     }
   }
 }
 
-.timeline-section-main {
-  margin-bottom: 2rem;
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+// UI 浮動層：覆蓋在地圖上
+.ui-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 100; // 提高層級
+  pointer-events: none; // 預設穿透，各子組件需自行開啟 pointer-events: auto
+}
 
-  h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 0.5rem;
+// 通用玻璃特效樣式
+%glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  pointer-events: auto; // 重要：核心 UI 必須開啟此項才能操作
+  border-radius: 12px;
+}
+
+// 上方浮動層：搜尋框
+.top-overlay {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 300; // 最上層
+  pointer-events: none; // 穿透，但內部的 app-search-box 與結果會開啟
+
+  app-search-box {
+    width: 100%;
+    @extend %glass-panel;
+    padding: 4px;
+    z-index: 310;
   }
+
+  .search-results-overlay {
+    width: 100%;
+    @extend %glass-panel;
+    max-height: 400px;
+    overflow-y: auto;
+    animation: fadeInDown 0.3s ease-out;
+    z-index: 320;
+  }
+}
+
+// 左側浮動層：事件卡片
+.left-overlay {
+  position: absolute;
+  top: 100px;
+  left: 24px;
+  bottom: 240px;
+  width: 320px;
+  z-index: 250;
+  pointer-events: none;
+
+  .event-card-container {
+    @extend %glass-panel;
+    width: 100%;
+    max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInLeft 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+    pointer-events: auto;
+  }
+}
+
+// 下方浮動層：時間軸
+.bottom-overlay {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  right: 24px;
+  height: 180px;
+  z-index: 200; // 確保在 UI 層中也是明確的高層級
+  pointer-events: auto !important; // 確保點擊有效
 
   app-timeline-container {
+    @extend %glass-panel;
     display: block;
     width: 100%;
+    height: 100%;
+    padding: 0;
+    overflow: hidden;
+    pointer-events: auto;
   }
 }
 
-.loading {
-  text-align: center;
-  padding: 3rem;
-  font-size: 1.2rem;
-  color: #666;
-}
-
-.error {
-  background: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  padding: 1.5rem;
-  margin: 1rem 0;
-  text-align: center;
-
-  p {
-    margin: 0 0 1rem 0;
-    color: #c33;
-    font-weight: 500;
-  }
-
-  button {
-    background: #c33;
-    color: white;
-    border: none;
-    padding: 0.5rem 1.5rem;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 1rem;
-
-    &:hover {
-      background: #a22;
-    }
-  }
-}
-
-.data-preview {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: 1fr 1fr;
-
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.validation-stats {
-  grid-column: 1 / -1;
-  background: #f0f7ff;
-  border: 1px solid #4a90e2;
-  border-radius: 8px;
-  padding: 1.5rem;
-
-  h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 0.5rem;
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-}
-
-.stat-item {
-  background: white;
-  padding: 0.75rem;
-  border-radius: 4px;
-  border-left: 4px solid #4a90e2;
-
-  &.stat-valid {
-    border-left-color: #28a745;
-  }
-
-  &.stat-warning {
-    border-left-color: #ffc107;
-  }
-
-  .stat-label {
-    display: block;
-    font-size: 0.85rem;
-    color: #666;
-    margin-bottom: 0.25rem;
-  }
-
-  .stat-value {
-    display: inline-block;
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #333;
-
-    &.stat-good {
-      color: #28a745;
-    }
-
-    &.stat-bad {
-      color: #dc3545;
-    }
-  }
-
-  .stat-rate {
-    font-size: 0.85rem;
-    color: #666;
-    margin-left: 0.5rem;
-  }
-}
-
-.events-section,
-.timeline-section {
-  background: white;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 1.5rem;
-
-  h2 {
-    margin: 0 0 1rem 0;
-    font-size: 1.5rem;
-    color: #333;
-    border-bottom: 2px solid #4a90e2;
-    padding-bottom: 0.5rem;
-  }
-}
-
-.events-list,
-.timeline-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.event-item {
-  background: #f9f9f9;
-  border-left: 4px solid #4a90e2;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  border-radius: 4px;
-
-  &.event-invalid {
-    border-left-color: #ffc107;
-    background: #fffbf0;
-  }
-
-  .event-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 0.5rem;
-  }
-
-  h3 {
-    margin: 0;
-    color: #333;
-    font-size: 1.2rem;
-  }
-
-  .status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 12px;
-    font-size: 0.75rem;
-    font-weight: 500;
-    white-space: nowrap;
-
-    &.badge-valid {
-      background: #d4edda;
-      color: #155724;
-    }
-
-    &.badge-invalid-coords {
-      background: #fff3cd;
-      color: #856404;
-    }
-
-    &.badge-incomplete {
-      background: #f8d7da;
-      color: #721c24;
-    }
-
-    &.badge-invalid {
-      background: #f8d7da;
-      color: #721c24;
-    }
-  }
-
-  .validation-errors {
-    margin-top: 0.75rem;
-    padding: 0.75rem;
-    background: #fff3cd;
-    border-left: 3px solid #ffc107;
-    border-radius: 4px;
-    font-size: 0.85rem;
-
-    strong {
-      display: block;
-      margin-bottom: 0.5rem;
-      color: #856404;
-    }
-
-    ul {
-      margin: 0;
-      padding-left: 1.25rem;
-      color: #856404;
-    }
-
-    li {
-      margin: 0.25rem 0;
-    }
-  }
-
-  p {
-    margin: 0.25rem 0;
-    color: #666;
-    font-size: 0.9rem;
-  }
-
-  .description {
-    margin-top: 0.5rem;
-    padding-top: 0.5rem;
-    border-top: 1px solid #eee;
-    font-style: italic;
-    color: #555;
-  }
-}
-
-.timeline-item {
-  padding: 0.75rem;
-  margin-bottom: 0.5rem;
-  background: #f0f7ff;
-  border-radius: 4px;
-  color: #333;
+// 覆蓋層：載入與錯誤
+.loading-overlay,
+.error-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(244, 228, 188, 0.8);
+  backdrop-filter: blur(4px);
+  z-index: 100;
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  justify-content: center;
   align-items: center;
+  color: #2c3e50;
+}
 
-  &.timeline-invalid {
-    background: #fff3cd;
-    border-left: 3px solid #ffc107;
+.loader {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #2c3e50;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }
 
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// 針對行動裝置/平板的調整
+@media (max-width: 1024px) {
+  .left-overlay {
+    width: 280px;
+    bottom: 200px;
+  }
+
+  .bottom-overlay {
+    bottom: 16px;
+    left: 16px;
+    right: 16px;
+    height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .left-overlay {
+    left: 10px;
+    right: 10px;
+    width: auto;
+    top: 80px;
+    bottom: auto;
+    max-height: 40%;
+  }
+}

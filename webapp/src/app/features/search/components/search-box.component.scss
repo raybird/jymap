@@ -1,18 +1,17 @@
 .search-box-container {
   width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 1rem;
+  margin: 0;
+  padding: 0;
 }
 
 .search-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  background: rgba(255, 255, 255, 0.95);
-  border: 2px solid rgba(0, 0, 0, 0.2);
+  background: transparent;
+  border: none;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  // 移除 shadow，因為父層已經有了
   transition: all 0.2s ease;
 
   &:focus-within {
@@ -92,4 +91,3 @@
     font-size: 0.75rem;
   }
 }
-

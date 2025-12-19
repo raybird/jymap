@@ -1,141 +1,65 @@
-<div class="app-container">
-  <header class="app-header">
-    <h1>{{ title }}</h1>
-    <p>金庸世界時空地圖</p>
-  </header>
+<div class="app-viewport">
+  <!-- 全螢幕地圖層 -->
+  <div class="map-layer">
+    <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5" (eventClick)="selectedEvent = $event">
+    </app-map-container>
+  </div>
 
-  <main class="app-main">
-    @if (loading$ | async) {
-      <div class="loading">
-        <p>載入資料中...</p>
+  <!-- UI 浮動層 -->
+  <div class="ui-layer">
+    <!-- 上方：搜尋框 -->
+    <div class="top-overlay">
+      <app-search-box (searchResultsChange)="onSearchResultsChange($event)"
+        (searchKeywordChange)="onSearchKeywordChange($event)">
+      </app-search-box>
+
+      @if (searchKeyword && searchKeyword.trim().length > 0) {
+      <div class="search-results-overlay">
+        <app-search-results [results]="searchResults" [maxResults]="10" [showTopResults]="true"
+          (resultClick)="onSearchResultClick($event)">
+        </app-search-results>
       </div>
-    }
+      }
+    </div>
 
-    @if (error$ | async; as error) {
-      <div class="error">
-        <p>❌ {{ error }}</p>
-        <button (click)="loadData()">重試</button>
+    <!-- 左側：事件卡片 (Epic 6 預留位置) -->
+    <div class="left-overlay">
+      <!-- 這裡先預留一個簡單的卡片容器，之後可以串接選中的事件 -->
+      @if (selectedEvent) {
+      <div class="event-card-container">
+        <div class="event-card-header">
+          <h3>{{ selectedEvent.title }}</h3>
+          <button class="close-card" (click)="selectedEvent = null">×</button>
+        </div>
+        <div class="event-card-body">
+          <p><strong>朝代：</strong>{{ selectedEvent.dynasty }}</p>
+          <p><strong>年份：</strong>{{ selectedEvent.year }}</p>
+          <p><strong>作品：</strong>{{ selectedEvent.novel }}</p>
+          <p class="description">{{ selectedEvent.description }}</p>
+        </div>
       </div>
-    }
+      }
+    </div>
 
-    @if (!(loading$ | async) && !(error$ | async)) {
-      <!-- 搜尋區域 -->
-      <section class="search-section">
-        <app-search-box
-          (searchResultsChange)="onSearchResultsChange($event)"
-          (searchKeywordChange)="onSearchKeywordChange($event)">
-        </app-search-box>
-        
-        @if (searchKeyword && searchKeyword.trim().length > 0) {
-          <app-search-results
-            [results]="searchResults"
-            [maxResults]="20"
-            [showTopResults]="true"
-            (resultClick)="onSearchResultClick($event)">
-          </app-search-results>
-        }
-      </section>
+    <!-- 下方：時間軸 -->
+    <div class="bottom-overlay">
+      <app-timeline-container [timelineItems]="(timeline$ | async) || []" (timeRangeChange)="onTimeRangeChange($event)">
+      </app-timeline-container>
+    </div>
+  </div>
 
-      <!-- 地圖區域 -->
-      <section class="map-section">
-        <h2>地圖視圖</h2>
-        <app-map-container 
-          [center]="[35.0, 105.0]"
-          [zoom]="5.5">
-        </app-map-container>
-      </section>
+  <!-- 載入與錯誤提示（置中浮動） -->
+  @if (loading$ | async) {
+  <div class="loading-overlay">
+    <div class="loader"></div>
+    <p>載入金庸世界中...</p>
+  </div>
+  }
 
-      <!-- 時間軸區域 -->
-      <section class="timeline-section-main">
-        <h2>時間軸</h2>
-        <app-timeline-container 
-          [timelineItems]="(timeline$ | async) || []"
-          (timeRangeChange)="onTimeRangeChange($event)">
-        </app-timeline-container>
-      </section>
-
-      <div class="data-preview">
-        @if (validationStats$ | async; as validationStats) {
-          <section class="validation-stats">
-            <h2>資料驗證統計</h2>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <span class="stat-label">總數：</span>
-                <span class="stat-value">{{ validationStats.total }}</span>
-              </div>
-              <div class="stat-item stat-valid">
-                <span class="stat-label">有效：</span>
-                <span class="stat-value">{{ validationStats.valid }}</span>
-              </div>
-              <div class="stat-item stat-warning">
-                <span class="stat-label">座標無效：</span>
-                <span class="stat-value">{{ validationStats.invalidCoordinates }}</span>
-                <span class="stat-rate">({{ validationStats.invalidCoordinatesRate.toFixed(2) }}%)</span>
-              </div>
-              <div class="stat-item stat-warning">
-                <span class="stat-label">資料不完整：</span>
-                <span class="stat-value">{{ validationStats.incompleteData }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">必填欄位覆蓋率：</span>
-                <span class="stat-value" [class.stat-good]="validationStats.requiredFieldsCoverage >= 95"
-                      [class.stat-bad]="validationStats.requiredFieldsCoverage < 95">
-                  {{ validationStats.requiredFieldsCoverage.toFixed(2) }}%
-                </span>
-              </div>
-            </div>
-          </section>
-        }
-
-        <section class="events-section">
-          <h2>事件資料 ({{ (events$ | async)?.length || 0 }} 筆)</h2>
-          <ul class="events-list">
-            @for (event of (events$ | async); track event.id) {
-              <li class="event-item" [class.event-invalid]="event.validationStatus !== 'valid'">
-                <div class="event-header">
-                  <h3>{{ event.title }}</h3>
-                  <span class="status-badge" [ngClass]="getStatusBadgeClass(event.validationStatus)">
-                    {{ getStatusText(event.validationStatus) }}
-                  </span>
-                </div>
-                <p><strong>朝代：</strong>{{ event.dynasty }} | <strong>年份：</strong>{{ event.year }}</p>
-                <p><strong>作品：</strong>{{ event.novel }}</p>
-                <p><strong>人物：</strong>{{ event.characters.join(', ') }}</p>
-                @if (event.description) {
-                  <p class="description">{{ event.description }}</p>
-                }
-                @if (event.validationErrors && event.validationErrors.length > 0) {
-                  <div class="validation-errors">
-                    <strong>驗證問題：</strong>
-                    <ul>
-                      @for (error of event.validationErrors; track $index) {
-                        <li>{{ error }}</li>
-                      }
-                    </ul>
-                  </div>
-                }
-              </li>
-            }
-          </ul>
-        </section>
-
-        <section class="timeline-section">
-          <h2>時間軸資料 ({{ (timeline$ | async)?.length || 0 }} 筆)</h2>
-          <ul class="timeline-list">
-            @for (item of (timeline$ | async); track item.year) {
-              <li class="timeline-item" [class.timeline-invalid]="item.validationStatus !== 'valid'">
-                <strong>{{ item.year }}</strong> ({{ item.dynasty }}) - 
-                事件數：{{ item.eventIds.length }}
-                @if (item.validationStatus !== 'valid') {
-                  <span class="status-badge badge-invalid">⚠ 無效</span>
-                }
-              </li>
-            }
-          </ul>
-        </section>
-      </div>
-    }
-  </main>
+  @if (error$ | async; as error) {
+  <div class="error-overlay">
+    <p>❌ {{ error }}</p>
+    <button (click)="loadData()">重試</button>
+  </div>
+  }
 </div>
-
-<router-outlet />

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
@@ -26,10 +26,11 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
   @Input() center: [number, number] = [35.0, 105.0]; // 中國中心位置
   @Input() zoom: number = 5;
+  @Output() eventClick = new EventEmitter<ValidatedEvent>();
 
   // NgRx 訂閱
   visibleEvents$: Observable<ValidatedEvent[]>;
-  
+
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private baseLayer: L.TileLayer | null = null;
@@ -38,7 +39,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   constructor(private store: Store<AppState>) {
     // 訂閱 NgRx Store 中的可見事件（Story 4.2：時間軸與地圖狀態同步）
     this.visibleEvents$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
-    
+
     // 訂閱可見事件變化，自動更新地圖標記
     this.visibleEvents$.pipe(
       takeUntil(this.destroy$)
@@ -68,7 +69,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         return;
       }
       this.initMap();
-      
+
       // 地圖初始化完成後，檢查是否有已載入的事件並添加標記
       // 因為訂閱可能在 map 初始化前就觸發過，所以手動獲取當前值
       this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(
@@ -89,7 +90,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-    
+
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -235,7 +236,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 建立標記
     const marker = L.marker([event.lat, event.lng], { icon });
-    
+
     // 儲存 eventId 以便後續比較（用於 updateMarkers）
     (marker as any).eventId = event.id;
 
@@ -252,7 +253,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     // 添加點擊事件（符合 NFR5: 點擊回應時間 < 500ms）
     marker.on('click', () => {
       Logger.debug('標記點擊:', event.title);
-      
+
       // 添加點擊視覺回饋
       const markerElement = marker.getElement();
       if (markerElement) {
@@ -261,7 +262,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
           // 點擊時放大並高亮
           innerElement.style.transform = 'scale(1.5)';
           innerElement.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.8), 0 0 0 4px rgba(255, 255, 255, 1)';
-          
+
           // 200ms 後恢復
           setTimeout(() => {
             innerElement.style.transform = '';
@@ -269,11 +270,12 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
           }, 200);
         }
       }
-      
+
       // 打開彈出視窗
       marker.openPopup();
-      
-      // 後續可以發送事件給父組件（使用 @Output 或 EventEmitter）
+
+      // 通知父組件
+      this.eventClick.emit(event);
     });
 
     // 添加滑鼠懸停效果
@@ -311,7 +313,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     const baseSize = 20;
     // 縮放級別越高，標記稍微變大（但不會過大）
     const size = Math.min(baseSize + (currentZoom - 5) * 2, 32);
-    
+
     return L.divIcon({
       className: 'ink-marker',
       html: `<div class="ink-marker-inner" style="width: ${size}px; height: ${size}px;"></div>`,
@@ -344,10 +346,10 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 只處理有效座標的事件
     const validEvents = events.filter(
-      event => event.validationStatus === 'valid' && 
-               !isNaN(event.lat) && !isNaN(event.lng) &&
-               event.lat >= -90 && event.lat <= 90 &&
-               event.lng >= -180 && event.lng <= 180
+      event => event.validationStatus === 'valid' &&
+        !isNaN(event.lat) && !isNaN(event.lng) &&
+        event.lat >= -90 && event.lat <= 90 &&
+        event.lng >= -180 && event.lng <= 180
     );
 
     // 建立新事件 ID 集合
@@ -375,7 +377,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       if (markerElement) {
         markerElement.style.transition = 'opacity 200ms ease-out';
         markerElement.style.opacity = '0';
-        
+
         // 動畫完成後移除
         setTimeout(() => {
           if (this.map && this.markers.includes(marker)) {
@@ -405,7 +407,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         if (marker) {
           // 儲存 eventId 以便後續比較
           (marker as any).eventId = event.id;
-          
+
           const markerElement = marker.getElement();
           if (markerElement) {
             markerElement.style.opacity = '0';
@@ -482,7 +484,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 找到對應的標記
     const marker = this.markers.find(m => (m as any).eventId === eventId);
-    
+
     if (!marker) {
       Logger.warn('找不到對應的標記:', eventId);
       return;
@@ -490,11 +492,11 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 獲取標記位置
     const position = marker.getLatLng();
-    
+
     // 飛到標記位置並縮放（如果當前縮放級別太小）
     const currentZoom = this.map.getZoom();
     const targetZoom = Math.max(currentZoom, 8); // 至少縮放到 8 級
-    
+
     this.map.flyTo(position, targetZoom, {
       duration: 0.8, // 動畫時間 0.8 秒
       easeLinearity: 0.25
@@ -509,10 +511,10 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         innerElement.style.transform = 'scale(1.5)';
         innerElement.style.boxShadow = '0 4px 16px rgba(255, 193, 7, 0.8), 0 0 0 4px rgba(255, 193, 7, 0.4)';
         innerElement.style.zIndex = '1000';
-        
+
         // 打開彈出視窗
         marker.openPopup();
-        
+
         // 3 秒後恢復正常樣式
         setTimeout(() => {
           if (innerElement) {

@@ -1,18 +1,16 @@
 :host {
   display: block;
   width: 100%;
-  height: 600px;
-  min-height: 600px;
+  height: 100%;
 }
 
 .map-container {
   width: 100% !important;
-  height: 600px !important;
-  min-height: 600px !important;
+  height: 100% !important;
   position: relative;
   z-index: 0;
   display: block;
-  background-color: #f4e4bc; // 復古紙張底色，如果地圖未載入可以看到背景
+  background-color: #f4e4bc; // 復古紙張底色
 
   // 確保 Leaflet 地圖容器正確顯示
   :host ::ng-deep {
@@ -27,7 +25,7 @@
     .old-maps-layer {
       // 添加復古濾鏡效果，增強歷史地圖的視覺特徵
       filter: sepia(20%) contrast(1.1) brightness(0.95);
-      
+
       // 確保底圖與標記有足夠的對比度（符合 WCAG 2.1 AA 標準）
       // 透過調整對比度和亮度，確保文字和標記清晰可見
     }
@@ -88,4 +86,3 @@
     }
   }
 }
-

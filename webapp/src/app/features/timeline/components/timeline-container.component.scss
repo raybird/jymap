@@ -1,41 +1,22 @@
 .timeline-wrapper {
   width: 100%;
-  background: #f5f5f5;
-  border-top: 2px solid #ddd;
-  padding: 1rem 0;
+  height: 100%;
+  background: transparent;
+  padding: 0;
   position: relative;
-  z-index: 10;
+  z-index: 200;
+  pointer-events: auto !important;
 }
 
 .timeline-container {
   width: 100%;
-  height: 160px;
+  height: 100%;
   overflow-x: auto;
   overflow-y: hidden;
   position: relative;
   cursor: grab;
   scroll-behavior: smooth;
-  
-  // 隱藏滾動條但保持功能
-  scrollbar-width: thin;
-  scrollbar-color: rgba(0, 0, 0, 0.3) transparent;
-  
-  &::-webkit-scrollbar {
-    height: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.3);
-    border-radius: 4px;
-  }
-  
-  &::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.5);
-  }
+  pointer-events: auto !important;
 
   &.dragging {
     cursor: grabbing;
@@ -47,40 +28,30 @@
   position: relative;
   height: 100%;
   min-width: 100%;
-  // 根據總年數計算寬度（每 10 年約 50px）
-  width: calc(2274 * 5px); // 約 11370px，確保所有年份都能顯示
-  background: linear-gradient(
-    to right,
-    rgba(139, 115, 85, 0.1) 0%,
-    rgba(107, 142, 159, 0.1) 40%,
-    rgba(122, 159, 139, 0.1) 50%,
-    rgba(159, 122, 107, 0.1) 60%,
-    rgba(139, 107, 122, 0.1) 70%,
-    rgba(122, 139, 107, 0.1) 80%,
-    rgba(139, 115, 85, 0.1) 100%
-  );
+  width: calc(2274 * 5px);
+  background: rgba(0, 0, 0, 0.03);
+  display: flex;
+  flex-direction: column;
 }
 
 .dynasty-bands {
-  position: absolute;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 40px;
-  z-index: 1;
+  height: 60px;
+  z-index: 5;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .dynasty-band {
   position: absolute;
   top: 0;
   height: 100%;
-  opacity: 0.3;
+  opacity: 0.8;
   border-left: 1px solid rgba(0, 0, 0, 0.2);
-  border-right: 1px solid rgba(0, 0, 0, 0.2);
-  transition: opacity 0.2s ease;
+  transition: all 0.2s ease;
 
   &:hover {
-    opacity: 0.5;
+    opacity: 0.8;
   }
 
   .dynasty-label {
@@ -88,86 +59,74 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: rgba(0, 0, 0, 0.8);
+    font-size: 1rem;
+    font-weight: 800;
+    color: #fff;
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
-    pointer-events: none;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
   }
 }
 
 .year-ticks {
-  position: absolute;
-  top: 40px; // 在朝代帶下方
-  left: 0;
+  position: relative;
   width: 100%;
-  height: 120px;
-  z-index: 2; // 確保在朝代帶上方
-  pointer-events: none; // 不阻擋拖曳操作
+  height: 100px;
+  z-index: 10;
 }
 
 .year-tick {
   position: absolute;
   top: 0;
-  width: 1px;
+  width: 2px;
   height: 100%;
   transform: translateX(-50%);
 
-  // 一般刻度（每 10 年）
   &::after {
     content: '';
     position: absolute;
     top: 0;
     left: 50%;
     transform: translateX(-50%);
-    width: 1px;
-    height: 10px;
-    background: rgba(0, 0, 0, 0.3); // 增加對比度，更容易看見
+    width: 2px;
+    height: 15px;
+    background: #333;
   }
 
-  // 次要刻度（每 50 年）
-  &.minor-tick {
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1px;
-      height: 15px;
-      background: rgba(0, 0, 0, 0.4);
-    }
-  }
+  // 次要刻度（每 50 年） - Removed as per instruction, but keeping the comment for context if needed.
+  // &.minor-tick {
+  //   &::before {
+  //     content: '';
+  //     position: absolute;
+  //     top: 0;
+  //     left: 50%;
+  //     transform: translateX(-50%);
+  //     width: 2px;
+  //     height: 18px;
+  //     background: rgba(0, 0, 0, 0.7);
+  //   }
+  // }
 
   // 主要刻度（每 100 年）
-  &.major-tick {
-    &::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 2px;
-      height: 20px;
-      background: rgba(0, 0, 0, 0.6);
-    }
+  &.major-tick::after {
+    height: 30px;
+    width: 3px;
+    background: #000;
   }
 
   .year-label {
     position: absolute;
-    top: 25px;
+    top: 35px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.75rem;
-    color: rgba(0, 0, 0, 0.8); // 增加對比度
+    font-size: 0.85rem;
+    color: #000;
     white-space: nowrap;
-    font-weight: 600; // 增加字重
-    text-shadow: 0 1px 3px rgba(255, 255, 255, 1); // 增強文字陰影
-    pointer-events: none;
-    background: rgba(255, 255, 255, 0.7); // 添加背景以提高可讀性
-    padding: 2px 4px;
-    border-radius: 2px;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 }
 
@@ -266,4 +225,3 @@
     font-size: 0.75rem;
   }
 }
-

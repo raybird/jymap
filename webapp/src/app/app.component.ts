@@ -43,8 +43,7 @@ export class AppComponent implements OnInit, OnDestroy {
   // 搜尋相關狀態
   searchResults: SearchResult[] = [];
   searchKeyword = '';
-
-  // 所有狀態都通過 Observable 和 async pipe 管理，無需本地變數
+  selectedEvent: ValidatedEvent | null = null;
 
   // 用於 debounce 時間範圍變化事件（符合 Story 4.4: 同步延遲 < 200ms）
   private timeRangeChange$ = new Subject<{ startYear: number; endYear: number } | null>();
@@ -65,9 +64,9 @@ export class AppComponent implements OnInit, OnDestroy {
       })
     ).subscribe(range => {
       if (range) {
-        this.store.dispatch(TimeMapActions.setTimeRange({ 
-          startYear: range.startYear, 
-          endYear: range.endYear 
+        this.store.dispatch(TimeMapActions.setTimeRange({
+          startYear: range.startYear,
+          endYear: range.endYear
         }));
       } else {
         this.store.dispatch(TimeMapActions.clearTimeRange());
@@ -168,7 +167,8 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   onSearchResultClick(event: ValidatedEvent): void {
     Logger.debug('搜尋結果點擊:', event.title, '年份:', event.year);
-    
+    this.selectedEvent = event;
+
     // 跳轉時間軸到對應年份
     if (this.timelineComponent) {
       // 使用 setTimeout 確保動畫流暢
@@ -183,7 +183,7 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.mapComponent) {
       // 先飛到位置
       this.mapComponent.flyTo(event.lat, event.lng, 8);
-      
+
       // 然後高亮標記（等待地圖動畫完成）
       setTimeout(() => {
         this.mapComponent.highlightMarker(event.id);
