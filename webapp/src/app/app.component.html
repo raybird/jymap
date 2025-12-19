@@ -19,6 +19,23 @@
     }
 
     @if (!(loading$ | async) && !(error$ | async)) {
+      <!-- 搜尋區域 -->
+      <section class="search-section">
+        <app-search-box
+          (searchResultsChange)="onSearchResultsChange($event)"
+          (searchKeywordChange)="onSearchKeywordChange($event)">
+        </app-search-box>
+        
+        @if (searchKeyword && searchKeyword.trim().length > 0) {
+          <app-search-results
+            [results]="searchResults"
+            [maxResults]="20"
+            [showTopResults]="true"
+            (resultClick)="onSearchResultClick($event)">
+          </app-search-results>
+        }
+      </section>
+
       <!-- 地圖區域 -->
       <section class="map-section">
         <h2>地圖視圖</h2>

@@ -1,0 +1,36 @@
+<div class="search-box-container">
+  <div class="search-input-wrapper">
+    <input
+      #searchInput
+      type="text"
+      class="search-input"
+      [value]="searchKeyword"
+      (input)="onSearchInput($event)"
+      (keydown)="onKeyDown($event)"
+      placeholder="搜尋地點、事件、人物、小說名稱..."
+      aria-label="搜尋地點、事件、人物、小說名稱"
+      aria-describedby="search-hint"
+      autocomplete="off"
+    />
+    @if (searchKeyword) {
+      <button
+        type="button"
+        class="clear-button"
+        (click)="clearSearch()"
+        aria-label="清除搜尋"
+        title="清除搜尋"
+      >
+        ✕
+      </button>
+    }
+    @if (isSearching) {
+      <span class="search-loading" aria-live="polite" aria-atomic="true">
+        搜尋中...
+      </span>
+    }
+  </div>
+  <p id="search-hint" class="search-hint">
+    支援模糊搜尋，可搜尋事件標題、朝代、人物、小說名稱等
+  </p>
+</div>
+

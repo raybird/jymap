@@ -469,5 +469,62 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   getMap(): L.Map | null {
     return this.map;
   }
+
+  /**
+   * 高亮顯示指定事件的標記（用於搜尋結果跳轉）
+   * Story 5.3: 搜尋結果與時間軸/地圖同步跳轉
+   */
+  highlightMarker(eventId: string): void {
+    if (!this.map) {
+      Logger.warn('地圖未初始化，無法高亮標記');
+      return;
+    }
+
+    // 找到對應的標記
+    const marker = this.markers.find(m => (m as any).eventId === eventId);
+    
+    if (!marker) {
+      Logger.warn('找不到對應的標記:', eventId);
+      return;
+    }
+
+    // 獲取標記位置
+    const position = marker.getLatLng();
+    
+    // 飛到標記位置並縮放（如果當前縮放級別太小）
+    const currentZoom = this.map.getZoom();
+    const targetZoom = Math.max(currentZoom, 8); // 至少縮放到 8 級
+    
+    this.map.flyTo(position, targetZoom, {
+      duration: 0.8, // 動畫時間 0.8 秒
+      easeLinearity: 0.25
+    });
+
+    // 高亮標記（添加視覺效果）
+    const markerElement = marker.getElement();
+    if (markerElement) {
+      const innerElement = markerElement.querySelector('.ink-marker-inner') as HTMLElement;
+      if (innerElement) {
+        // 添加高亮樣式
+        innerElement.style.transform = 'scale(1.5)';
+        innerElement.style.boxShadow = '0 4px 16px rgba(255, 193, 7, 0.8), 0 0 0 4px rgba(255, 193, 7, 0.4)';
+        innerElement.style.zIndex = '1000';
+        
+        // 打開彈出視窗
+        marker.openPopup();
+        
+        // 3 秒後恢復正常樣式
+        setTimeout(() => {
+          if (innerElement) {
+            innerElement.style.transform = '';
+            innerElement.style.boxShadow = '';
+            innerElement.style.zIndex = '';
+          }
+        }, 3000);
+      }
+    }
+
+    Logger.debug('高亮標記:', eventId, '位置:', position);
+  }
 }
 

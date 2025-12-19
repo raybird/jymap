@@ -1,0 +1,66 @@
+@if (results.length > 0) {
+  <div class="search-results-container" role="region" aria-label="搜尋結果">
+    <div class="results-header">
+      <h3>搜尋結果 ({{ results.length }})</h3>
+      @if (showTopResults && topResults.length > 0) {
+        <span class="top-results-badge">Top {{ topResults.length }} 最相關</span>
+      }
+    </div>
+    
+    <ul class="results-list" role="list">
+      @for (result of displayedResults; track result.event.id) {
+        <li 
+          class="result-item"
+          [class.top-result]="isTopResult(result)"
+          role="listitem"
+          [attr.aria-label]="result.event.title"
+        >
+          <button
+            type="button"
+            class="result-button"
+            (click)="onResultClick(result)"
+            [attr.aria-label]="'點擊查看 ' + result.event.title + ' 的詳細資訊'"
+          >
+            <div class="result-header">
+              <h4 class="result-title">{{ result.event.title }}</h4>
+              @if (isTopResult(result)) {
+                <span class="top-badge" aria-label="最相關結果">⭐</span>
+              }
+            </div>
+            
+            <div class="result-meta">
+              <span class="result-dynasty">{{ result.event.dynasty }}</span>
+              <span class="result-year">{{ result.event.year }}</span>
+              <span class="result-novel">{{ result.event.novel }}</span>
+            </div>
+            
+            @if (result.matchedFields.length > 0) {
+              <div class="result-matched-fields">
+                <span class="matched-label">匹配欄位：</span>
+                <span class="matched-fields">{{ getMatchedFieldsText(result.matchedFields) }}</span>
+              </div>
+            }
+            
+            <div class="result-relevance">
+              <span class="relevance-label">相關性：</span>
+              <span class="relevance-text">{{ getRelevanceText(result.score) }}</span>
+              <span class="relevance-score">({{ (result.score * 100).toFixed(0) }}%)</span>
+            </div>
+          </button>
+        </li>
+      }
+    </ul>
+    
+    @if (results.length > maxResults) {
+      <div class="results-footer">
+        <p>顯示前 {{ maxResults }} 個結果，共 {{ results.length }} 個結果</p>
+      </div>
+    }
+  </div>
+} @else {
+  <div class="no-results" role="status" aria-live="polite">
+    <p>無搜尋結果</p>
+    <p class="no-results-hint">請嘗試其他關鍵字或檢查拼寫</p>
+  </div>
+}
+

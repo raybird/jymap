@@ -409,6 +409,40 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   }
 
   /**
+   * 跳轉到指定年份（用於搜尋結果跳轉）
+   * Story 5.3: 搜尋結果與時間軸/地圖同步跳轉
+   */
+  scrollToYear(year: number): void {
+    if (!this.timelineContainer || !this.timelineTrack) {
+      Logger.warn('時間軸容器未初始化，無法跳轉');
+      return;
+    }
+
+    // 限制年份在有效範圍內
+    const targetYear = Math.max(this.minYear, Math.min(this.maxYear, year));
+    
+    // 計算目標年份在時間軸上的位置（百分比）
+    const yearPercent = this.getYearPosition(targetYear);
+    
+    // 計算目標 scrollLeft 位置
+    const trackWidth = this.timelineTrack.nativeElement.scrollWidth;
+    const containerWidth = this.timelineContainer.nativeElement.clientWidth;
+    const targetScrollLeft = (yearPercent / 100) * trackWidth - (containerWidth / 2);
+    
+    // 限制 scrollLeft 在有效範圍內
+    const maxScroll = trackWidth - containerWidth;
+    const finalScrollLeft = Math.max(0, Math.min(maxScroll, targetScrollLeft));
+    
+    // 平滑滾動到目標位置
+    this.timelineContainer.nativeElement.scrollTo({
+      left: finalScrollLeft,
+      behavior: 'smooth'
+    });
+
+    Logger.debug('時間軸跳轉到年份:', targetYear, '位置:', finalScrollLeft);
+  }
+
+  /**
    * 獲取當前可見的時間範圍
    */
   getVisibleTimeRange(): { start: number; end: number } {
