@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { Event, TimelineItem } from '../models';
 import { DataValidator, ValidatedEvent, ValidatedTimelineItem } from '../utils/data-validator';
+import { Logger } from '../utils/logger';
 
 /**
  * 資料載入結果（包含驗證資訊）
@@ -39,24 +40,24 @@ export class DataService {
   loadEvents(): Observable<DataLoadResult<ValidatedEvent[]>> {
     return this.http.get<Event[]>(this.eventsUrl).pipe(
       map((events) => {
-        // 驗證資料
-        const result = DataValidator.validateEvents(events);
+               // 驗證資料
+               const result = DataValidator.validateEvents(events);
 
-        // 記錄驗證統計
-        console.log('事件資料驗證統計:', result.stats);
+               // 記錄驗證統計
+               Logger.log('事件資料驗證統計:', result.stats);
 
-        // 檢查是否符合 NFR 要求
-        if (result.stats.invalidCoordinatesRate >= 5) {
-          console.warn(
-            `警告：無效座標率 ${result.stats.invalidCoordinatesRate.toFixed(2)}% 超過 5% 限制`
-          );
-        }
+               // 檢查是否符合 NFR 要求
+               if (result.stats.invalidCoordinatesRate >= 5) {
+                 Logger.warn(
+                   `警告：無效座標率 ${result.stats.invalidCoordinatesRate.toFixed(2)}% 超過 5% 限制`
+                 );
+               }
 
-        if (result.stats.requiredFieldsCoverage < 95) {
-          console.warn(
-            `警告：必填欄位覆蓋率 ${result.stats.requiredFieldsCoverage.toFixed(2)}% 低於 95% 要求`
-          );
-        }
+               if (result.stats.requiredFieldsCoverage < 95) {
+                 Logger.warn(
+                   `警告：必填欄位覆蓋率 ${result.stats.requiredFieldsCoverage.toFixed(2)}% 低於 95% 要求`
+                 );
+               }
 
         // 轉換為 DataLoadResult 格式
         return {
@@ -64,10 +65,10 @@ export class DataService {
           validationStats: result.stats
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('載入事件資料失敗:', error);
-        return this.handleError(error, '事件資料');
-      })
+             catchError((error: HttpErrorResponse) => {
+               Logger.error('載入事件資料失敗:', error);
+               return this.handleError(error, '事件資料');
+             })
     );
   }
 
@@ -81,20 +82,20 @@ export class DataService {
         // 驗證資料
         const validated = DataValidator.validateTimelineItems(items);
 
-        // 記錄驗證結果
-        const invalidCount = validated.filter(item => item.validationStatus === 'invalid').length;
-        if (invalidCount > 0) {
-          console.warn(`警告：發現 ${invalidCount} 個無效的時間軸項目`);
-        }
+               // 記錄驗證結果
+               const invalidCount = validated.filter(item => item.validationStatus === 'invalid').length;
+               if (invalidCount > 0) {
+                 Logger.warn(`警告：發現 ${invalidCount} 個無效的時間軸項目`);
+               }
 
         return {
           data: validated
         };
       }),
-      catchError((error: HttpErrorResponse) => {
-        console.error('載入時間軸資料失敗:', error);
-        return this.handleError(error, '時間軸資料');
-      })
+             catchError((error: HttpErrorResponse) => {
+               Logger.error('載入時間軸資料失敗:', error);
+               return this.handleError(error, '時間軸資料');
+             })
     );
   }
 

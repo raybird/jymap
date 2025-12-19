@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epic 1-4 測試執行器</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1e1e1e;
+            color: #d4d4d4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #4ec9b0;
+        }
+        .test-section {
+            background: #252526;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border-left: 4px solid #4ec9b0;
+        }
+        button {
+            background: #0e639c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #1177bb;
+        }
+        button.run-all {
+            background: #4ec9b0;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        button.run-all:hover {
+            background: #5dd9c0;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #1e1e1e;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-size: 12px;
+        }
+        .success {
+            color: #4ec9b0;
+        }
+        .error {
+            color: #f48771;
+        }
+        .info {
+            color: #dcdcaa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Epic 1-4 測試執行器</h1>
+        <p class="info">請先確保 http://localhost:4200 已打開並完全載入</p>
+        
+        <div class="test-section">
+            <h2>測試控制</h2>
+            <button class="run-all" onclick="runAllTests()">執行所有測試</button>
+            <button onclick="test1()">測試 1: 時間軸拖曳與地圖同步</button>
+            <button onclick="test2()">測試 2: 標記淡入淡出動畫</button>
+            <button onclick="test3()">測試 3: 時間範圍選擇與地圖過濾</button>
+            <button onclick="test4()">測試 4: 效能測試 - 同步延遲</button>
+        </div>
+
+        <div id="results"></div>
+    </div>
+
+    <script>
+        // 測試腳本（從 execute-tests.js 複製）
+        
+        async function testTimelineDragSync() {
+            const timelineContainer = document.querySelector('app-timeline-container .timeline-container');
+            if (!timelineContainer) return { error: 'Timeline container not found' };
+            
+            const rect = timelineContainer.getBoundingClientRect();
+            const startX = rect.left + 100;
+            const startY = rect.top + 50;
+            const endX = rect.left + 500;
+            const endY = rect.top + 50;
+            
+            const initialScroll = timelineContainer.scrollLeft;
+            const initialMarkerCount = document.querySelectorAll('app-map-container .leaflet-marker-pane > div').length;
+            const startTime = performance.now();
+            
+            const mouseDown = new MouseEvent('mousedown', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: startX, clientY: startY, button: 0
+            });
+            
+            const mouseMove = new MouseEvent('mousemove', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: endX, clientY: endY, button: 0
+            });
+            
+            const mouseUp = new MouseEvent('mouseup', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: endX, clientY: endY, button: 0
+            });
+            
+            timelineContainer.dispatchEvent(mouseDown);
+            document.dispatchEvent(mouseMove);
+            document.dispatchEvent(mouseUp);
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            const endTime = performance.now();
+            const afterScroll = timelineContainer.scrollLeft;
+            const afterMarkerCount = document.querySelectorAll('app-map-container .leaflet-marker-pane > div').length;
+            const syncTime = endTime - startTime;
+            
+            return {
+                test: 'timeline-drag-sync',
+                initialScroll,
+                afterScroll,
+                scrollWorked: afterScroll !== initialScroll,
+                initialMarkerCount,
+                afterMarkerCount,
+                syncTime: syncTime.toFixed(2) + 'ms',
+                meetsRequirement: syncTime < 200
+            };
+        }
+
+        async function testMarkerAnimation() {
+            const timelineContainer = document.querySelector('app-timeline-container .timeline-container');
+            const markers = document.querySelectorAll('app-map-container .leaflet-marker-pane > div');
+            
+            if (!timelineContainer || markers.length === 0) {
+                return { error: 'Timeline or markers not found' };
+            }
+            
+            const initialOpacities = Array.from(markers).map(m => 
+                parseFloat(window.getComputedStyle(m).opacity)
+            );
+            
+            const startTime = performance.now();
+            timelineContainer.scrollLeft = 3000;
+            
+            let frameCount = 0;
+            return new Promise((resolve) => {
+                const observeAnimation = () => {
+                    frameCount++;
+                    if (frameCount < 30) {
+                        requestAnimationFrame(observeAnimation);
+                    } else {
+                        const endTime = performance.now();
+                        const duration = endTime - startTime;
+                        const fps = (frameCount / duration) * 1000;
+                        const finalOpacities = Array.from(markers).map(m => 
+                            parseFloat(window.getComputedStyle(m).opacity)
+                        );
+                        
+                        resolve({
+                            test: 'marker-animation',
+                            animationDuration: duration.toFixed(2) + 'ms',
+                            frameCount,
+                            fps: fps.toFixed(2),
+                            meetsDurationRequirement: duration < 200,
+                            meetsFPSRequirement: fps >= 30,
+                            initialOpacities,
+                            finalOpacities
+                        });
+                    }
+                };
+                requestAnimationFrame(observeAnimation);
+                setTimeout(() => {
+                    if (frameCount < 30) {
+                        const endTime = performance.now();
+                        const duration = endTime - startTime;
+                        const fps = (frameCount / duration) * 1000;
+                        resolve({
+                            test: 'marker-animation',
+                            animationDuration: duration.toFixed(2) + 'ms',
+                            frameCount,
+                            fps: fps.toFixed(2),
+                            meetsDurationRequirement: duration < 200,
+                            meetsFPSRequirement: fps >= 30
+                        });
+                    }
+                }, 300);
+            });
+        }
+
+        async function testTimeRangeSelection() {
+            const timelineTrack = document.querySelector('app-timeline-container .timeline-track');
+            const timelineContainer = document.querySelector('app-timeline-container .timeline-container');
+            
+            if (!timelineTrack || !timelineContainer) {
+                return { error: 'Timeline elements not found' };
+            }
+            
+            const rect = timelineTrack.getBoundingClientRect();
+            const startX = rect.left + 200;
+            const startY = rect.top + 50;
+            const endX = rect.left + 600;
+            const endY = rect.top + 50;
+            
+            const initialMarkerCount = document.querySelectorAll('app-map-container .leaflet-marker-pane > div').length;
+            
+            const mouseDown = new MouseEvent('mousedown', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: startX, clientY: startY, button: 0, shiftKey: true
+            });
+            
+            const mouseMove = new MouseEvent('mousemove', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: endX, clientY: endY, button: 0, shiftKey: true
+            });
+            
+            const mouseUp = new MouseEvent('mouseup', {
+                bubbles: true, cancelable: true, view: window,
+                clientX: endX, clientY: endY, button: 0
+            });
+            
+            timelineTrack.dispatchEvent(mouseDown);
+            document.dispatchEvent(mouseMove);
+            document.dispatchEvent(mouseUp);
+            
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            const timeSelection = document.querySelector('app-timeline-container .time-selection');
+            const afterMarkerCount = document.querySelectorAll('app-map-container .leaflet-marker-pane > div').length;
+            
+            return {
+                test: 'time-range-selection',
+                timeSelectionVisible: !!timeSelection,
+                timeSelectionText: timeSelection?.textContent || null,
+                initialMarkerCount,
+                afterMarkerCount,
+                markersFiltered: afterMarkerCount !== initialMarkerCount
+            };
+        }
+
+        async function testSyncPerformance() {
+            const timelineContainer = document.querySelector('app-timeline-container .timeline-container');
+            if (!timelineContainer) return { error: 'Timeline container not found' };
+            
+            performance.mark('sync-start');
+            
+            const initialScroll = timelineContainer.scrollLeft;
+            timelineContainer.scrollLeft = 2000;
+            
+            const scrollEvent = new Event('scroll', { bubbles: true });
+            timelineContainer.dispatchEvent(scrollEvent);
+            
+            await new Promise(resolve => {
+                setTimeout(() => {
+                    performance.mark('sync-end');
+                    performance.measure('sync-duration', 'sync-start', 'sync-end');
+                    const measure = performance.getEntriesByName('sync-duration')[0];
+                    resolve(measure ? measure.duration : null);
+                }, 200);
+            });
+            
+            const measure = performance.getEntriesByName('sync-duration')[0];
+            return {
+                test: 'sync-performance',
+                syncDuration: measure ? measure.duration.toFixed(2) + 'ms' : 'N/A',
+                meetsRequirement: measure ? measure.duration < 200 : false,
+                initialScroll,
+                afterScroll: timelineContainer.scrollLeft
+            };
+        }
+
+        // UI 函數
+        function addResult(testName, result) {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = 'test-section';
+            div.innerHTML = `
+                <h3>${testName}</h3>
+                <div class="result ${result.error ? 'error' : (result.meetsRequirement !== false ? 'success' : 'info')}">
+${JSON.stringify(result, null, 2)}
+                </div>
+            `;
+            resultsDiv.appendChild(div);
+        }
+
+        async function test1() {
+            addResult('測試 1: 時間軸拖曳與地圖同步', await testTimelineDragSync());
+        }
+
+        async function test2() {
+            addResult('測試 2: 標記淡入淡出動畫', await testMarkerAnimation());
+        }
+
+        async function test3() {
+            addResult('測試 3: 時間範圍選擇與地圖過濾', await testTimeRangeSelection());
+        }
+
+        async function test4() {
+            addResult('測試 4: 效能測試 - 同步延遲', await testSyncPerformance());
+        }
+
+        async function runAllTests() {
+            document.getElementById('results').innerHTML = '';
+            await test1();
+            await new Promise(r => setTimeout(r, 500));
+            await test2();
+            await new Promise(r => setTimeout(r, 500));
+            await test3();
+            await new Promise(r => setTimeout(r, 500));
+            await test4();
+        }
+    </script>
+</body>
+</html>
+

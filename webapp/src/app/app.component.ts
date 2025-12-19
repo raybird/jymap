@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
@@ -18,7 +18,7 @@ import * as TimeMapActions from './core/state/time-map.actions';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
+export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MapContainerComponent) mapComponent!: MapContainerComponent;
 
   title = 'jymap';
@@ -35,19 +35,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     requiredFieldsCoverage: number;
   } | null>;
 
-  // 保留舊變數暫作橋接（之後可完全改為 async pipe）
-  events: ValidatedEvent[] = [];
-  timeline: ValidatedTimelineItem[] = [];
-  loading = true;
-  error: string | null = null;
-  validationStats: {
-    total: number;
-    valid: number;
-    invalidCoordinates: number;
-    incompleteData: number;
-    invalidCoordinatesRate: number;
-    requiredFieldsCoverage: number;
-  } | null = null;
+  // 所有狀態都通過 Observable 和 async pipe 管理，無需本地變數
 
   // 用於 debounce 時間範圍變化事件（符合 Story 4.4: 同步延遲 < 200ms）
   private timeRangeChange$ = new Subject<{ startYear: number; endYear: number } | null>();
@@ -83,24 +71,7 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
     this.validationStats$ = this.store.select(TimeMapSelectors.selectValidationStats);
 
     this.loadData();
-
-    // 訂閱 Store 狀態（用於模板顯示）
-    // 注意：地圖組件現在直接訂閱 NgRx，不需要手動更新
-    this.events$.subscribe((events) => {
-      this.events = events;
-    });
-    this.timeline$.subscribe((timeline) => {
-      this.timeline = timeline;
-    });
-    this.loading$.subscribe((loading) => {
-      this.loading = loading;
-    });
-    this.error$.subscribe((error) => {
-      this.error = error;
-    });
-    this.validationStats$.subscribe((stats) => {
-      this.validationStats = stats;
-    });
+    // 所有狀態都通過 Observable 和 async pipe 在模板中管理，無需手動訂閱
   }
 
   loadData(): void {
@@ -113,26 +84,6 @@ export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     // 清理 debounce Subject
     this.timeRangeChange$.complete();
-    // 目前使用簡單訂閱，因為 AppComponent 存在於整個應用生命週期，
-    // 不額外管理 unsubscribe 也不會造成實質洩漏。
-  }
-
-  ngAfterViewInit(): void {
-    // 地圖組件現在直接訂閱 NgRx Store，不需要手動更新
-    // 保留此方法以備將來需要時使用
-  }
-
-  private checkLoadingComplete(): void {
-    // 只要事件資料載入完成即可（時間軸載入失敗不影響主要功能）
-    if (this.events.length > 0) {
-      this.loading = false;
-      // 更新地圖標記
-      if (this.mapComponent) {
-        setTimeout(() => {
-          this.mapComponent.updateMarkers(this.events);
-        }, 500);
-      }
-    }
   }
 
   getStatusBadgeClass(status: string): string {

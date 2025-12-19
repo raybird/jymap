@@ -1,13 +1,14 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, OnChanges, SimpleChanges, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, take } from 'rxjs/operators';
 import * as L from 'leaflet';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
 import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
 import * as TimeMapActions from '../../../core/state/time-map.actions';
+import { Logger } from '../../../core/utils/logger';
 
 /**
  * 地圖容器組件
@@ -21,9 +22,8 @@ import * as TimeMapActions from '../../../core/state/time-map.actions';
   templateUrl: './map-container.component.html',
   styleUrl: './map-container.component.scss'
 })
-export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
+export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
-  @Input() events: ValidatedEvent[] = []; // 保留 @Input 以向後兼容，但優先使用 NgRx
   @Input() center: [number, number] = [35.0, 105.0]; // 中國中心位置
   @Input() zoom: number = 5;
 
@@ -43,8 +43,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
     this.visibleEvents$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(events => {
-      // 只在事件數量變化或事件列表實際改變時更新
-      if (this.map && events.length >= 0) {
+      // 只在有事件且地圖已初始化時更新
+      if (this.map && events.length > 0) {
         // 使用 requestAnimationFrame 確保流暢更新（符合 NFR2: ≥ 30fps）
         requestAnimationFrame(() => {
           this.updateMarkers(events);
@@ -62,24 +62,29 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
     // 需要等待一個 tick 讓 ViewChild 完全初始化
     setTimeout(() => {
       if (!this.mapContainer || !this.mapContainer.nativeElement) {
-        console.error('地圖容器 ViewChild 未初始化');
+        Logger.error('地圖容器 ViewChild 未初始化');
         // 重試一次
         setTimeout(() => this.ngAfterViewInit(), 100);
         return;
       }
       this.initMap();
-      if (this.events.length > 0) {
-        this.addMarkers();
-      }
+      
+      // 地圖初始化完成後，檢查是否有已載入的事件並添加標記
+      // 因為訂閱可能在 map 初始化前就觸發過，所以手動獲取當前值
+      this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(
+        take(1), // 只取一次當前值
+        takeUntil(this.destroy$)
+      ).subscribe(events => {
+        if (this.map && events.length > 0) {
+          // 使用 requestAnimationFrame 確保地圖完全初始化後再添加標記
+          requestAnimationFrame(() => {
+            this.updateMarkers(events);
+          });
+        }
+      });
     }, 100);
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    // 當 events 輸入變化時，更新地圖標記（符合 Story 4.2：時間軸與地圖狀態同步）
-    if (changes['events'] && !changes['events'].firstChange && this.map) {
-      this.updateMarkers(this.events);
-    }
-  }
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -96,22 +101,20 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
    */
   private initMap(): void {
     if (!this.mapContainer || !this.mapContainer.nativeElement) {
-      console.error('地圖容器未找到');
+      Logger.error('地圖容器未找到');
       return;
     }
 
     const container = this.mapContainer.nativeElement;
-    
+
     // 確保容器有尺寸
     if (container.offsetWidth === 0 || container.offsetHeight === 0) {
-      console.warn('地圖容器尺寸為 0，等待容器渲染...');
+      Logger.warn('地圖容器尺寸為 0，等待容器渲染...');
       setTimeout(() => this.initMap(), 100);
       return;
     }
 
-    console.log('初始化地圖，容器尺寸:', container.offsetWidth, 'x', container.offsetHeight);
-    console.log('容器元素:', container);
-    console.log('容器樣式:', window.getComputedStyle(container).width, window.getComputedStyle(container).height);
+    Logger.debug('初始化地圖，容器尺寸:', container.offsetWidth, 'x', container.offsetHeight);
 
     // 金庸世界觀地理範圍：聚焦中國本土及直接相關周邊地區
     // 緯度：18°N 到 42°N（從海南到內蒙古南部，排除北亞大部分）
@@ -145,9 +148,9 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
         maxBounds: jymapBounds,
         maxBoundsViscosity: 0.8 // 邊界彈性係數，避免拖曳時突然被限制
       });
-      console.log('地圖實例建立成功:', this.map);
+      Logger.debug('地圖實例建立成功');
     } catch (error) {
-      console.error('建立地圖實例失敗:', error);
+      Logger.error('建立地圖實例失敗:', error);
       return;
     }
 
@@ -164,7 +167,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
 
     // 添加底圖載入錯誤處理
     this.baseLayer.on('tileerror', (error: any) => {
-      console.warn('底圖瓦片載入失敗:', error);
+      Logger.warn('底圖瓦片載入失敗:', error);
       // OpenStreetMap 通常不會有 CORS 問題，但保留錯誤處理以防萬一
     });
 
@@ -217,52 +220,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
     }, 100);
   }
 
-  /**
-   * 添加事件標記到地圖
-   */
-  addMarkers(): void {
-    if (!this.map || !this.events || this.events.length === 0) {
-      return;
-    }
-
-    // 清除現有標記
-    this.clearMarkers();
-
-    // 只添加有效座標的事件
-    const validEvents = this.events.filter(
-      event => event.validationStatus === 'valid' && 
-               !isNaN(event.lat) && !isNaN(event.lng) &&
-               event.lat >= -90 && event.lat <= 90 &&
-               event.lng >= -180 && event.lng <= 180
-    );
-
-    // 批次添加標記，並實作淡入動畫（符合 NFR8: 60fps，NFR3: < 200ms）
-    validEvents.forEach((event, index) => {
-      const marker = this.createMarker(event);
-      if (marker) {
-        // 先將標記設為透明
-        const markerElement = marker.getElement();
-        if (markerElement) {
-          markerElement.style.opacity = '0';
-          markerElement.style.transition = 'opacity 150ms ease-in-out';
-        }
-
-        marker.addTo(this.map!);
-        this.markers.push(marker);
-
-        // 使用 requestAnimationFrame 確保流暢動畫（60fps）
-        requestAnimationFrame(() => {
-          setTimeout(() => {
-            if (markerElement) {
-              markerElement.style.opacity = '1';
-            }
-          }, index * 10); // 錯開動畫時間，避免同時觸發造成卡頓
-        });
-      }
-    });
-
-    console.log(`已在地圖上添加 ${this.markers.length} 個標記`);
-  }
+  // addMarkers() 方法已移除，現在使用 updateMarkers() 統一處理標記更新
 
   /**
    * 建立標記
@@ -293,7 +251,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
 
     // 添加點擊事件（符合 NFR5: 點擊回應時間 < 500ms）
     marker.on('click', () => {
-      console.log('標記點擊:', event);
+      Logger.debug('標記點擊:', event.title);
       
       // 添加點擊視覺回饋
       const markerElement = marker.getElement();
@@ -469,8 +427,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, 
       }, markersToRemove.length > 0 ? 250 + index * 10 : index * 10); // 等待淡出動畫完成
     });
 
-    this.events = events;
-    console.log(`已更新地圖標記：移除 ${markersToRemove.length} 個，添加 ${eventsToAdd.length} 個`);
+    // 標記更新完成（已移除本地 events 變數，完全使用 NgRx）
   }
 
   /**

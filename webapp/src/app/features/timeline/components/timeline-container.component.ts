@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { throttleTime } from 'rxjs/operators';
 import { ValidatedTimelineItem } from '../../../core/utils/data-validator';
+import { Logger } from '../../../core/utils/logger';
 
 /**
  * 朝代定義（用於視覺帶顯示）
@@ -57,8 +60,17 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   isSelecting = false;
   selectionStartX = 0;
 
+  // 用於節流可見範圍事件（優化效能，避免過於頻繁的事件發送）
+  private visibleRangeEmitter$ = new Subject<{ startYear: number; endYear: number }>();
+
   ngOnInit(): void {
-    // 初始化邏輯
+    // 設定節流訂閱，優化拖曳時的事件發送頻率（每 50ms 最多發送一次）
+    // 這樣可以減少 NgRx 狀態更新頻率，提升效能
+    this.visibleRangeEmitter$.pipe(
+      throttleTime(50, undefined, { leading: true, trailing: true })
+    ).subscribe(range => {
+      this.timeRangeChange.emit(range);
+    });
   }
 
   ngAfterViewInit(): void {
@@ -69,8 +81,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngOnDestroy(): void {
-    // 清理事件監聽器
+    // 清理事件監聽器和 Subject
     this.removeEventListeners();
+    this.visibleRangeEmitter$.complete();
   }
 
   /**
@@ -78,13 +91,13 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   private initTimeline(): void {
     if (!this.timelineContainer || !this.timelineTrack) {
-      console.error('時間軸容器未找到');
+      Logger.error('時間軸容器未找到');
       return;
     }
 
     this.setupDragHandlers();
     this.setupSelectionHandlers();
-    console.log('時間軸初始化完成');
+    Logger.debug('時間軸初始化完成');
   }
 
   /**
@@ -284,6 +297,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
       const maxScroll = this.timelineContainer.nativeElement.scrollWidth - 
                        this.timelineContainer.nativeElement.clientWidth;
       this.timelineContainer.nativeElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
+      
+      // 發送當前可見時間範圍（拖曳中即時更新，符合 Story 4.2）
+      this.emitCurrentVisibleRange();
     });
   }
 
@@ -295,6 +311,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     
     this.isDragging = false;
     this.timelineContainer.nativeElement.style.cursor = 'grab';
+    
+    // 拖曳結束後發送當前可見時間範圍（符合 Story 4.2）
+    this.emitCurrentVisibleRange();
   }
 
   /**
@@ -331,6 +350,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
       const maxScroll = this.timelineContainer.nativeElement.scrollWidth - 
                        this.timelineContainer.nativeElement.clientWidth;
       this.timelineContainer.nativeElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
+      
+      // 發送當前可見時間範圍（拖曳中即時更新，符合 Story 4.2）
+      this.emitCurrentVisibleRange();
     });
   }
 
@@ -339,6 +361,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   private onTouchEnd(): void {
     this.isDragging = false;
+    
+    // 拖曳結束後發送當前可見時間範圍（符合 Story 4.2）
+    this.emitCurrentVisibleRange();
   }
 
   /**
@@ -346,6 +371,22 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   private removeEventListeners(): void {
     // 事件監聽器會在組件銷毀時自動清理
+  }
+
+  /**
+   * 發送當前可見的時間範圍給父組件（用於拖曳時的即時更新）
+   * 符合 Story 4.2：時間軸與地圖狀態同步
+   * 使用節流優化效能，避免過於頻繁的事件發送
+   */
+  private emitCurrentVisibleRange(): void {
+    if (!this.timelineContainer || this.isSelecting) return; // 範圍選擇模式下不發送可見範圍
+
+    const visibleRange = this.getVisibleTimeRange();
+    // 使用 Subject 和節流來優化事件發送頻率
+    this.visibleRangeEmitter$.next({
+      startYear: visibleRange.start,
+      endYear: visibleRange.end
+    });
   }
 
   /**
