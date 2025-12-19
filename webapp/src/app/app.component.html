@@ -23,16 +23,18 @@
       <section class="map-section">
         <h2>地圖視圖</h2>
         <app-map-container 
-          [events]="events"
           [center]="[35.0, 105.0]"
-          [zoom]="5">
+          [zoom]="5.5">
         </app-map-container>
       </section>
 
       <!-- 時間軸區域 -->
       <section class="timeline-section-main">
         <h2>時間軸</h2>
-        <app-timeline-container [timelineItems]="timeline"></app-timeline-container>
+        <app-timeline-container 
+          [timelineItems]="timeline"
+          (timeRangeChange)="onTimeRangeChange($event)">
+        </app-timeline-container>
       </section>
 
       <div class="data-preview">

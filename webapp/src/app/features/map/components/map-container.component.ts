@@ -1,11 +1,18 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, OnChanges, SimpleChanges, ViewChild, ElementRef, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Store } from '@ngrx/store';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import * as L from 'leaflet';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
+import { AppState } from '../../../core/state/app.state';
+import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
+import * as TimeMapActions from '../../../core/state/time-map.actions';
 
 /**
  * 地圖容器組件
  * 使用原生 Leaflet 整合，提供地圖顯示和互動功能
+ * 直接訂閱 NgRx Store 以實現時間軸與地圖狀態同步（Story 4.2）
  */
 @Component({
   selector: 'app-map-container',
@@ -14,15 +21,37 @@ import { ValidatedEvent } from '../../../core/utils/data-validator';
   templateUrl: './map-container.component.html',
   styleUrl: './map-container.component.scss'
 })
-export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
+export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy, OnChanges {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
-  @Input() events: ValidatedEvent[] = [];
+  @Input() events: ValidatedEvent[] = []; // 保留 @Input 以向後兼容，但優先使用 NgRx
   @Input() center: [number, number] = [35.0, 105.0]; // 中國中心位置
   @Input() zoom: number = 5;
 
+  // NgRx 訂閱
+  visibleEvents$: Observable<ValidatedEvent[]>;
+  
   private map: L.Map | null = null;
   private markers: L.Marker[] = [];
   private baseLayer: L.TileLayer | null = null;
+  private destroy$ = new Subject<void>();
+
+  constructor(private store: Store<AppState>) {
+    // 訂閱 NgRx Store 中的可見事件（Story 4.2：時間軸與地圖狀態同步）
+    this.visibleEvents$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
+    
+    // 訂閱可見事件變化，自動更新地圖標記
+    this.visibleEvents$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(events => {
+      // 只在事件數量變化或事件列表實際改變時更新
+      if (this.map && events.length >= 0) {
+        // 使用 requestAnimationFrame 確保流暢更新（符合 NFR2: ≥ 30fps）
+        requestAnimationFrame(() => {
+          this.updateMarkers(events);
+        });
+      }
+    });
+  }
 
   ngOnInit(): void {
     // 初始化邏輯可以在這裡執行
@@ -45,7 +74,17 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    // 當 events 輸入變化時，更新地圖標記（符合 Story 4.2：時間軸與地圖狀態同步）
+    if (changes['events'] && !changes['events'].firstChange && this.map) {
+      this.updateMarkers(this.events);
+    }
+  }
+
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
     if (this.map) {
       this.map.remove();
       this.map = null;
@@ -74,15 +113,27 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     console.log('容器元素:', container);
     console.log('容器樣式:', window.getComputedStyle(container).width, window.getComputedStyle(container).height);
 
+    // 金庸世界觀地理範圍：聚焦中國本土及直接相關周邊地區
+    // 緯度：18°N 到 42°N（從海南到內蒙古南部，排除北亞大部分）
+    // 經度：85°E 到 135°E（從新疆中部到東海，排除中亞西部和歐洲）
+    // 涵蓋：中國全境、蒙古南部、朝鮮半島、越南/緬甸北部
+    // 排除：歐洲、非洲、北亞大部分、中亞西部
+    const jymapBounds: L.LatLngBoundsExpression = [
+      [18, 85],   // 西南角（海南/雲南邊境，新疆中部）
+      [42, 135]   // 東北角（內蒙古南部/東海，排除西伯利亞）
+    ];
+
     // 建立地圖實例
     try {
+
       this.map = L.map(container, {
         center: this.center,
         zoom: this.zoom,
         zoomControl: true,
         attributionControl: true,
         // 設定縮放範圍（符合 Story 2.4 需求）
-        minZoom: 3,
+        // 提高 minZoom 以避免在最小縮放時顯示過大的範圍（歐洲、非洲等）
+        minZoom: 4,  // 從 3 提高到 4，確保聚焦在中國及周邊區域
         maxZoom: 15,
         // 優化觸控支援（符合 NFR31, NFR32）
         touchZoom: true,
@@ -90,8 +141,9 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         scrollWheelZoom: true,
         // 優化效能（符合 NFR2: 互動 FPS ≥ 30fps）
         preferCanvas: false, // 使用 SVG 以獲得更好的動畫效果
-        // 設定地圖邊界（避免過度平移）
-        maxBounds: [[-90, -180], [90, 180]]
+        // 限制地圖範圍為金庸世界觀區域（避免顯示美洲、非洲等無關區域）
+        maxBounds: jymapBounds,
+        maxBoundsViscosity: 0.8 // 邊界彈性係數，避免拖曳時突然被限制
       });
       console.log('地圖實例建立成功:', this.map);
     } catch (error) {
@@ -119,9 +171,42 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     // 載入底圖
     this.baseLayer.addTo(this.map);
 
+    // 確保地圖視圖在邊界內，並限制最小縮放級別
+    // 使用 setTimeout 確保地圖完全初始化後再調整視圖
+    setTimeout(() => {
+      if (this.map) {
+        // 強制將地圖視圖限制在邊界內
+        const bounds = L.latLngBounds(jymapBounds);
+        const currentZoom = this.map.getZoom();
+        // 如果當前縮放級別小於 minZoom，強制調整
+        if (currentZoom < 4) {
+          this.map.setZoom(4);
+        }
+        // 確保地圖中心在邊界內
+        const currentCenter = this.map.getCenter();
+        if (!bounds.contains(currentCenter)) {
+          this.map.setView(bounds.getCenter(), Math.max(4, currentZoom));
+        }
+        // 觸發一次 invalidateSize 確保正確渲染
+        this.map.invalidateSize();
+      }
+    }, 100);
+
     // 監聽地圖縮放事件，更新標記大小（符合 Story 2.3：標記在不同縮放級別下保持適當大小）
     this.map.on('zoomend', () => {
       this.updateMarkerSizes();
+    });
+
+    // 監聽地圖移動事件，更新 NgRx Store 中的地圖視圖狀態（Story 4.2）
+    this.map.on('moveend', () => {
+      if (this.map) {
+        const center = this.map.getCenter();
+        const zoom = this.map.getZoom();
+        this.store.dispatch(TimeMapActions.setMapView({
+          center: [center.lat, center.lng],
+          zoom
+        }));
+      }
     });
 
     // 確保地圖正確渲染
@@ -192,6 +277,9 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 建立標記
     const marker = L.marker([event.lat, event.lng], { icon });
+    
+    // 儲存 eventId 以便後續比較（用於 updateMarkers）
+    (marker as any).eventId = event.id;
 
     // 添加彈出視窗
     marker.bindPopup(`
@@ -289,12 +377,100 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * 更新地圖標記（當事件資料變更時）
+   * 實作淡入淡出動畫（符合 Story 4.3）
    */
   updateMarkers(events: ValidatedEvent[]): void {
-    this.events = events;
-    if (this.map) {
-      this.addMarkers();
+    if (!this.map) {
+      return;
     }
+
+    // 只處理有效座標的事件
+    const validEvents = events.filter(
+      event => event.validationStatus === 'valid' && 
+               !isNaN(event.lat) && !isNaN(event.lng) &&
+               event.lat >= -90 && event.lat <= 90 &&
+               event.lng >= -180 && event.lng <= 180
+    );
+
+    // 建立新事件 ID 集合
+    const newEventIds = new Set(validEvents.map(e => e.id));
+    const currentEventIds = new Set(this.markers.map(m => {
+      const eventId = (m as any).eventId;
+      return eventId;
+    }));
+
+    // 找出需要移除的標記（存在於當前但不在新列表中）
+    const markersToRemove: L.Marker[] = [];
+    this.markers.forEach(marker => {
+      const eventId = (marker as any).eventId;
+      if (eventId && !newEventIds.has(eventId)) {
+        markersToRemove.push(marker);
+      }
+    });
+
+    // 找出需要添加的事件（存在於新列表但不在當前）
+    const eventsToAdd = validEvents.filter(e => !currentEventIds.has(e.id));
+
+    // 實作淡出動畫並移除標記
+    markersToRemove.forEach((marker, index) => {
+      const markerElement = marker.getElement();
+      if (markerElement) {
+        markerElement.style.transition = 'opacity 200ms ease-out';
+        markerElement.style.opacity = '0';
+        
+        // 動畫完成後移除
+        setTimeout(() => {
+          if (this.map && this.markers.includes(marker)) {
+            this.map.removeLayer(marker);
+            const markerIndex = this.markers.indexOf(marker);
+            if (markerIndex > -1) {
+              this.markers.splice(markerIndex, 1);
+            }
+          }
+        }, 200 + index * 10); // 錯開移除時間
+      } else {
+        // 如果元素不存在，直接移除
+        if (this.map) {
+          this.map.removeLayer(marker);
+          const markerIndex = this.markers.indexOf(marker);
+          if (markerIndex > -1) {
+            this.markers.splice(markerIndex, 1);
+          }
+        }
+      }
+    });
+
+    // 添加新標記並實作淡入動畫
+    eventsToAdd.forEach((event, index) => {
+      setTimeout(() => {
+        const marker = this.createMarker(event);
+        if (marker) {
+          // 儲存 eventId 以便後續比較
+          (marker as any).eventId = event.id;
+          
+          const markerElement = marker.getElement();
+          if (markerElement) {
+            markerElement.style.opacity = '0';
+            markerElement.style.transition = 'opacity 200ms ease-in';
+          }
+
+          marker.addTo(this.map!);
+          this.markers.push(marker);
+
+          // 使用 requestAnimationFrame 確保流暢動畫
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              if (markerElement) {
+                markerElement.style.opacity = '1';
+              }
+            }, 10);
+          });
+        }
+      }, markersToRemove.length > 0 ? 250 + index * 10 : index * 10); // 等待淡出動畫完成
+    });
+
+    this.events = events;
+    console.log(`已更新地圖標記：移除 ${markersToRemove.length} 個，添加 ${eventsToAdd.length} 個`);
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ValidatedTimelineItem } from '../../../core/utils/data-validator';
 
@@ -27,6 +27,8 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('timelineContainer', { static: false }) timelineContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('timelineTrack', { static: false }) timelineTrack!: ElementRef<HTMLDivElement>;
   @Input() timelineItems: ValidatedTimelineItem[] = [];
+  
+  @Output() timeRangeChange = new EventEmitter<{ startYear: number; endYear: number } | null>();
 
   // 時間範圍設定（春秋前 473 年～清乾隆 18 世紀，約 1800 年）
   readonly minYear = -473; // 春秋前 473 年
@@ -161,6 +163,13 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   private onSelectionEnd(): void {
     this.isSelecting = false;
+    // 發送時間範圍變化事件（如果已選擇範圍）
+    if (this.selectedStartYear !== null && this.selectedEndYear !== null) {
+      this.timeRangeChange.emit({
+        startYear: Math.min(this.selectedStartYear, this.selectedEndYear),
+        endYear: Math.max(this.selectedStartYear, this.selectedEndYear)
+      });
+    }
   }
 
   /**
@@ -210,6 +219,8 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     this.selectedStartYear = null;
     this.selectedEndYear = null;
     this.isSelecting = false;
+    // 發送 null 表示清除選擇
+    this.timeRangeChange.emit(null);
   }
 
   /**

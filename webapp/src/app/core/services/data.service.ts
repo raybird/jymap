@@ -58,6 +58,7 @@ export class DataService {
           );
         }
 
+        // 轉換為 DataLoadResult 格式
         return {
           data: result.validated,
           validationStats: result.stats
