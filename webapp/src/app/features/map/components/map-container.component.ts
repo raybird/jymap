@@ -155,14 +155,9 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // 設定 Old Maps 風格底圖
-    // 使用 OpenStreetMap 並應用復古濾鏡效果（因為 Stamen 服務有 CORS 限制）
-    // 符合 FR29：Old Maps 風格底圖，呈現復古風格（紙張紋理、褪色效果、手繪風格）
-    // 透過 CSS 濾鏡（sepia、contrast、brightness）實現復古效果
-    this.baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    this.baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
-      // 應用復古濾鏡效果的 CSS 類別
       className: 'old-maps-layer'
     });
 
@@ -221,7 +216,16 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     }, 100);
   }
 
-  // addMarkers() 方法已移除，現在使用 updateMarkers() 統一處理標記更新
+  private getNovelColor(novel: string): string {
+    const map: Record<string, string> = {
+      '越女劍': '#2E7D32', '天龍八部': '#B8860B', '射鵰英雄傳': '#C62828',
+      '神鵰俠侶': '#6A1B9A', '倚天屠龍記': '#1565C0', '笑傲江湖': '#00695C',
+      '碧血劍': '#D84315', '鹿鼎記': '#F57F17', '書劍恩仇錄': '#33691E',
+      '飛狐外傳': '#E65100', '雪山飛狐': '#455A64', '連城訣': '#4E342E',
+      '俠客行': '#283593', '白馬嘯西風': '#827717', '鴛鴦刀': '#AD1457',
+    };
+    return map[novel] || '#666666';
+  }
 
   /**
    * 建立標記
@@ -231,8 +235,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    // 建立中國水墨風格的圖示
-    const icon = this.createInkStyleIcon();
+    const icon = this.createInkStyleIcon(event);
 
     // 建立標記
     const marker = L.marker([event.lat, event.lng], { icon });
@@ -303,20 +306,33 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /**
-   * 建立中國水墨風格的圖示
-   * 使用 DivIcon 建立自訂樣式的標記
-   * 標記大小會根據地圖縮放級別動態調整（符合 Story 2.3 需求）
+   * 建立中國印章風格標記（各作品專屬顏色，SVG 仿朱文印章）
    */
-  private createInkStyleIcon(): L.DivIcon {
-    // 根據當前縮放級別調整標記大小
+  private createInkStyleIcon(event: ValidatedEvent): L.DivIcon {
     const currentZoom = this.map?.getZoom() || this.zoom;
-    const baseSize = 20;
-    // 縮放級別越高，標記稍微變大（但不會過大）
-    const size = Math.min(baseSize + (currentZoom - 5) * 2, 32);
+    const size = Math.min(20 + (currentZoom - 5) * 2, 32);
+    const color = this.getNovelColor(event.novel);
+    const c = 20, r = 18;
+
+    const svg = `
+      <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="ink-${event.id}" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="${color}" stop-opacity="0.12"/>
+            <stop offset="80%" stop-color="${color}" stop-opacity="0.05"/>
+            <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="${c}" cy="${c}" r="${r}" fill="url(#ink-${event.id})"/>
+        <circle cx="${c}" cy="${c}" r="${r - 1.5}" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.9"/>
+        <circle cx="${c}" cy="${c}" r="${r - 5}" fill="none" stroke="${color}" stroke-width="1" opacity="0.3"/>
+        <circle cx="${c}" cy="${c}" r="5" fill="#C41E3A" opacity="0.85"/>
+        <circle cx="${c}" cy="${c}" r="2" fill="#FFF" opacity="0.5"/>
+      </svg>`;
 
     return L.divIcon({
       className: 'ink-marker',
-      html: `<div class="ink-marker-inner" style="width: ${size}px; height: ${size}px;"></div>`,
+      html: `<div class="ink-marker-inner" style="width:${size}px;height:${size}px;">${svg}</div>`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -size / 2]

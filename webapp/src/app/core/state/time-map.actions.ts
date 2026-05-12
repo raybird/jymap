@@ -43,4 +43,13 @@ export const setMapView = createAction(
   props<{ center: [number, number]; zoom: number }>()
 );
 
+// 選中事件（來自地圖標記點擊 / 搜尋結果點擊）
+export const selectEvent = createAction(
+  '[TimeMap] Select Event',
+  props<{ eventId: string }>()
+);
+
+// 清除選中事件
+export const clearSelectedEvent = createAction('[TimeMap] Clear Selected Event');
+
 

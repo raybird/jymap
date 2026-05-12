@@ -1,14 +1,16 @@
-import { Component, OnInit, ViewChild, OnDestroy, SimpleChanges } from '@angular/core';
+import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { MatSidenavModule } from '@angular/material/sidenav';
 import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
 import { MapContainerComponent } from './features/map/components/map-container.component';
 import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
 import { SearchBoxComponent } from './features/search/components/search-box.component';
 import { SearchResultsComponent } from './features/search/components/search-results.component';
+import { EventCardComponent } from './features/event-detail/components/event-card.component';
 import { AppState } from './core/state/app.state';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
 import * as TimeMapActions from './core/state/time-map.actions';
@@ -18,7 +20,7 @@ import { Logger } from './core/utils/logger';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent],
+  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -26,11 +28,11 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MapContainerComponent) mapComponent!: MapContainerComponent;
   @ViewChild(TimelineContainerComponent) timelineComponent!: TimelineContainerComponent;
 
-  title = 'jymap';
   events$!: Observable<ValidatedEvent[]>;
   timeline$!: Observable<ValidatedTimelineItem[]>;
   loading$!: Observable<boolean>;
   error$!: Observable<string | null>;
+  selectedEvent$!: Observable<ValidatedEvent | null>;
   validationStats$!: Observable<{
     total: number;
     valid: number;
@@ -40,12 +42,9 @@ export class AppComponent implements OnInit, OnDestroy {
     requiredFieldsCoverage: number;
   } | null>;
 
-  // 搜尋相關狀態
   searchResults: SearchResult[] = [];
   searchKeyword = '';
-  selectedEvent: ValidatedEvent | null = null;
 
-  // 用於 debounce 時間範圍變化事件（符合 Story 4.4: 同步延遲 < 200ms）
   private timeRangeChange$ = new Subject<{ startYear: number; endYear: number } | null>();
   private destroy$ = new Subject<void>();
 
@@ -53,8 +52,6 @@ export class AppComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private searchService: SearchService
   ) {
-    // 設定 debounce 訂閱（120ms，確保總延遲 < 200ms）
-    // 總延遲 = debounce (120ms) + action dispatch (~1ms) + reducer (~1ms) + selector (~1ms) + requestAnimationFrame (~16ms) + marker update (~30ms) ≈ 169ms
     this.timeRangeChange$.pipe(
       debounceTime(120),
       distinctUntilChanged((prev, curr) => {
@@ -75,12 +72,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // 初始化 selectors
     this.events$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
     this.timeline$ = this.store.select(TimeMapSelectors.selectTimeline);
     this.loading$ = this.store.select(TimeMapSelectors.selectLoading);
     this.error$ = this.store.select(TimeMapSelectors.selectError);
     this.validationStats$ = this.store.select(TimeMapSelectors.selectValidationStats);
+    this.selectedEvent$ = this.store.select(TimeMapSelectors.selectSelectedEvent);
 
     this.loadData();
 
@@ -161,40 +158,68 @@ export class AppComponent implements OnInit, OnDestroy {
     }
   }
 
-  /**
-   * 處理搜尋結果點擊（來自搜尋結果組件）
-   * Story 5.3: 搜尋結果與時間軸/地圖同步跳轉
-   */
   onSearchResultClick(event: ValidatedEvent): void {
     Logger.debug('搜尋結果點擊:', event.title, '年份:', event.year);
-    this.selectedEvent = event;
+    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
 
-    // 跳轉時間軸到對應年份
     if (this.timelineComponent) {
-      // 使用 setTimeout 確保動畫流暢
-      setTimeout(() => {
-        this.timelineComponent.scrollToYear(event.year);
-      }, 100);
-    } else {
-      Logger.warn('時間軸組件未初始化');
+      setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
     }
 
-    // 跳轉地圖到對應位置並高亮標記
     if (this.mapComponent) {
-      // 先飛到位置
       this.mapComponent.flyTo(event.lat, event.lng, 8);
-
-      // 然後高亮標記（等待地圖動畫完成）
-      setTimeout(() => {
-        this.mapComponent.highlightMarker(event.id);
-      }, 800); // 等待 flyTo 動畫完成（0.8秒）
-    } else {
-      Logger.warn('地圖組件未初始化');
+      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
     }
 
-    // 發送時間範圍變化事件，確保地圖標記正確顯示
-    // 使用一個小的時間範圍來確保該事件可見
-    const yearRange = 10; // 前後 10 年
+    const yearRange = 10;
+    this.store.dispatch(TimeMapActions.setTimeRange({
+      startYear: event.year - yearRange,
+      endYear: event.year + yearRange
+    }));
+  }
+
+  onMapEventClick(event: ValidatedEvent): void {
+    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
+    if (this.mapComponent) {
+      this.mapComponent.flyTo(event.lat, event.lng, 7);
+      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
+    }
+  }
+
+  onEventDotClick(eventId: string): void {
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(events => {
+      const event = events.find(e => e.id === eventId);
+      if (event) {
+        this.store.dispatch(TimeMapActions.selectEvent({ eventId }));
+        if (this.timelineComponent) {
+          setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
+        }
+        if (this.mapComponent) {
+          this.mapComponent.flyTo(event.lat, event.lng, 8);
+          setTimeout(() => this.mapComponent.highlightMarker(eventId), 800);
+        }
+        this.store.dispatch(TimeMapActions.setTimeRange({
+          startYear: event.year - 10,
+          endYear: event.year + 10
+        }));
+      }
+    });
+  }
+
+  onCloseEventCard(): void {
+    this.store.dispatch(TimeMapActions.clearSelectedEvent());
+  }
+
+  onNavigateToEvent(event: ValidatedEvent): void {
+    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
+    if (this.timelineComponent) {
+      setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
+    }
+    if (this.mapComponent) {
+      this.mapComponent.flyTo(event.lat, event.lng, 8);
+      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
+    }
+    const yearRange = 10;
     this.store.dispatch(TimeMapActions.setTimeRange({
       startYear: event.year - yearRange,
       endYear: event.year + yearRange

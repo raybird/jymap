@@ -45,5 +45,16 @@ export const selectValidationStats = createSelector(
   (state) => state.validationStats
 );
 
+export const selectSelectedEventId = createSelector(
+  selectTimeMapState,
+  (state) => state.selectedEventId
+);
+
+export const selectSelectedEvent = createSelector(
+  selectAllEvents,
+  selectSelectedEventId,
+  (events, id) => id ? events.find(e => e.id === id) || null : null
+);
+
 
 

@@ -1,0 +1,53 @@
+<div class="event-card" *ngIf="event">
+  <div class="card-header">
+    <div class="header-left">
+      <div class="dynasty-badge">{{ event.dynasty }}</div>
+      <h3>{{ event.title }}</h3>
+    </div>
+    <button class="close-btn" (click)="close.emit()">✕</button>
+  </div>
+
+  <div class="card-meta">
+    <span class="year">{{ getYearText(event.year) }}</span>
+    <span class="novel">{{ event.novel }}</span>
+  </div>
+
+  <div class="card-body">
+    <div class="section">
+      <h4>歷史事件</h4>
+      <p>{{ event.description }}</p>
+    </div>
+
+    <div class="section" *ngIf="event.summary">
+      <h4>小說情節</h4>
+      <p class="summary">{{ event.summary }}</p>
+    </div>
+
+    <div class="section" *ngIf="event.characters.length > 0">
+      <h4>相關人物</h4>
+      <div class="characters">
+        <span class="tag" *ngFor="let c of event.characters">{{ c }}</span>
+      </div>
+    </div>
+
+    <div class="section" *ngIf="event.sources.length > 0">
+      <h4>資料來源</h4>
+      <ul class="sources">
+        <li *ngFor="let src of event.sources">
+          <a [href]="src" target="_blank" rel="noopener">{{ src }}</a>
+        </li>
+      </ul>
+      <p class="no-source" *ngIf="event.sources.length === 0">⚠ 資料來源缺失</p>
+    </div>
+
+    <div class="section related-section" *ngIf="relatedEvents.length > 0">
+      <h4>相關事件</h4>
+      <div class="related-list">
+        <div class="related-item" *ngFor="let re of relatedEvents" (click)="onRelatedClick(re)">
+          <span class="rel-title">{{ re.title }}</span>
+          <span class="rel-meta">{{ re.dynasty }} · {{ re.year }} · {{ re.novel }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

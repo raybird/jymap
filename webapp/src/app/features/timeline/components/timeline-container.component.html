@@ -4,7 +4,6 @@
     #timelineContainer
     [class.dragging]="isDragging">
     <div class="timeline-track" #timelineTrack>
-      <!-- 朝代視覺帶 -->
       <div class="dynasty-bands">
         @for (band of dynastyBands; track band.name) {
           <div 
@@ -17,22 +16,31 @@
         }
       </div>
 
-      <!-- 年份刻度 -->
+      <div class="event-dots">
+        @for (dot of getEventDots(); track dot.id) {
+          <div
+            class="event-dot"
+            [style.left]="getYearPosition(dot.year) + '%'"
+            [style.background-color]="dot.color"
+            [title]="dot.title + ' (' + dot.novel + ')'"
+            (click)="eventDotClick.emit(dot.id)">
+          </div>
+        }
+      </div>
+
       <div class="year-ticks">
         @for (year of getYearTicks(); track year) {
           <div 
             class="year-tick" 
             [class.major-tick]="year % 100 === 0"
-            [class.minor-tick]="year % 50 === 0 && year % 100 !== 0"
             [style.left]="getYearPosition(year) + '%'">
-            @if (year % 100 === 0 || year % 50 === 0) {
+            @if (year % 100 === 0) {
               <span class="year-label">{{ formatYear(year) }}</span>
             }
           </div>
         }
       </div>
 
-      <!-- 時間範圍選擇區域（Story 3.4） -->
       @if (selectedStartYear !== null && selectedEndYear !== null) {
         <div 
           class="time-selection" 

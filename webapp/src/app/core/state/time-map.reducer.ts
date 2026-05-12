@@ -18,6 +18,7 @@ export interface TimeMapState {
   visibleEvents: ValidatedEvent[];
   currentTimeRange: TimeRange | null;
   mapView: MapView;
+  selectedEventId: string | null;
   loadingEvents: boolean;
   loadingTimeline: boolean;
   error: string | null;
@@ -40,6 +41,7 @@ export const initialTimeMapState: TimeMapState = {
     center: [35.0, 105.0],
     zoom: 5
   },
+  selectedEventId: null,
   loadingEvents: false,
   loadingTimeline: false,
   error: null,
@@ -117,6 +119,18 @@ export const timeMapReducer = createReducer(
   on(TimeMapActions.setMapView, (state, { center, zoom }) => ({
     ...state,
     mapView: { center, zoom }
+  })),
+
+  // 選中事件
+  on(TimeMapActions.selectEvent, (state, { eventId }) => ({
+    ...state,
+    selectedEventId: eventId
+  })),
+
+  // 清除選中事件
+  on(TimeMapActions.clearSelectedEvent, (state) => ({
+    ...state,
+    selectedEventId: null
   }))
 );
 

@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Inp
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import { ValidatedTimelineItem } from '../../../core/utils/data-validator';
+import { ValidatedEvent, ValidatedTimelineItem } from '../../../core/utils/data-validator';
 import { Logger } from '../../../core/utils/logger';
 
 /**
@@ -30,17 +30,25 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   @ViewChild('timelineContainer', { static: false }) timelineContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('timelineTrack', { static: false }) timelineTrack!: ElementRef<HTMLDivElement>;
   @Input() timelineItems: ValidatedTimelineItem[] = [];
-  
+  @Input() events: ValidatedEvent[] = [];
   @Output() timeRangeChange = new EventEmitter<{ startYear: number; endYear: number } | null>();
+  @Output() eventDotClick = new EventEmitter<string>();
 
   // 時間範圍設定（春秋前 473 年～清乾隆 18 世紀，約 1800 年）
   readonly minYear = -473; // 春秋前 473 年
   readonly maxYear = 1800; // 清乾隆 18 世紀
   readonly totalYears = 1800 - (-473) + 1; // 總年數：2274 年
 
-  // 朝代視覺帶定義（符合 Story 3.2 需求）
   readonly dynastyBands: DynastyBand[] = [
     { name: '春秋', startYear: -473, endYear: -221, color: '#8B7355' },
+    { name: '秦', startYear: -221, endYear: -206, color: '#7A7A6B' },
+    { name: '漢', startYear: -206, endYear: 220, color: '#6B7A6B' },
+    { name: '三國', startYear: 220, endYear: 280, color: '#8B6B5B' },
+    { name: '晉', startYear: 280, endYear: 420, color: '#6B7B7A' },
+    { name: '南北朝', startYear: 420, endYear: 589, color: '#7A7B6B' },
+    { name: '隋', startYear: 589, endYear: 618, color: '#8B7B6B' },
+    { name: '唐', startYear: 618, endYear: 907, color: '#9F6B5B' },
+    { name: '五代', startYear: 907, endYear: 960, color: '#6B7A5B' },
     { name: '北宋', startYear: 960, endYear: 1127, color: '#6B8E9F' },
     { name: '南宋', startYear: 1127, endYear: 1279, color: '#7A9F8B' },
     { name: '元', startYear: 1279, endYear: 1368, color: '#9F7A6B' },
@@ -74,9 +82,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   }
 
   ngAfterViewInit(): void {
-    // 確保容器正確初始化
     setTimeout(() => {
       this.initTimeline();
+      setTimeout(() => this.scrollToYear(1200), 300);
     }, 100);
   }
 
@@ -469,9 +477,9 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   formatYear(year: number): string {
     if (year < 0) {
-      return `${Math.abs(year)} BCE`;
+      return `西元前${Math.abs(year)}年`;
     }
-    return year.toString();
+    return `西元${year}年`;
   }
 
   /**
@@ -479,11 +487,31 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   getYearTicks(): number[] {
     const ticks: number[] = [];
-    // 每 10 年一個刻度
     for (let year = this.minYear; year <= this.maxYear; year += 10) {
       ticks.push(year);
     }
     return ticks;
+  }
+
+  getNovelColor(novel: string): string {
+    const map: Record<string, string> = {
+      '越女劍': '#2E7D32', '天龍八部': '#B8860B', '射鵰英雄傳': '#C62828',
+      '神鵰俠侶': '#6A1B9A', '倚天屠龍記': '#1565C0', '笑傲江湖': '#00695C',
+      '碧血劍': '#D84315', '鹿鼎記': '#F57F17', '書劍恩仇錄': '#33691E',
+      '飛狐外傳': '#E65100', '雪山飛狐': '#455A64', '連城訣': '#4E342E',
+      '俠客行': '#283593', '白馬嘯西風': '#827717', '鴛鴦刀': '#AD1457',
+    };
+    return map[novel] || '#666666';
+  }
+
+  getEventDots(): { id: string; year: number; color: string; title: string; novel: string }[] {
+    return this.events.map(e => ({
+      id: e.id,
+      year: e.year,
+      color: this.getNovelColor(e.novel),
+      title: e.title,
+      novel: e.novel
+    }));
   }
 }
 

@@ -37,96 +37,104 @@
 .dynasty-bands {
   position: relative;
   width: 100%;
-  height: 60px;
+  height: 14px;
   z-index: 5;
-  border-bottom: 2px solid rgba(0, 0, 0, 0.1);
 }
 
 .dynasty-band {
   position: absolute;
   top: 0;
   height: 100%;
-  opacity: 0.8;
-  border-left: 1px solid rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease;
+  opacity: 0.5;
+  transition: opacity 0.25s ease;
 
-  &:hover {
-    opacity: 0.8;
-  }
+  &:hover { opacity: 0.75; }
 
   .dynasty-label {
     position: absolute;
-    top: 50%;
+    top: 18px;
     left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1rem;
-    font-weight: 800;
-    color: #fff;
+    transform: translateX(-50%);
+    font-size: 0.7rem;
+    font-weight: 600;
+    font-family: var(--font-heading);
+    color: rgba(44, 36, 27, 0.6);
     white-space: nowrap;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+    letter-spacing: 1px;
+    pointer-events: none;
+    display: none;
+
+    @media (min-width: 1400px) {
+      display: block;
+    }
+  }
+}
+
+.event-dots {
+  position: relative;
+  width: 100%;
+  height: 16px;
+  z-index: 6;
+  margin-top: 2px;
+}
+
+.event-dot {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  opacity: 0.75;
+  transition: opacity 0.2s, transform 0.2s;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.5);
   }
 }
 
 .year-ticks {
   position: relative;
   width: 100%;
-  height: 100px;
+  height: 35px;
   z-index: 10;
 }
 
 .year-tick {
   position: absolute;
   top: 0;
-  width: 2px;
   height: 100%;
   transform: translateX(-50%);
 
   &::after {
     content: '';
     position: absolute;
-    top: 0;
+    top: 4px;
     left: 50%;
     transform: translateX(-50%);
-    width: 2px;
-    height: 15px;
-    background: #333;
+    width: 1px;
+    height: 8px;
+    background: rgba(44, 36, 27, 0.15);
   }
 
-  // 次要刻度（每 50 年） - Removed as per instruction, but keeping the comment for context if needed.
-  // &.minor-tick {
-  //   &::before {
-  //     content: '';
-  //     position: absolute;
-  //     top: 0;
-  //     left: 50%;
-  //     transform: translateX(-50%);
-  //     width: 2px;
-  //     height: 18px;
-  //     background: rgba(0, 0, 0, 0.7);
-  //   }
-  // }
-
-  // 主要刻度（每 100 年）
   &.major-tick::after {
-    height: 30px;
-    width: 3px;
-    background: #000;
+    height: 14px;
+    width: 1.5px;
+    background: rgba(44, 36, 27, 0.3);
   }
 
   .year-label {
     position: absolute;
-    top: 35px;
+    top: 20px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 0.85rem;
-    color: #000;
+    font-size: 0.65rem;
+    color: rgba(44, 36, 27, 0.5);
     white-space: nowrap;
-    font-weight: 700;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 2px 6px;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    letter-spacing: 0.3px;
   }
 }
 
@@ -134,9 +142,9 @@
   position: absolute;
   top: 0;
   height: 100%;
-  background: rgba(74, 144, 226, 0.2);
-  border-left: 3px solid #4a90e2;
-  border-right: 3px solid #4a90e2;
+  background: rgba(200, 164, 39, 0.15);
+  border-left: 3px solid #c8a427;
+  border-right: 3px solid #c8a427;
   z-index: 3;
   pointer-events: auto;
   cursor: default;
@@ -146,22 +154,15 @@
     top: 0;
     width: 6px;
     height: 100%;
-    background: #4a90e2;
+    background: #c8a427;
     cursor: ew-resize;
     z-index: 4;
 
-    &.selection-handle-start {
-      left: 0;
-      transform: translateX(-50%);
-    }
-
-    &.selection-handle-end {
-      right: 0;
-      transform: translateX(50%);
-    }
+    &.selection-handle-start { left: 0; transform: translateX(-50%); }
+    &.selection-handle-end { right: 0; transform: translateX(50%); }
 
     &:hover {
-      background: #357abd;
+      background: #b8961e;
       width: 8px;
     }
   }
@@ -171,11 +172,11 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(74, 144, 226, 0.9);
-    color: white;
-    padding: 0.25rem 0.75rem;
-    border-radius: 4px;
-    font-size: 0.85rem;
+    background: rgba(139, 115, 85, 0.9);
+    color: #fff;
+    padding: 0.2rem 0.7rem;
+    border-radius: 3px;
+    font-size: 0.82rem;
     font-weight: 500;
     white-space: nowrap;
     display: flex;
@@ -185,24 +186,21 @@
     pointer-events: none;
 
     .clear-selection {
-      background: rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.2);
       border: none;
-      color: white;
-      width: 20px;
-      height: 20px;
+      color: #fff;
+      width: 18px;
+      height: 18px;
       border-radius: 50%;
       cursor: pointer;
-      font-size: 1.2rem;
+      font-size: 1rem;
       line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
       pointer-events: auto;
-      transition: background 0.2s ease;
 
-      &:hover {
-        background: rgba(255, 255, 255, 0.5);
-      }
+      &:hover { background: rgba(255, 255, 255, 0.4); }
     }
   }
 }
