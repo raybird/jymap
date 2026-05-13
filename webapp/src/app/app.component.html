@@ -4,15 +4,19 @@
 
     <div class="app-viewport">
       <div class="map-layer">
-        <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5" (eventClick)="onMapEventClick($event)">
+        <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5"
+          [selectedNovel]="(selectedNovel$ | async) || null" (eventClick)="onMapEventClick($event)">
         </app-map-container>
       </div>
 
       <div class="ui-layer">
         <div class="top-overlay">
-          <app-search-box (searchResultsChange)="onSearchResultsChange($event)"
-            (searchKeywordChange)="onSearchKeywordChange($event)">
-          </app-search-box>
+          <div class="top-bar">
+            <app-search-box (searchResultsChange)="onSearchResultsChange($event)"
+              (searchKeywordChange)="onSearchKeywordChange($event)">
+            </app-search-box>
+            <app-novel-filter></app-novel-filter>
+          </div>
 
           @if (searchKeyword && searchKeyword.trim().length > 0) {
           <div class="search-results-overlay">

@@ -17,6 +17,7 @@ export interface TimeMapState {
   timeline: ValidatedTimelineItem[];
   visibleEvents: ValidatedEvent[];
   currentTimeRange: TimeRange | null;
+  selectedNovel: string | null;
   mapView: MapView;
   selectedEventId: string | null;
   loadingEvents: boolean;
@@ -37,6 +38,7 @@ export const initialTimeMapState: TimeMapState = {
   timeline: [],
   visibleEvents: [],
   currentTimeRange: null,
+  selectedNovel: null,
   mapView: {
     center: [35.0, 105.0],
     zoom: 5
@@ -63,7 +65,7 @@ export const timeMapReducer = createReducer(
     return {
       ...state,
       events,
-      visibleEvents: applyTimeRangeFilter(events, state.currentTimeRange),
+      visibleEvents: applyFilters(events, state.currentTimeRange, state.selectedNovel),
       loadingEvents: false,
       validationStats: result.validationStats || null
     };
@@ -104,7 +106,7 @@ export const timeMapReducer = createReducer(
     return {
       ...state,
       currentTimeRange: range,
-      visibleEvents: applyTimeRangeFilter(state.events, range)
+      visibleEvents: applyFilters(state.events, range, state.selectedNovel)
     };
   }),
 
@@ -112,7 +114,14 @@ export const timeMapReducer = createReducer(
   on(TimeMapActions.clearTimeRange, (state) => ({
     ...state,
     currentTimeRange: null,
-    visibleEvents: state.events // 顯示所有事件
+    visibleEvents: applyFilters(state.events, null, state.selectedNovel)
+  })),
+
+  // 設定小說篩選
+  on(TimeMapActions.setNovelFilter, (state, { novel }) => ({
+    ...state,
+    selectedNovel: novel,
+    visibleEvents: applyFilters(state.events, state.currentTimeRange, novel)
   })),
 
   // 設定地圖視圖
@@ -135,13 +144,17 @@ export const timeMapReducer = createReducer(
 );
 
 /**
- * 依據時間範圍過濾事件
+ * 依據時間範圍 + 小說篩選過濾事件
  */
-function applyTimeRangeFilter(events: ValidatedEvent[], range: TimeRange | null): ValidatedEvent[] {
-  if (!range) {
-    return events;
+function applyFilters(events: ValidatedEvent[], range: TimeRange | null, novel: string | null): ValidatedEvent[] {
+  let filtered = events;
+  if (range) {
+    filtered = filtered.filter((event) => event.year >= range.startYear && event.year <= range.endYear);
   }
-  return events.filter((event) => event.year >= range.startYear && event.year <= range.endYear);
+  if (novel) {
+    filtered = filtered.filter((event) => event.novel === novel);
+  }
+  return filtered;
 }
 
 

@@ -43,6 +43,12 @@ export const setMapView = createAction(
   props<{ center: [number, number]; zoom: number }>()
 );
 
+// 設定小說篩選（用於權重與過濾）
+export const setNovelFilter = createAction(
+  '[TimeMap] Set Novel Filter',
+  props<{ novel: string | null }>()
+);
+
 // 選中事件（來自地圖標記點擊 / 搜尋結果點擊）
 export const selectEvent = createAction(
   '[TimeMap] Select Event',

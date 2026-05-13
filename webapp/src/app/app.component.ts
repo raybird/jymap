@@ -10,6 +10,7 @@ import { MapContainerComponent } from './features/map/components/map-container.c
 import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
 import { SearchBoxComponent } from './features/search/components/search-box.component';
 import { SearchResultsComponent } from './features/search/components/search-results.component';
+import { NovelFilterComponent } from './features/novel-filter/components/novel-filter.component';
 import { EventCardComponent } from './features/event-detail/components/event-card.component';
 import { AppState } from './core/state/app.state';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
@@ -20,7 +21,7 @@ import { Logger } from './core/utils/logger';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent],
+  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, NovelFilterComponent, EventCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -33,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
   loading$!: Observable<boolean>;
   error$!: Observable<string | null>;
   selectedEvent$!: Observable<ValidatedEvent | null>;
+  selectedNovel$!: Observable<string | null>;
   validationStats$!: Observable<{
     total: number;
     valid: number;
@@ -78,6 +80,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.error$ = this.store.select(TimeMapSelectors.selectError);
     this.validationStats$ = this.store.select(TimeMapSelectors.selectValidationStats);
     this.selectedEvent$ = this.store.select(TimeMapSelectors.selectSelectedEvent);
+    this.selectedNovel$ = this.store.select(TimeMapSelectors.selectSelectedNovel);
 
     this.loadData();
 

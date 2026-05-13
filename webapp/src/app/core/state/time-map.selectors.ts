@@ -20,6 +20,19 @@ export const selectTimeline = createSelector(selectTimeMapState, (state) => stat
 
 export const selectTimeRange = createSelector(selectTimeMapState, (state) => state.currentTimeRange);
 
+export const selectSelectedNovel = createSelector(
+  selectTimeMapState,
+  (state) => state.selectedNovel
+);
+
+export const selectAllNovels = createSelector(
+  selectAllEvents,
+  (events) => {
+    const novelSet = new Set(events.map(e => e.novel));
+    return Array.from(novelSet).sort();
+  }
+);
+
 export const selectMapView = createSelector(selectTimeMapState, (state) => state.mapView);
 
 export const selectLoadingEvents = createSelector(

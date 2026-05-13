@@ -24,8 +24,9 @@ import { Logger } from '../../../core/utils/logger';
 })
 export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
-  @Input() center: [number, number] = [35.0, 105.0]; // 中國中心位置
+  @Input() center: [number, number] = [35.0, 105.0];
   @Input() zoom: number = 5;
+  @Input() selectedNovel: string | null = null;
   @Output() eventClick = new EventEmitter<ValidatedEvent>();
 
   // NgRx 訂閱
@@ -37,16 +38,12 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(private store: Store<AppState>) {
-    // 訂閱 NgRx Store 中的可見事件（Story 4.2：時間軸與地圖狀態同步）
     this.visibleEvents$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
 
-    // 訂閱可見事件變化，自動更新地圖標記
     this.visibleEvents$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(events => {
-      // 只在有事件且地圖已初始化時更新
       if (this.map && events.length > 0) {
-        // 使用 requestAnimationFrame 確保流暢更新（符合 NFR2: ≥ 30fps）
         requestAnimationFrame(() => {
           this.updateMarkers(events);
         });
@@ -117,14 +114,14 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     Logger.debug('初始化地圖，容器尺寸:', container.offsetWidth, 'x', container.offsetHeight);
 
-    // 金庸世界觀地理範圍：聚焦中國本土及直接相關周邊地區
-    // 緯度：18°N 到 42°N（從海南到內蒙古南部，排除北亞大部分）
-    // 經度：85°E 到 135°E（從新疆中部到東海，排除中亞西部和歐洲）
-    // 涵蓋：中國全境、蒙古南部、朝鮮半島、越南/緬甸北部
-    // 排除：歐洲、非洲、北亞大部分、中亞西部
+    // 金庸世界觀地理範圍：涵蓋所有小說涉及地域
+    // 緯度：10°N 到 55°N（從南洋到西伯利亞南部，涵蓋冰火島）
+    // 經度：60°E 到 145°E（從中亞到日本，涵蓋整個西域）
+    // 涵蓋：中國全境、西域/中亞、蒙古、朝鮮半島、日本、東南亞北部
+    // 新增範圍：西域（75-85°E）、冰火島（~50°N）、俠客島（南海）
     const jymapBounds: L.LatLngBoundsExpression = [
-      [18, 85],   // 西南角（海南/雲南邊境，新疆中部）
-      [42, 135]   // 東北角（內蒙古南部/東海，排除西伯利亞）
+      [10, 60],   // 西南角（南洋/緬甸，哈薩克東部）
+      [55, 145]   // 東北角（西伯利亞南部/日本海，涵蓋冰火島）
     ];
 
     // 建立地圖實例
@@ -137,7 +134,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         attributionControl: true,
         // 設定縮放範圍（符合 Story 2.4 需求）
         // 提高 minZoom 以避免在最小縮放時顯示過大的範圍（歐洲、非洲等）
-        minZoom: 4,  // 從 3 提高到 4，確保聚焦在中國及周邊區域
+        minZoom: 3,  // 設定為 3 以支援西域與冰火島等較遠區域
         maxZoom: 15,
         // 優化觸控支援（符合 NFR31, NFR32）
         touchZoom: true,
@@ -178,13 +175,13 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         const bounds = L.latLngBounds(jymapBounds);
         const currentZoom = this.map.getZoom();
         // 如果當前縮放級別小於 minZoom，強制調整
-        if (currentZoom < 4) {
-          this.map.setZoom(4);
+        if (currentZoom < 3) {
+          this.map.setZoom(3);
         }
         // 確保地圖中心在邊界內
         const currentCenter = this.map.getCenter();
         if (!bounds.contains(currentCenter)) {
-          this.map.setView(bounds.getCenter(), Math.max(4, currentZoom));
+          this.map.setView(bounds.getCenter(), Math.max(3, currentZoom));
         }
         // 觸發一次 invalidateSize 確保正確渲染
         this.map.invalidateSize();
@@ -235,7 +232,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    const icon = this.createInkStyleIcon(event);
+    const isWeighted = !this.selectedNovel || this.selectedNovel === event.novel;
+    const icon = this.createInkStyleIcon(event, isWeighted);
 
     // 建立標記
     const marker = L.marker([event.lat, event.lng], { icon });
@@ -308,31 +306,34 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   /**
    * 建立中國印章風格標記（各作品專屬顏色，SVG 仿朱文印章）
    */
-  private createInkStyleIcon(event: ValidatedEvent): L.DivIcon {
+  private createInkStyleIcon(event: ValidatedEvent, isWeighted: boolean = true): L.DivIcon {
     const currentZoom = this.map?.getZoom() || this.zoom;
-    const size = Math.min(20 + (currentZoom - 5) * 2, 32);
+    const baseSize = isWeighted ? 20 : 14;
+    const size = Math.min(baseSize + (currentZoom - 5) * 2, isWeighted ? 32 : 24);
     const color = this.getNovelColor(event.novel);
     const c = 20, r = 18;
+    const opacity = isWeighted ? 1 : 0.4;
+    const glowOpacity = isWeighted ? 0.12 : 0.04;
 
     const svg = `
       <svg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="ink-${event.id}" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="${color}" stop-opacity="0.12"/>
-            <stop offset="80%" stop-color="${color}" stop-opacity="0.05"/>
+            <stop offset="0%" stop-color="${color}" stop-opacity="${glowOpacity}"/>
+            <stop offset="80%" stop-color="${color}" stop-opacity="${glowOpacity * 0.4}"/>
             <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
           </radialGradient>
         </defs>
         <circle cx="${c}" cy="${c}" r="${r}" fill="url(#ink-${event.id})"/>
-        <circle cx="${c}" cy="${c}" r="${r - 1.5}" fill="none" stroke="${color}" stroke-width="2.5" opacity="0.9"/>
-        <circle cx="${c}" cy="${c}" r="${r - 5}" fill="none" stroke="${color}" stroke-width="1" opacity="0.3"/>
-        <circle cx="${c}" cy="${c}" r="5" fill="#C41E3A" opacity="0.85"/>
-        <circle cx="${c}" cy="${c}" r="2" fill="#FFF" opacity="0.5"/>
+        <circle cx="${c}" cy="${c}" r="${r - 1.5}" fill="none" stroke="${color}" stroke-width="${isWeighted ? 2.5 : 1.5}" opacity="${opacity * 0.9}"/>
+        <circle cx="${c}" cy="${c}" r="${r - 5}" fill="none" stroke="${color}" stroke-width="1" opacity="${opacity * 0.3}"/>
+        <circle cx="${c}" cy="${c}" r="${isWeighted ? 5 : 3}" fill="#C41E3A" opacity="${opacity * 0.85}"/>
+        <circle cx="${c}" cy="${c}" r="2" fill="#FFF" opacity="${opacity * 0.5}"/>
       </svg>`;
 
     return L.divIcon({
       className: 'ink-marker',
-      html: `<div class="ink-marker-inner" style="width:${size}px;height:${size}px;">${svg}</div>`,
+      html: `<div class="ink-marker-inner" style="width:${size}px;height:${size}px;opacity:${opacity}">${svg}</div>`,
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
       popupAnchor: [0, -size / 2]
