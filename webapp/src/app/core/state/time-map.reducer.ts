@@ -20,6 +20,7 @@ export interface TimeMapState {
   selectedNovel: string | null;
   mapView: MapView;
   selectedEventId: string | null;
+  selectedEventVersion: number;
   loadingEvents: boolean;
   loadingTimeline: boolean;
   error: string | null;
@@ -44,6 +45,7 @@ export const initialTimeMapState: TimeMapState = {
     zoom: 5
   },
   selectedEventId: null,
+  selectedEventVersion: 0,
   loadingEvents: false,
   loadingTimeline: false,
   error: null,
@@ -130,10 +132,11 @@ export const timeMapReducer = createReducer(
     mapView: { center, zoom }
   })),
 
-  // 選中事件
+  // 選中事件（每次遞增版本號，確保 selector 重複發射）
   on(TimeMapActions.selectEvent, (state, { eventId }) => ({
     ...state,
-    selectedEventId: eventId
+    selectedEventId: eventId,
+    selectedEventVersion: state.selectedEventVersion + 1
   })),
 
   // 清除選中事件

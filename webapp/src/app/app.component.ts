@@ -84,8 +84,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.loadData();
 
-    // 當事件資料載入完成後，設定搜尋服務的資料來源
-    this.events$.pipe(
+    // 搜尋服務使用全部事件（不受時間範圍或小說篩選影響）
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(
       takeUntil(this.destroy$)
     ).subscribe(events => {
       if (events.length > 0) {

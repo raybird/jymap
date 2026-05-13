@@ -11,7 +11,7 @@
             [style.left]="getDynastyBandStyle(band).left"
             [style.width]="getDynastyBandStyle(band).width"
             [style.background-color]="band.color">
-            <span class="dynasty-label">{{ band.name }}</span>
+            <span class="dynasty-label">{{ band.name }}&nbsp;<span class="dynasty-years">{{ formatYear(band.startYear) }} ~ {{ formatYear(band.endYear) }}</span></span>
           </div>
         }
       </div>

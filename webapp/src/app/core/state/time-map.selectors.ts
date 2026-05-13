@@ -63,9 +63,15 @@ export const selectSelectedEventId = createSelector(
   (state) => state.selectedEventId
 );
 
+export const selectSelectedEventVersion = createSelector(
+  selectTimeMapState,
+  (state) => state.selectedEventVersion
+);
+
 export const selectSelectedEvent = createSelector(
   selectAllEvents,
   selectSelectedEventId,
+  selectSelectedEventVersion,
   (events, id) => id ? events.find(e => e.id === id) || null : null
 );
 

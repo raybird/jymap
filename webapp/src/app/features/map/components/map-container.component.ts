@@ -26,7 +26,12 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
   @Input() center: [number, number] = [35.0, 105.0];
   @Input() zoom: number = 5;
-  @Input() selectedNovel: string | null = null;
+  @Input() set selectedNovel(novel: string | null) {
+    this._selectedNovel = novel;
+  }
+  get selectedNovel(): string | null {
+    return this._selectedNovel;
+  }
   @Output() eventClick = new EventEmitter<ValidatedEvent>();
 
   // NgRx 訂閱
@@ -36,6 +41,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   private markers: L.Marker[] = [];
   private baseLayer: L.TileLayer | null = null;
   private destroy$ = new Subject<void>();
+  private _selectedNovel: string | null = null;
 
   constructor(private store: Store<AppState>) {
     this.visibleEvents$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
@@ -43,9 +49,21 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.visibleEvents$.pipe(
       takeUntil(this.destroy$)
     ).subscribe(events => {
-      if (this.map && events.length > 0) {
+      if (this.map) {
         requestAnimationFrame(() => {
           this.updateMarkers(events);
+        });
+      }
+    });
+
+    // 當小說篩選變更時，自動縮放地圖以顯示該小說的所有事件
+    this.store.select(TimeMapSelectors.selectSelectedNovel).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(novel => {
+      this._selectedNovel = novel;
+      if (this.map && novel) {
+        this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(take(1)).subscribe(events => {
+          this.fitMapToEvents(events);
         });
       }
     });
@@ -67,14 +85,12 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.initMap();
 
-      // 地圖初始化完成後，檢查是否有已載入的事件並添加標記
-      // 因為訂閱可能在 map 初始化前就觸發過，所以手動獲取當前值
+      // 地圖初始化完成後，獲取當前可見事件並添加標記
       this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(
-        take(1), // 只取一次當前值
+        take(1),
         takeUntil(this.destroy$)
       ).subscribe(events => {
-        if (this.map && events.length > 0) {
-          // 使用 requestAnimationFrame 確保地圖完全初始化後再添加標記
+        if (this.map) {
           requestAnimationFrame(() => {
             this.updateMarkers(events);
           });
@@ -116,12 +132,12 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 金庸世界觀地理範圍：涵蓋所有小說涉及地域
     // 緯度：10°N 到 55°N（從南洋到西伯利亞南部，涵蓋冰火島）
-    // 經度：60°E 到 145°E（從中亞到日本，涵蓋整個西域）
+    // 經度：55°E 到 155°E（從中亞到西北太平洋，涵蓋西域、日本、冰火島）
     // 涵蓋：中國全境、西域/中亞、蒙古、朝鮮半島、日本、東南亞北部
-    // 新增範圍：西域（75-85°E）、冰火島（~50°N）、俠客島（南海）
+    // 冰火島座標約 (48°N, 148°E)，經度需延伸至 155°E 以上
     const jymapBounds: L.LatLngBoundsExpression = [
-      [10, 60],   // 西南角（南洋/緬甸，哈薩克東部）
-      [55, 145]   // 東北角（西伯利亞南部/日本海，涵蓋冰火島）
+      [10, 55],   // 西南角（南洋/緬甸，哈薩克東部）
+      [55, 155]   // 東北角（西伯利亞南部/西北太平洋，涵蓋冰火島）
     ];
 
     // 建立地圖實例
@@ -361,7 +377,6 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // 只處理有效座標的事件
     const validEvents = events.filter(
       event => event.validationStatus === 'valid' &&
         !isNaN(event.lat) && !isNaN(event.lng) &&
@@ -369,84 +384,49 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
         event.lng >= -180 && event.lng <= 180
     );
 
-    // 建立新事件 ID 集合
     const newEventIds = new Set(validEvents.map(e => e.id));
-    const currentEventIds = new Set(this.markers.map(m => {
-      const eventId = (m as any).eventId;
-      return eventId;
-    }));
 
-    // 找出需要移除的標記（存在於當前但不在新列表中）
-    const markersToRemove: L.Marker[] = [];
-    this.markers.forEach(marker => {
-      const eventId = (marker as any).eventId;
-      if (eventId && !newEventIds.has(eventId)) {
-        markersToRemove.push(marker);
-      }
+    // 找出需要移除的標記（不在新事件列表中）
+    const markersToRemove = this.markers.filter(m => {
+      const eventId = (m as any).eventId;
+      return eventId && !newEventIds.has(eventId);
     });
 
-    // 找出需要添加的事件（存在於新列表但不在當前）
-    const eventsToAdd = validEvents.filter(e => !currentEventIds.has(e.id));
-
-    // 實作淡出動畫並移除標記
+    // 移除舊標記（淡出動畫）
     markersToRemove.forEach((marker, index) => {
-      const markerElement = marker.getElement();
-      if (markerElement) {
-        markerElement.style.transition = 'opacity 200ms ease-out';
-        markerElement.style.opacity = '0';
-
-        // 動畫完成後移除
-        setTimeout(() => {
-          if (this.map && this.markers.includes(marker)) {
-            this.map.removeLayer(marker);
-            const markerIndex = this.markers.indexOf(marker);
-            if (markerIndex > -1) {
-              this.markers.splice(markerIndex, 1);
-            }
-          }
-        }, 200 + index * 10); // 錯開移除時間
-      } else {
-        // 如果元素不存在，直接移除
+      const el = marker.getElement();
+      if (el) {
+        el.style.transition = 'opacity 200ms ease-out';
+        el.style.opacity = '0';
+      }
+      setTimeout(() => {
         if (this.map) {
           this.map.removeLayer(marker);
-          const markerIndex = this.markers.indexOf(marker);
-          if (markerIndex > -1) {
-            this.markers.splice(markerIndex, 1);
-          }
         }
-      }
+      }, 200 + index * 10);
     });
 
-    // 添加新標記並實作淡入動畫
-    eventsToAdd.forEach((event, index) => {
-      setTimeout(() => {
-        const marker = this.createMarker(event);
-        if (marker) {
-          // 儲存 eventId 以便後續比較
-          (marker as any).eventId = event.id;
+    // 等淡出完成後，清除 markers 陣列並重新加入所有新標記
+    const delay = markersToRemove.length > 0 ? 250 : 0;
+    setTimeout(() => {
+      // 從 this.markers 中移除已被清除的標記
+      this.markers = this.markers.filter(m => !markersToRemove.includes(m));
 
-          const markerElement = marker.getElement();
-          if (markerElement) {
-            markerElement.style.opacity = '0';
-            markerElement.style.transition = 'opacity 200ms ease-in';
+      // 找出真正需要新增的事件（不在當前 markers 中）
+      const existingIds = new Set(this.markers.map(m => (m as any).eventId));
+      const eventsToAdd = validEvents.filter(e => !existingIds.has(e.id));
+
+      eventsToAdd.forEach((event, i) => {
+        setTimeout(() => {
+          const marker = this.createMarker(event);
+          if (marker) {
+            (marker as any).eventId = event.id;
+            marker.addTo(this.map!);
+            this.markers.push(marker);
           }
-
-          marker.addTo(this.map!);
-          this.markers.push(marker);
-
-          // 使用 requestAnimationFrame 確保流暢動畫
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              if (markerElement) {
-                markerElement.style.opacity = '1';
-              }
-            }, 10);
-          });
-        }
-      }, markersToRemove.length > 0 ? 250 + index * 10 : index * 10); // 等待淡出動畫完成
-    });
-
-    // 標記更新完成（已移除本地 events 變數，完全使用 NgRx）
+        }, i * 10);
+      });
+    }, delay);
   }
 
   /**
@@ -487,6 +467,42 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
    */
   getMap(): L.Map | null {
     return this.map;
+  }
+
+  /**
+   * 縮放地圖以容納所有指定事件
+   */
+  fitMapToEvents(events: ValidatedEvent[]): void {
+    if (!this.map || events.length === 0) {
+      return;
+    }
+
+    const validEvents = events.filter(
+      event => event.validationStatus === 'valid' &&
+        !isNaN(event.lat) && !isNaN(event.lng)
+    );
+
+    if (validEvents.length === 0) {
+      return;
+    }
+
+    if (validEvents.length === 1) {
+      this.map.flyTo([validEvents[0].lat, validEvents[0].lng], 7, {
+        duration: 1.0,
+        easeLinearity: 0.25
+      });
+      return;
+    }
+
+    const bounds = L.latLngBounds(
+      validEvents.map(e => L.latLng(e.lat, e.lng))
+    );
+    this.map.flyToBounds(bounds, {
+      padding: [50, 50],
+      maxZoom: 8,
+      duration: 1.0,
+      easeLinearity: 0.25
+    });
   }
 
   /**

@@ -34,13 +34,13 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   @Output() timeRangeChange = new EventEmitter<{ startYear: number; endYear: number } | null>();
   @Output() eventDotClick = new EventEmitter<string>();
 
-  // 時間範圍設定（春秋前 473 年～清乾隆 18 世紀，約 1800 年）
-  readonly minYear = -473; // 春秋前 473 年
-  readonly maxYear = 1800; // 清乾隆 18 世紀
-  readonly totalYears = 1800 - (-473) + 1; // 總年數：2274 年
+  // 時間範圍設定（西元前 500 年～清乾隆 1800 年）
+  readonly minYear = -500;
+  readonly maxYear = 1800;
+  readonly totalYears = 1800 - (-500) + 1; // 總年數：2301 年
 
   readonly dynastyBands: DynastyBand[] = [
-    { name: '春秋', startYear: -473, endYear: -221, color: '#8B7355' },
+    { name: '春秋', startYear: -500, endYear: -221, color: '#8B7355' },
     { name: '秦', startYear: -221, endYear: -206, color: '#7A7A6B' },
     { name: '漢', startYear: -206, endYear: 220, color: '#6B7A6B' },
     { name: '三國', startYear: 220, endYear: 280, color: '#8B6B5B' },

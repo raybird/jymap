@@ -1,5 +1,7 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
 import { RelatedEventsService } from '../../../core/services/related-events.service';
@@ -13,12 +15,13 @@ import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
   templateUrl: './event-card.component.html',
   styleUrl: './event-card.component.scss'
 })
-export class EventCardComponent implements OnChanges {
+export class EventCardComponent implements OnChanges, OnDestroy {
   @Input() event: ValidatedEvent | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() navigateToEvent = new EventEmitter<ValidatedEvent>();
 
   relatedEvents: ValidatedEvent[] = [];
+  private destroy$ = new Subject<void>();
 
   constructor(
     private store: Store<AppState>,
@@ -31,9 +34,16 @@ export class EventCardComponent implements OnChanges {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   private findRelated(): void {
     if (!this.event) return;
-    this.store.select(TimeMapSelectors.selectAllEvents).subscribe(allEvents => {
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(allEvents => {
       this.relatedEvents = this.relatedEventsService.findRelatedEvents(this.event!, allEvents, 5);
     });
   }

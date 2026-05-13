@@ -52,7 +52,9 @@
   </mat-sidenav-content>
 
   <!-- 右側抽屜：事件卡片 -->
-  <mat-sidenav class="event-card-sidenav" position="end" [opened]="(selectedEvent$ | async) !== null" mode="over">
+  <mat-sidenav class="event-card-sidenav" #eventSidenav position="end"
+    [opened]="(selectedEvent$ | async) !== null" mode="over"
+    (closed)="onCloseEventCard()">
     <app-event-card [event]="selectedEvent$ | async" (close)="onCloseEventCard()"
       (navigateToEvent)="onNavigateToEvent($event)">
     </app-event-card>

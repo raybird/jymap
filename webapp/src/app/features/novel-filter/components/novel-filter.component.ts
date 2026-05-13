@@ -34,15 +34,15 @@ import * as TimeMapActions from '../../../core/state/time-map.actions';
       padding: 8px 32px 8px 12px;
       font-size: 14px;
       font-family: 'Noto Sans TC', sans-serif;
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(210, 190, 160, 0.2);
       border-radius: 6px;
-      background: rgba(20, 20, 20, 0.85);
-      color: #e0d5c0;
-      backdrop-filter: blur(8px);
+      background: rgba(255, 255, 255, 0.72);
+      color: #2c241b;
+      backdrop-filter: blur(6px);
       cursor: pointer;
       min-width: 160px;
       appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23e0d5c0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%232c241b' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
       background-repeat: no-repeat;
       background-position: right 10px center;
     }
@@ -55,8 +55,8 @@ import * as TimeMapActions from '../../../core/state/time-map.actions';
       box-shadow: 0 0 0 2px rgba(196, 30, 58, 0.2);
     }
     .novel-select option {
-      background: #1a1a1a;
-      color: #e0d5c0;
+      background: #f4e4bc;
+      color: #2c241b;
     }
   `]
 })
