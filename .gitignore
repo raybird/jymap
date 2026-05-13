@@ -1,6 +1,7 @@
 .bmad/
 .cursor/
 .gemini/
+.claude/
 
 database.db
 

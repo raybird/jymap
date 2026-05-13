@@ -56,16 +56,11 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    // 當小說篩選變更時，自動縮放地圖以顯示該小說的所有事件
+    // 當小說篩選變更時，更新 _selectedNovel 以控制標記樣式（飛地圖由 AppComponent 統一處理）
     this.store.select(TimeMapSelectors.selectSelectedNovel).pipe(
       takeUntil(this.destroy$)
     ).subscribe(novel => {
       this._selectedNovel = novel;
-      if (this.map && novel) {
-        this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(take(1)).subscribe(events => {
-          this.fitMapToEvents(events);
-        });
-      }
     });
   }
 

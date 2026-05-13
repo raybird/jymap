@@ -92,6 +92,35 @@ export class AppComponent implements OnInit, OnDestroy {
         this.searchService.setEvents(events);
       }
     });
+
+    // 小說篩選變更時，捲動時間軸並飛到地圖到該小說的年份範圍
+    this.selectedNovel$.pipe(
+      takeUntil(this.destroy$),
+      distinctUntilChanged()
+    ).subscribe(novel => {
+      if (!novel) {
+        this.store.dispatch(TimeMapActions.clearTimeRange());
+        return;
+      }
+      this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(allEvents => {
+        const novelEvents = allEvents.filter(e => e.novel === novel);
+        if (novelEvents.length === 0) return;
+        const years = novelEvents.map(e => e.year).sort((a, b) => a - b);
+        const minYear = years[0];
+        const maxYear = years[years.length - 1];
+        const midYear = Math.round((minYear + maxYear) / 2);
+        this.store.dispatch(TimeMapActions.setTimeRange({
+          startYear: minYear - 20,
+          endYear: maxYear + 20
+        }));
+        if (this.timelineComponent) {
+          this.timelineComponent.scrollToYear(midYear);
+        }
+        if (this.mapComponent) {
+          this.mapComponent.fitMapToEvents(novelEvents);
+        }
+      });
+    });
   }
 
   loadData(): void {
