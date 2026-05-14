@@ -91,20 +91,62 @@
       padding: 4px;
       z-index: 310;
     }
-
-    app-novel-filter {
-      flex-shrink: 0;
-      z-index: 310;
-    }
   }
 
   .search-results-overlay {
     width: 100%;
     @extend %glass-panel;
-    max-height: 380px;
+    max-height: 420px;
     overflow-y: auto;
     animation: fadeInDown 0.25s ease-out;
     z-index: 320;
+  }
+
+  .novel-dropdown {
+    padding: 8px 0;
+
+    .novel-dropdown-header {
+      padding: 6px 16px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: rgba(44, 36, 27, 0.5);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border-bottom: 1px solid rgba(44, 36, 27, 0.08);
+      margin-bottom: 4px;
+    }
+
+    .novel-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 16px;
+      background: transparent;
+      border: none;
+      text-align: left;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-family: var(--font-body, 'Noto Sans TC', sans-serif);
+      color: #2c241b;
+      transition: background 0.15s ease;
+      border-radius: 4px;
+
+      .novel-icon {
+        font-size: 1rem;
+        flex-shrink: 0;
+      }
+
+      &:hover {
+        background: rgba(139, 115, 85, 0.08);
+      }
+
+      &.active {
+        background: rgba(196, 30, 58, 0.08);
+        color: #8b2030;
+        font-weight: 600;
+      }
+    }
   }
 }
 
@@ -113,7 +155,7 @@
   bottom: 16px;
   left: 16px;
   right: 16px;
-  height: 80px;
+  height: 96px;
   z-index: 200;
   pointer-events: auto !important;
 
@@ -170,7 +212,7 @@
     bottom: 12px;
     left: 12px;
     right: 12px;
-    height: 70px;
+    height: 90px;
   }
 }
 
@@ -180,6 +222,6 @@
     max-width: 100vw;
   }
   .bottom-overlay {
-    height: 64px;
+    height: 100px;
   }
 }

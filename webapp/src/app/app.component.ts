@@ -10,7 +10,6 @@ import { MapContainerComponent } from './features/map/components/map-container.c
 import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
 import { SearchBoxComponent } from './features/search/components/search-box.component';
 import { SearchResultsComponent } from './features/search/components/search-results.component';
-import { NovelFilterComponent } from './features/novel-filter/components/novel-filter.component';
 import { EventCardComponent } from './features/event-detail/components/event-card.component';
 import { AppState } from './core/state/app.state';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
@@ -21,7 +20,7 @@ import { Logger } from './core/utils/logger';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, NovelFilterComponent, EventCardComponent],
+  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -46,6 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
   searchResults: SearchResult[] = [];
   searchKeyword = '';
+  isSearchFocused = false;
+  novels: string[] = [];
 
   private timeRangeChange$ = new Subject<{ startYear: number; endYear: number } | null>();
   private destroy$ = new Subject<void>();
@@ -91,6 +92,13 @@ export class AppComponent implements OnInit, OnDestroy {
       if (events.length > 0) {
         this.searchService.setEvents(events);
       }
+    });
+
+    // 訂閱小說列表供 autocomplete 下拉使用
+    this.store.select(TimeMapSelectors.selectAllNovels).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(novels => {
+      this.novels = novels;
     });
 
     // 小說篩選變更時，捲動時間軸並飛到地圖到該小說的年份範圍
@@ -257,4 +265,20 @@ export class AppComponent implements OnInit, OnDestroy {
       endYear: event.year + yearRange
     }));
   }
+
+  /**
+   * 處理搜尋框聚焦狀態變化（控制下拉選單顯示）
+   */
+  onSearchFocusChange(isFocused: boolean): void {
+    this.isSearchFocused = isFocused;
+  }
+
+  /**
+   * 處理從 autocomplete 下拉選取小說
+   */
+  onNovelSelect(novel: string | null): void {
+    this.store.dispatch(TimeMapActions.setNovelFilter({ novel }));
+    this.isSearchFocused = false;
+  }
 }
+

@@ -28,7 +28,7 @@ import * as TimeMapActions from '../../../core/state/time-map.actions';
   `,
   styles: [`
     .novel-filter {
-      margin-left: 12px;
+      margin-left: 0;
     }
     .novel-select {
       padding: 8px 32px 8px 12px;

@@ -12,18 +12,47 @@
       <div class="ui-layer">
         <div class="top-overlay">
           <div class="top-bar">
-            <app-search-box (searchResultsChange)="onSearchResultsChange($event)"
-              (searchKeywordChange)="onSearchKeywordChange($event)">
+            <app-search-box
+              [selectedNovel]="(selectedNovel$ | async) ?? null"
+              (searchResultsChange)="onSearchResultsChange($event)"
+              (searchKeywordChange)="onSearchKeywordChange($event)"
+              (focusChange)="onSearchFocusChange($event)"
+              (novelClear)="onNovelSelect(null)">
             </app-search-box>
-            <app-novel-filter></app-novel-filter>
           </div>
 
-          @if (searchKeyword && searchKeyword.trim().length > 0) {
-          <div class="search-results-overlay">
-            <app-search-results [results]="searchResults" [maxResults]="10" [showTopResults]="true"
-              (resultClick)="onSearchResultClick($event)">
-            </app-search-results>
-          </div>
+          <!-- Autocomplete 下拉覆蓋層 -->
+          @if (isSearchFocused) {
+            <div class="search-results-overlay">
+              <!-- 有輸入關鍵字：顯示搜尋結果 -->
+              @if (searchKeyword && searchKeyword.trim().length > 0) {
+                <app-search-results [results]="searchResults" [maxResults]="10" [showTopResults]="true"
+                  (resultClick)="onSearchResultClick($event)">
+                </app-search-results>
+              }
+              <!-- 無關鍵字：顯示小說選擇列表 -->
+              @else {
+                <div class="novel-dropdown">
+                  <div class="novel-dropdown-header">選擇小說篩選</div>
+                  <button
+                    class="novel-option"
+                    [class.active]="(selectedNovel$ | async) === null"
+                    (click)="onNovelSelect(null)">
+                    <span class="novel-icon">📚</span>
+                    <span>所有小說（顯示全部）</span>
+                  </button>
+                  @for (novel of novels; track novel) {
+                    <button
+                      class="novel-option"
+                      [class.active]="(selectedNovel$ | async) === novel"
+                      (click)="onNovelSelect(novel)">
+                      <span class="novel-icon">📖</span>
+                      <span>{{ novel }}</span>
+                    </button>
+                  }
+                </div>
+              }
+            </div>
           }
         </div>
 

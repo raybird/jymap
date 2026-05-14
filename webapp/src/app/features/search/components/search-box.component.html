@@ -1,5 +1,16 @@
 <div class="search-box-container">
-  <div class="search-input-wrapper">
+  <div class="search-input-wrapper" [class.has-chip]="selectedNovel">
+    @if (selectedNovel) {
+      <span class="novel-chip">
+        {{ selectedNovel }}
+        <button
+          type="button"
+          class="chip-clear"
+          (click)="novelClear.emit(); $event.stopPropagation()"
+          aria-label="清除小說篩選"
+        >✕</button>
+      </span>
+    }
     <input
       #searchInput
       type="text"
@@ -7,9 +18,10 @@
       [value]="searchKeyword"
       (input)="onSearchInput($event)"
       (keydown)="onKeyDown($event)"
-      placeholder="搜尋地點、事件、人物、小說名稱..."
-      aria-label="搜尋地點、事件、人物、小說名稱"
-      aria-describedby="search-hint"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      [placeholder]="selectedNovel ? '搜尋地點、事件、人物...' : '選擇小說或輸入關鍵字...'"
+      aria-label="搜尋或選擇小說"
       autocomplete="off"
     />
     @if (searchKeyword) {
@@ -29,8 +41,4 @@
       </span>
     }
   </div>
-  <p id="search-hint" class="search-hint">
-    支援模糊搜尋，可搜尋事件標題、朝代、人物、小說名稱等
-  </p>
 </div>
-
