@@ -49,7 +49,7 @@
   opacity: 0.6;
   border-radius: 4px;
   transition: all 0.2s ease;
-  overflow: hidden;
+  overflow: visible; /* 不裁切子元素，否則 event-dot 的 ::after 熱區會被切掉 */
 
   &:hover {
     opacity: 0.95;
@@ -86,9 +86,10 @@
 .event-dots {
   position: relative;
   width: 100%;
-  height: 16px;
-  z-index: 6;
+  height: 44px; /* 必須與 ::after 熱區等高，否則超出部分被裁切 */
+  z-index: 15;  /* 高於 year-ticks (10) 與 dynasty-bands (5)，確保能接收點擊 */
   margin-top: 2px;
+  overflow: visible;
 }
 
 .event-dot {

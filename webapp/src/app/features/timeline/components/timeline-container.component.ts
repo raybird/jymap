@@ -62,6 +62,12 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   private scrollLeft = 0;
   private currentScrollLeft = 0;
 
+  // 觸控起始座標（用於判斷點擊 vs 拖曳）
+  private touchStartX = 0;
+  private touchStartY = 0;
+  private touchMoved = false;
+  private readonly DRAG_THRESHOLD = 8; // 移動超過 8px 才算拖曳
+
   // 時間範圍選擇狀態
   selectedStartYear: number | null = null;
   selectedEndYear: number | null = null;
@@ -120,7 +126,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     document.addEventListener('mouseup', this.onDragEnd.bind(this));
 
     // 觸控事件（平板）
-    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: false });
+    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
     container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
     container.addEventListener('touchend', this.onTouchEnd.bind(this));
   }
@@ -331,44 +337,58 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     if (!this.timelineContainer || e.touches.length !== 1) return;
 
     const touch = e.touches[0];
-    this.isDragging = true;
+    this.touchStartX = touch.pageX;
+    this.touchStartY = touch.pageY;
+    this.touchMoved = false;
     this.dragStartX = touch.pageX - this.timelineContainer.nativeElement.offsetLeft;
     this.scrollLeft = this.timelineContainer.nativeElement.scrollLeft;
-    e.preventDefault();
+    // 不在 touchstart 就 preventDefault，讓 click 事件能正常觸發
   }
 
   /**
    * 觸控拖曳中（使用 requestAnimationFrame 確保流暢，符合 NFR2, NFR31, NFR32）
    */
   private onTouchMove(e: TouchEvent): void {
-    if (!this.isDragging || !this.timelineContainer || e.touches.length !== 1) return;
+    if (!this.timelineContainer || e.touches.length !== 1) return;
 
-    e.preventDefault();
-    
-    // 使用 requestAnimationFrame 優化觸控拖曳效能
-    requestAnimationFrame(() => {
-      if (!this.timelineContainer) return;
+    const touch = e.touches[0];
+    const deltaX = Math.abs(touch.pageX - this.touchStartX);
+    const deltaY = Math.abs(touch.pageY - this.touchStartY);
+
+    // 移動距離超過門檻才算拖曳，避免誤判點擊
+    if (deltaX > this.DRAG_THRESHOLD || deltaY > this.DRAG_THRESHOLD) {
+      this.touchMoved = true;
+      this.isDragging = true;
+      e.preventDefault(); // 只在確認是拖曳時才阻止預設行為
       
-      const touch = e.touches[0];
-      const x = touch.pageX - this.timelineContainer.nativeElement.offsetLeft;
-      const walk = (x - this.dragStartX) * 2;
-      const newScrollLeft = this.scrollLeft - walk;
-      
-      // 限制拖曳範圍在有效時間範圍內
-      const maxScroll = this.timelineContainer.nativeElement.scrollWidth - 
-                       this.timelineContainer.nativeElement.clientWidth;
-      this.timelineContainer.nativeElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
-      
-      // 發送當前可見時間範圍（拖曳中即時更新，符合 Story 4.2）
-      this.emitCurrentVisibleRange();
-    });
+      requestAnimationFrame(() => {
+        if (!this.timelineContainer) return;
+        
+        const x = touch.pageX - this.timelineContainer.nativeElement.offsetLeft;
+        const walk = (x - this.dragStartX) * 2;
+        const newScrollLeft = this.scrollLeft - walk;
+        
+        const maxScroll = this.timelineContainer.nativeElement.scrollWidth - 
+                         this.timelineContainer.nativeElement.clientWidth;
+        this.timelineContainer.nativeElement.scrollLeft = Math.max(0, Math.min(newScrollLeft, maxScroll));
+        
+        this.emitCurrentVisibleRange();
+      });
+    }
   }
 
   /**
    * 觸控拖曳結束
    */
   private onTouchEnd(): void {
+    if (!this.touchMoved) {
+      // 沒有拖曳，視為點擊，讓瀏覽器繼續傳遞 click 事件
+      this.isDragging = false;
+      return;
+    }
+    
     this.isDragging = false;
+    this.touchMoved = false;
     
     // 拖曳結束後發送當前可見時間範圍（符合 Story 4.2）
     this.emitCurrentVisibleRange();
