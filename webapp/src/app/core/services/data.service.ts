@@ -28,8 +28,8 @@ export interface DataLoadResult<T> {
   providedIn: 'root'
 })
 export class DataService {
-  private readonly eventsUrl = '/assets/data/events.json';
-  private readonly timelineUrl = '/assets/data/timeline.json';
+  private readonly eventsUrl = 'assets/data/events.json';
+  private readonly timelineUrl = 'assets/data/timeline.json';
 
   constructor(private http: HttpClient) {}
 
