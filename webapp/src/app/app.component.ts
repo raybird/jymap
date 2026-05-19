@@ -11,6 +11,7 @@ import { TimelineContainerComponent } from './features/timeline/components/timel
 import { SearchBoxComponent } from './features/search/components/search-box.component';
 import { SearchResultsComponent } from './features/search/components/search-results.component';
 import { EventCardComponent } from './features/event-detail/components/event-card.component';
+import { CharacterPanelComponent } from './features/character-detail/components/character-panel.component';
 import { AppState } from './core/state/app.state';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
 import * as TimeMapActions from './core/state/time-map.actions';
@@ -20,7 +21,7 @@ import { Logger } from './core/utils/logger';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent],
+  imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
   error$!: Observable<string | null>;
   selectedEvent$!: Observable<ValidatedEvent | null>;
   selectedNovel$!: Observable<string | null>;
+  selectedCharacter$!: Observable<string | null>;
   validationStats$!: Observable<{
     total: number;
     valid: number;
@@ -47,6 +49,7 @@ export class AppComponent implements OnInit, OnDestroy {
   searchKeyword = '';
   isSearchFocused = false;
   novels: string[] = [];
+  characters: string[] = [];
 
   private timeRangeChange$ = new Subject<{ startYear: number; endYear: number } | null>();
   private destroy$ = new Subject<void>();
@@ -82,6 +85,7 @@ export class AppComponent implements OnInit, OnDestroy {
     this.validationStats$ = this.store.select(TimeMapSelectors.selectValidationStats);
     this.selectedEvent$ = this.store.select(TimeMapSelectors.selectSelectedEvent);
     this.selectedNovel$ = this.store.select(TimeMapSelectors.selectSelectedNovel);
+    this.selectedCharacter$ = this.store.select(TimeMapSelectors.selectSelectedCharacter);
 
     this.loadData();
 
@@ -99,6 +103,12 @@ export class AppComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(novels => {
       this.novels = novels;
+    });
+
+    this.store.select(TimeMapSelectors.selectAllCharacters).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(list => {
+      this.characters = list;
     });
 
     // 小說篩選變更時，捲動時間軸並飛到地圖到該小說的年份範圍
@@ -279,6 +289,34 @@ export class AppComponent implements OnInit, OnDestroy {
   onNovelSelect(novel: string | null): void {
     this.store.dispatch(TimeMapActions.setNovelFilter({ novel }));
     this.isSearchFocused = false;
+  }
+
+  onCharacterClick(name: string): void {
+    if (!name) return;
+    this.store.dispatch(TimeMapActions.selectCharacter({ character: name }));
+    this.isSearchFocused = false;
+    this.store.select(TimeMapSelectors.selectCharacterEvents).pipe(take(1)).subscribe(events => {
+      if (events.length === 0) return;
+      const years = events.map(e => e.year);
+      const mid = Math.round((Math.min(...years) + Math.max(...years)) / 2);
+      if (this.timelineComponent) {
+        setTimeout(() => this.timelineComponent.scrollToYear(mid), 100);
+      }
+    });
+  }
+
+  onCloseCharacterPanel(): void {
+    this.store.dispatch(TimeMapActions.clearSelectedCharacter());
+  }
+
+  onSidenavClosed(): void {
+    this.store.select(TimeMapSelectors.selectSelectedCharacter).pipe(take(1)).subscribe(c => {
+      if (c !== null) {
+        this.store.dispatch(TimeMapActions.clearSelectedCharacter());
+      } else {
+        this.store.dispatch(TimeMapActions.clearSelectedEvent());
+      }
+    });
   }
 }
 

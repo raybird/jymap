@@ -116,6 +116,16 @@
       margin-bottom: 4px;
     }
 
+    .dropdown-section-divider {
+      border-top: 1px solid #e0d8cc;
+      margin-top: 6px;
+      padding-top: 10px;
+    }
+
+    .character-option {
+      .novel-icon { opacity: 0.85; }
+    }
+
     .novel-option {
       display: flex;
       align-items: center;

@@ -5,7 +5,9 @@
     <div class="app-viewport">
       <div class="map-layer">
         <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5"
-          [selectedNovel]="(selectedNovel$ | async) || null" (eventClick)="onMapEventClick($event)">
+          [selectedNovel]="(selectedNovel$ | async) || null"
+          (eventClick)="onMapEventClick($event)"
+          (characterClick)="onCharacterClick($event)">
         </app-map-container>
       </div>
 
@@ -50,6 +52,19 @@
                       <span>{{ novel }}</span>
                     </button>
                   }
+
+                  @if (characters.length > 0) {
+                    <div class="novel-dropdown-header dropdown-section-divider">追蹤人物軌跡</div>
+                    @for (c of characters; track c) {
+                      <button
+                        class="novel-option character-option"
+                        [class.active]="(selectedCharacter$ | async) === c"
+                        (click)="onCharacterClick(c)">
+                        <span class="novel-icon">⛩️</span>
+                        <span>{{ c }}</span>
+                      </button>
+                    }
+                  }
                 </div>
               }
             </div>
@@ -80,12 +95,20 @@
 
   </mat-sidenav-content>
 
-  <!-- 右側抽屜：事件卡片 -->
+  <!-- 右側抽屜：人物面板 或 事件卡片 -->
   <mat-sidenav class="event-card-sidenav" #eventSidenav position="end"
-    [opened]="(selectedEvent$ | async) !== null" mode="over"
-    (closed)="onCloseEventCard()">
-    <app-event-card [event]="selectedEvent$ | async" (close)="onCloseEventCard()"
-      (navigateToEvent)="onNavigateToEvent($event)">
-    </app-event-card>
+    [opened]="((selectedEvent$ | async) !== null) || ((selectedCharacter$ | async) !== null)"
+    mode="over"
+    (closed)="onSidenavClosed()">
+    <ng-container *ngIf="(selectedCharacter$ | async) !== null; else eventCardTpl">
+      <app-character-panel (close)="onCloseCharacterPanel()"></app-character-panel>
+    </ng-container>
+    <ng-template #eventCardTpl>
+      <app-event-card [event]="selectedEvent$ | async"
+                      (close)="onCloseEventCard()"
+                      (navigateToEvent)="onNavigateToEvent($event)"
+                      (characterClick)="onCharacterClick($event)">
+      </app-event-card>
+    </ng-template>
   </mat-sidenav>
 </mat-sidenav-container>
