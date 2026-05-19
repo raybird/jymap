@@ -280,7 +280,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 添加彈出視窗
     const characterLinks = event.characters
-      .map(c => `<a class="popup-character" data-character="${encodeURIComponent(c)}" href="#">${c}</a>`)
+      .map(c => `<a class="popup-character" data-character="${this.escapeHtml(encodeURIComponent(c))}" href="#">${this.escapeHtml(c)}</a>`)
       .join('、');
 
     marker.bindPopup(`
@@ -601,6 +601,15 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     Logger.debug('高亮標記:', eventId, '位置:', position);
+  }
+
+  private escapeHtml(s: string): string {
+    return s
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
   }
 
   private computeWeight(event: ValidatedEvent): boolean {
