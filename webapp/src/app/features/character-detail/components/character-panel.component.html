@@ -1,0 +1,52 @@
+<div class="character-panel" *ngIf="(character$ | async) as name">
+  <div class="panel-header">
+    <div class="header-left">
+      <div class="header-label">追蹤中</div>
+      <h3>{{ name }}</h3>
+    </div>
+    <button class="close-btn" (click)="close.emit()" aria-label="關閉人物面板">✕</button>
+  </div>
+
+  <ng-container *ngIf="(events$ | async) as events">
+    <div class="panel-meta">
+      <div class="meta-row">
+        <span class="meta-label">出現於</span>
+        <span class="meta-value">
+          <span class="novel-chip" *ngFor="let n of (novels$ | async)">{{ n }}</span>
+        </span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">活躍年代</span>
+        <span class="meta-value">{{ getActiveRangeText(events) }}</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">參與事件</span>
+        <span class="meta-value">{{ events.length }} 起</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-label">地點數</span>
+        <span class="meta-value">{{ getLocationCount(events) }}</span>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <h4 class="section-title">事件年表</h4>
+      <div class="empty-hint" *ngIf="events.length === 0">無事件資料</div>
+      <ol class="event-list">
+        <li class="event-item"
+            *ngFor="let e of events; let i = index"
+            (click)="onEventClick(e)"
+            [attr.aria-label]="'查看事件 ' + e.title">
+          <span class="seq">{{ i + 1 }}</span>
+          <div class="event-meta">
+            <div class="event-title">
+              {{ e.title }}
+              <span class="invalid-flag" *ngIf="isInvalidCoordinate(e)" title="座標缺失">⚠</span>
+            </div>
+            <div class="event-sub">{{ e.dynasty }} · {{ getYearText(e.year) }} · {{ e.novel }}</div>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </ng-container>
+</div>
