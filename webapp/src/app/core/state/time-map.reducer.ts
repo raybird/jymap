@@ -186,6 +186,22 @@ export const timeMapReducer = createReducer(
       selectedCharacterVersion: state.selectedCharacterVersion + 1,
       visibleEvents: applyFilters(state.events, newRange, null)
     };
+  }),
+
+  // 退出人物模式
+  on(TimeMapActions.clearSelectedCharacter, (state) => {
+    const snapshot = state.preCharacterSnapshot;
+    const restoredRange = snapshot?.timeRange ?? null;
+    const restoredNovel = snapshot?.selectedNovel ?? null;
+
+    return {
+      ...state,
+      selectedCharacter: null,
+      preCharacterSnapshot: null,
+      currentTimeRange: restoredRange,
+      selectedNovel: restoredNovel,
+      visibleEvents: applyFilters(state.events, restoredRange, restoredNovel)
+    };
   })
 );
 

@@ -109,4 +109,53 @@ describe('timeMapReducer - character mode', () => {
       expect(ids).toEqual(['e1', 'e2', 'e3']);
     });
   });
+
+  describe('clearSelectedCharacter', () => {
+    it('還原 snapshot 中的 timeRange 與 selectedNovel', () => {
+      const inCharMode: TimeMapState = {
+        ...stateWithEvents(),
+        selectedCharacter: '郭靖',
+        selectedCharacterVersion: 1,
+        currentTimeRange: { startYear: 1179, endYear: 1270 },
+        selectedNovel: null,
+        preCharacterSnapshot: {
+          timeRange: { startYear: 1000, endYear: 1300 },
+          selectedNovel: '神鵰俠侶'
+        }
+      };
+      const next = timeMapReducer(inCharMode, TimeMapActions.clearSelectedCharacter());
+      expect(next.currentTimeRange).toEqual({ startYear: 1000, endYear: 1300 });
+      expect(next.selectedNovel).toBe('神鵰俠侶');
+      expect(next.selectedCharacter).toBeNull();
+      expect(next.preCharacterSnapshot).toBeNull();
+    });
+
+    it('snapshot 為 null 時退化為清空 timeRange 與 novel', () => {
+      const noSnapshot: TimeMapState = {
+        ...stateWithEvents(),
+        selectedCharacter: '郭靖',
+        currentTimeRange: { startYear: 1179, endYear: 1270 },
+        preCharacterSnapshot: null
+      };
+      const next = timeMapReducer(noSnapshot, TimeMapActions.clearSelectedCharacter());
+      expect(next.currentTimeRange).toBeNull();
+      expect(next.selectedNovel).toBeNull();
+      expect(next.selectedCharacter).toBeNull();
+    });
+
+    it('visibleEvents 依還原後的 range 與 novel 重算', () => {
+      const inCharMode: TimeMapState = {
+        ...stateWithEvents(),
+        selectedCharacter: '郭靖',
+        currentTimeRange: { startYear: 1179, endYear: 1270 },
+        preCharacterSnapshot: {
+          timeRange: { startYear: 1255, endYear: 1300 },
+          selectedNovel: null
+        }
+      };
+      const next = timeMapReducer(inCharMode, TimeMapActions.clearSelectedCharacter());
+      const ids = next.visibleEvents.map(e => e.id).sort();
+      expect(ids).toEqual(['e3']);
+    });
+  });
 });
