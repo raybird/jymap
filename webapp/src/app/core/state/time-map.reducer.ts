@@ -152,7 +152,41 @@ export const timeMapReducer = createReducer(
   on(TimeMapActions.clearSelectedEvent, (state) => ({
     ...state,
     selectedEventId: null
-  }))
+  })),
+
+  // 進入人物模式
+  on(TimeMapActions.selectCharacter, (state, { character }) => {
+    const name = (character || '').trim();
+    if (name === '') {
+      return state;
+    }
+
+    const charEvents = state.events.filter(e => e.characters.includes(name));
+    if (charEvents.length === 0) {
+      return state;
+    }
+
+    const years = charEvents.map(e => e.year).sort((a, b) => a - b);
+    const startYear = years[0] - 20;
+    const endYear = years[years.length - 1] + 20;
+    const newRange: TimeRange = { startYear, endYear };
+
+    const snapshot = state.preCharacterSnapshot ?? {
+      timeRange: state.currentTimeRange,
+      selectedNovel: state.selectedNovel
+    };
+
+    return {
+      ...state,
+      preCharacterSnapshot: snapshot,
+      currentTimeRange: newRange,
+      selectedNovel: null,
+      selectedEventId: null,
+      selectedCharacter: name,
+      selectedCharacterVersion: state.selectedCharacterVersion + 1,
+      visibleEvents: applyFilters(state.events, newRange, null)
+    };
+  })
 );
 
 /**
