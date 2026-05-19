@@ -4,6 +4,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil, take } from 'rxjs/operators';
 import * as L from 'leaflet';
+import 'leaflet-polylinedecorator';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
 import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
@@ -33,6 +34,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     return this._selectedNovel;
   }
   @Output() eventClick = new EventEmitter<ValidatedEvent>();
+  @Output() characterClick = new EventEmitter<string>();
 
   // NgRx 訂閱
   visibleEvents$: Observable<ValidatedEvent[]>;
@@ -42,6 +44,9 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   private baseLayer: L.TileLayer | null = null;
   private destroy$ = new Subject<void>();
   private _selectedNovel: string | null = null;
+  private trajectoryLayer: L.LayerGroup | null = null;
+  private selectedCharacter: string | null = null;
+  private currentTrajectoryColor: string = '#666666';
 
   constructor(private store: Store<AppState>) {
     this.visibleEvents$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
@@ -61,6 +66,25 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(novel => {
       this._selectedNovel = novel;
+    });
+
+    this.store.select(TimeMapSelectors.selectSelectedCharacter).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(name => {
+      this.selectedCharacter = name;
+      this.refreshMarkerStyles();
+    });
+
+    this.store.select(TimeMapSelectors.selectCharacterDominantNovel).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(novel => {
+      this.currentTrajectoryColor = novel ? this.getNovelColor(novel) : '#666666';
+    });
+
+    this.store.select(TimeMapSelectors.selectCharacterTrajectory).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(points => {
+      this.drawTrajectory(points);
     });
   }
 
@@ -216,6 +240,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
+    this.trajectoryLayer = L.layerGroup().addTo(this.map);
+
     // 確保地圖正確渲染
     setTimeout(() => {
       if (this.map) {
@@ -243,7 +269,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return null;
     }
 
-    const isWeighted = !this.selectedNovel || this.selectedNovel === event.novel;
+    const isWeighted = this.computeWeight(event);
     const icon = this.createInkStyleIcon(event, isWeighted);
 
     // 建立標記
@@ -253,14 +279,34 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     (marker as any).eventId = event.id;
 
     // 添加彈出視窗
+    const characterLinks = event.characters
+      .map(c => `<a class="popup-character" data-character="${encodeURIComponent(c)}" href="#">${c}</a>`)
+      .join('、');
+
     marker.bindPopup(`
       <div class="marker-popup">
         <h3>${event.title}</h3>
         <p><strong>朝代：</strong>${event.dynasty}</p>
         <p><strong>年份：</strong>${event.year}</p>
         <p><strong>作品：</strong>${event.novel}</p>
+        ${event.characters.length > 0 ? `<p><strong>人物：</strong>${characterLinks}</p>` : ''}
       </div>
     `);
+
+    marker.on('popupopen', (ev: L.PopupEvent) => {
+      const container = ev.popup.getElement();
+      if (!container) return;
+      const links = container.querySelectorAll('.popup-character');
+      links.forEach((el) => {
+        el.addEventListener('click', (clickEvent) => {
+          clickEvent.preventDefault();
+          clickEvent.stopPropagation();
+          const raw = (el as HTMLElement).getAttribute('data-character') || '';
+          const name = decodeURIComponent(raw);
+          if (name) this.characterClick.emit(name);
+        });
+      });
+    });
 
     // 添加點擊事件（符合 NFR5: 點擊回應時間 < 500ms）
     marker.on('click', () => {
@@ -555,6 +601,83 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     Logger.debug('高亮標記:', eventId, '位置:', position);
+  }
+
+  private computeWeight(event: ValidatedEvent): boolean {
+    if (this.selectedCharacter) {
+      return event.characters.includes(this.selectedCharacter);
+    }
+    if (this._selectedNovel) {
+      return event.novel === this._selectedNovel;
+    }
+    return true;
+  }
+
+  private refreshMarkerStyles(): void {
+    if (!this.map || this.markers.length === 0) return;
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(events => {
+      const byId = new Map(events.map(e => [e.id, e]));
+      this.markers.forEach(marker => {
+        const eventId = (marker as any).eventId;
+        const ev = byId.get(eventId);
+        if (!ev) return;
+        const weighted = this.computeWeight(ev);
+        marker.setIcon(this.createInkStyleIcon(ev, weighted));
+      });
+    });
+  }
+
+  private drawTrajectory(points: Array<[number, number]>): void {
+    if (!this.map || !this.trajectoryLayer) return;
+
+    this.trajectoryLayer.clearLayers();
+
+    if (points.length < 2) {
+      if (points.length === 1) {
+        this.map.flyTo(points[0], 7, { duration: 0.8 });
+      }
+      return;
+    }
+
+    const color = this.currentTrajectoryColor;
+
+    const line = L.polyline(points, {
+      color,
+      weight: 3,
+      opacity: 0.85,
+      dashArray: '8 6',
+      smoothFactor: 1
+    });
+
+    line.addTo(this.trajectoryLayer);
+
+    try {
+      const PD = (L as any).polylineDecorator;
+      const SymbolNS = (L as any).Symbol;
+      if (typeof PD !== 'function' || !SymbolNS?.arrowHead) {
+        throw new Error('leaflet-polylinedecorator 未載入');
+      }
+      const arrows = PD(line, {
+        patterns: [{
+          offset: 25,
+          repeat: 80,
+          symbol: SymbolNS.arrowHead({
+            pixelSize: 10,
+            polygon: false,
+            pathOptions: { color, weight: 2, opacity: 0.9 }
+          })
+        }]
+      });
+      arrows.addTo(this.trajectoryLayer);
+    } catch (e) {
+      Logger.warn('polylineDecorator 載入失敗，退化為純虛線:', e);
+    }
+
+    this.map.flyToBounds(line.getBounds(), {
+      padding: [60, 60],
+      maxZoom: 7,
+      duration: 1.0
+    });
   }
 }
 
