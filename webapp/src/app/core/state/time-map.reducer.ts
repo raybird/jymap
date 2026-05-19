@@ -24,6 +24,12 @@ export interface TimeMapState {
   loadingEvents: boolean;
   loadingTimeline: boolean;
   error: string | null;
+  selectedCharacter: string | null;
+  selectedCharacterVersion: number;
+  preCharacterSnapshot: {
+    timeRange: TimeRange | null;
+    selectedNovel: string | null;
+  } | null;
   validationStats: {
     total: number;
     valid: number;
@@ -49,6 +55,9 @@ export const initialTimeMapState: TimeMapState = {
   loadingEvents: false,
   loadingTimeline: false,
   error: null,
+  selectedCharacter: null,
+  selectedCharacterVersion: 0,
+  preCharacterSnapshot: null,
   validationStats: null
 };
 
