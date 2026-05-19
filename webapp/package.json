@@ -25,6 +25,7 @@
     "@ngrx/store-devtools": "^18.1.1",
     "fuse.js": "^7.1.0",
     "leaflet": "^1.9.4",
+    "leaflet-polylinedecorator": "^1.6.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.14.10"
