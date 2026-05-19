@@ -58,4 +58,11 @@ export const selectEvent = createAction(
 // 清除選中事件
 export const clearSelectedEvent = createAction('[TimeMap] Clear Selected Event');
 
+// 進入人物模式（選定某人物，觸發軌跡與年表呈現）
+export const selectCharacter = createAction(
+  '[TimeMap] Select Character',
+  props<{ character: string }>()
+);
 
+// 退出人物模式（還原進入前的 timeRange / selectedNovel snapshot）
+export const clearSelectedCharacter = createAction('[TimeMap] Clear Selected Character');
