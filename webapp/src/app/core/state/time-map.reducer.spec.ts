@@ -110,6 +110,58 @@ describe('timeMapReducer - character mode', () => {
     });
   });
 
+  describe('selectEvent in character mode auto-exits', () => {
+    it('selectEvent 時若處於人物模式：還原 snapshot 並選中事件', () => {
+      const inCharMode: TimeMapState = {
+        ...stateWithEvents(),
+        selectedCharacter: '郭靖',
+        selectedCharacterVersion: 1,
+        currentTimeRange: { startYear: 1179, endYear: 1270 },
+        preCharacterSnapshot: {
+          timeRange: { startYear: 1000, endYear: 1300 },
+          selectedNovel: '神鵰俠侶'
+        }
+      };
+      const next = timeMapReducer(inCharMode, TimeMapActions.selectEvent({ eventId: 'e3' }));
+      expect(next.selectedCharacter).toBeNull();
+      expect(next.preCharacterSnapshot).toBeNull();
+      expect(next.currentTimeRange).toEqual({ startYear: 1000, endYear: 1300 });
+      expect(next.selectedNovel).toBe('神鵰俠侶');
+      expect(next.selectedEventId).toBe('e3');
+    });
+
+    it('setNovelFilter 時若處於人物模式：先還原 snapshot 再套用 novel filter', () => {
+      const inCharMode: TimeMapState = {
+        ...stateWithEvents(),
+        selectedCharacter: '郭靖',
+        selectedCharacterVersion: 1,
+        currentTimeRange: { startYear: 1179, endYear: 1270 },
+        preCharacterSnapshot: {
+          timeRange: { startYear: 1000, endYear: 1300 },
+          selectedNovel: null
+        }
+      };
+      const next = timeMapReducer(
+        inCharMode,
+        TimeMapActions.setNovelFilter({ novel: '神鵰俠侶' })
+      );
+      expect(next.selectedCharacter).toBeNull();
+      expect(next.preCharacterSnapshot).toBeNull();
+      expect(next.currentTimeRange).toEqual({ startYear: 1000, endYear: 1300 });
+      expect(next.selectedNovel).toBe('神鵰俠侶');
+    });
+
+    it('非人物模式時 selectEvent 保持原行為', () => {
+      const normal: TimeMapState = {
+        ...stateWithEvents(),
+        currentTimeRange: { startYear: 1000, endYear: 1300 }
+      };
+      const next = timeMapReducer(normal, TimeMapActions.selectEvent({ eventId: 'e1' }));
+      expect(next.currentTimeRange).toEqual({ startYear: 1000, endYear: 1300 });
+      expect(next.selectedEventId).toBe('e1');
+    });
+  });
+
   describe('clearSelectedCharacter', () => {
     it('還原 snapshot 中的 timeRange 與 selectedNovel', () => {
       const inCharMode: TimeMapState = {

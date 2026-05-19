@@ -129,11 +129,25 @@ export const timeMapReducer = createReducer(
   })),
 
   // 設定小說篩選
-  on(TimeMapActions.setNovelFilter, (state, { novel }) => ({
-    ...state,
-    selectedNovel: novel,
-    visibleEvents: applyFilters(state.events, state.currentTimeRange, novel)
-  })),
+  on(TimeMapActions.setNovelFilter, (state, { novel }) => {
+    if (state.selectedCharacter !== null) {
+      const snapshot = state.preCharacterSnapshot;
+      const restoredRange = snapshot?.timeRange ?? null;
+      return {
+        ...state,
+        selectedCharacter: null,
+        preCharacterSnapshot: null,
+        currentTimeRange: restoredRange,
+        selectedNovel: novel,
+        visibleEvents: applyFilters(state.events, restoredRange, novel)
+      };
+    }
+    return {
+      ...state,
+      selectedNovel: novel,
+      visibleEvents: applyFilters(state.events, state.currentTimeRange, novel)
+    };
+  }),
 
   // 設定地圖視圖
   on(TimeMapActions.setMapView, (state, { center, zoom }) => ({
@@ -142,11 +156,28 @@ export const timeMapReducer = createReducer(
   })),
 
   // 選中事件（每次遞增版本號，確保 selector 重複發射）
-  on(TimeMapActions.selectEvent, (state, { eventId }) => ({
-    ...state,
-    selectedEventId: eventId,
-    selectedEventVersion: state.selectedEventVersion + 1
-  })),
+  on(TimeMapActions.selectEvent, (state, { eventId }) => {
+    if (state.selectedCharacter !== null) {
+      const snapshot = state.preCharacterSnapshot;
+      const restoredRange = snapshot?.timeRange ?? null;
+      const restoredNovel = snapshot?.selectedNovel ?? null;
+      return {
+        ...state,
+        selectedCharacter: null,
+        preCharacterSnapshot: null,
+        currentTimeRange: restoredRange,
+        selectedNovel: restoredNovel,
+        visibleEvents: applyFilters(state.events, restoredRange, restoredNovel),
+        selectedEventId: eventId,
+        selectedEventVersion: state.selectedEventVersion + 1
+      };
+    }
+    return {
+      ...state,
+      selectedEventId: eventId,
+      selectedEventVersion: state.selectedEventVersion + 1
+    };
+  }),
 
   // 清除選中事件
   on(TimeMapActions.clearSelectedEvent, (state) => ({
