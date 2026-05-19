@@ -125,6 +125,27 @@
       border-radius: 4px;
       font-size: 0.85rem;
       color: #4a3d32;
+      font-family: inherit;
+      cursor: default;
+
+      &.tag-character {
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s, transform 0.1s;
+
+        &:hover {
+          background: #f3e0a8;
+          border-color: #c8a427;
+        }
+
+        &:active {
+          transform: scale(0.97);
+        }
+
+        &:focus-visible {
+          outline: 2px solid #c8a427;
+          outline-offset: 2px;
+        }
+      }
     }
   }
 

@@ -26,7 +26,12 @@
     <div class="section" *ngIf="event.characters.length > 0">
       <h4>相關人物</h4>
       <div class="characters">
-        <span class="tag" *ngFor="let c of event.characters">{{ c }}</span>
+        <button type="button" class="tag tag-character"
+                *ngFor="let c of event.characters"
+                (click)="onCharacterClick(c)"
+                [attr.aria-label]="'查看 ' + c + ' 的軌跡'">
+          {{ c }}
+        </button>
       </div>
     </div>
 

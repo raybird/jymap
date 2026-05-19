@@ -19,6 +19,7 @@ export class EventCardComponent implements OnChanges, OnDestroy {
   @Input() event: ValidatedEvent | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() navigateToEvent = new EventEmitter<ValidatedEvent>();
+  @Output() characterClick = new EventEmitter<string>();
 
   relatedEvents: ValidatedEvent[] = [];
   private destroy$ = new Subject<void>();
@@ -54,5 +55,9 @@ export class EventCardComponent implements OnChanges, OnDestroy {
 
   getYearText(year: number): string {
     return year < 0 ? `西元前${Math.abs(year)}年` : `西元${year}年`;
+  }
+
+  onCharacterClick(name: string): void {
+    this.characterClick.emit(name);
   }
 }
