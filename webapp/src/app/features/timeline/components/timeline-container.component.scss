@@ -8,6 +8,63 @@
   pointer-events: auto !important;
 }
 
+.year-indicator {
+  position: absolute;
+  top: 4px;
+  right: 10px;
+  z-index: 30;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(44, 36, 27, 0.8);
+  font-family: var(--font-heading);
+  pointer-events: none;
+  letter-spacing: 0.5px;
+}
+
+.center-needle {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 12px;
+  width: 2px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(200, 164, 39, 0.55) 12%,
+    rgba(200, 164, 39, 0.55) 85%,
+    transparent 100%
+  );
+  z-index: 25;
+  pointer-events: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 7px solid rgba(200, 164, 39, 0.8);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 7px solid rgba(200, 164, 39, 0.8);
+  }
+}
+
 .timeline-container {
   width: 100%;
   height: 100%;
@@ -86,7 +143,7 @@
 .event-dots {
   position: relative;
   width: 100%;
-  height: 44px; /* 必須與 ::after 熱區等高，否則超出部分被裁切 */
+  height: 60px;
   z-index: 15;  /* 高於 year-ticks (10) 與 dynasty-bands (5)，確保能接收點擊 */
   margin-top: 2px;
   overflow: visible;
@@ -94,7 +151,6 @@
 
 .event-dot {
   position: absolute;
-  top: 50%;
   transform: translate(-50%, -50%);
   width: 14px;
   height: 14px;
