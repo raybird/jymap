@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 專案概述
 
-jymap 是金庸世界時空地圖，將金庸 15 部小說的事件整合於互動式地圖與時間軸上。SPA 應用，部署至 Cloudflare Pages。
+jymap 是金庸世界時空地圖，將金庸 15 部小說的事件整合於互動式地圖與時間軸上。SPA 應用，部署至 GitHub Pages。
 
 ## 開發指令
 
@@ -18,6 +18,15 @@ ng build              # 生產建置
 ng test               # 執行所有測試（Karma + Jasmine）
 ng test --include='**/some.spec.ts'  # 執行單一測試檔
 ```
+
+## 部署
+
+push 到 `main` 分支後，GitHub Actions（`.github/workflows/deploy.yml`）會自動：
+1. 以 `--base-href /jymap/` 進行 production build
+2. 複製 `index.html` 為 `404.html`（SPA routing 支援）
+3. 部署至 GitHub Pages
+
+無需手動操作，merge 或直接 push 即觸發。
 
 ## 技術棧
 
