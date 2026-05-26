@@ -42,22 +42,22 @@ describe('TimelineContainerComponent', () => {
 
   describe('updateCenterYear', () => {
     it('捲動到中間位置時計算正確的中心年份', () => {
-      const el = { scrollLeft: 5752, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      const el = { scrollLeft: 5750, clientWidth: 375, scrollWidth: 11875 } as HTMLElement;
       (component as any).updateCenterYear(el);
-      expect(component.currentCenterYear).toBe(688);
+      expect(component.currentCenterYear).toBe(650);
     });
 
     it('捲動到最左邊時顯示最早的可見年份', () => {
-      const el = { scrollLeft: 0, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      const el = { scrollLeft: 0, clientWidth: 375, scrollWidth: 11875 } as HTMLElement;
       (component as any).updateCenterYear(el);
-      expect(component.currentCenterYear).toBe(-462);
+      expect(component.currentCenterYear).toBe(-500);
     });
 
     it('年份相同時不更新 currentCenterYear（避免多餘 detectChanges）', () => {
-      component.currentCenterYear = 688;
+      component.currentCenterYear = 650;
       const cdrMock = (component as any).cdr;
       spyOn(cdrMock, 'detectChanges');
-      const el = { scrollLeft: 5752, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      const el = { scrollLeft: 5750, clientWidth: 375, scrollWidth: 11875 } as HTMLElement;
       (component as any).updateCenterYear(el);
       expect(cdrMock.detectChanges).not.toHaveBeenCalled();
     });

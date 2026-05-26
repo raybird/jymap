@@ -1,69 +1,75 @@
 <div class="timeline-wrapper">
-  @if (currentCenterYear !== 0) {
-    <div class="year-indicator">
-      {{ currentCenterYear < 0 ? '西元前' + (-currentCenterYear) + '年' : '西元' + currentCenterYear + '年' }}
-    </div>
-  }
-
-  <div class="center-needle"></div>
+  <div class="center-needle">
+    @if (currentCenterYear !== 0) {
+      @let dynasty = getDynastyName(currentCenterYear);
+      <div class="needle-year-bubble">
+        {{ currentCenterYear < 0 ? '西元前' + (-currentCenterYear) + '年' : '西元' + currentCenterYear + '年' }}
+        @if (dynasty) {
+          <span class="dynasty-tag">（{{ dynasty }}）</span>
+        }
+      </div>
+    }
+  </div>
 
   <div
     class="timeline-container"
     #timelineContainer
     [class.dragging]="isDragging">
     <div class="timeline-track" #timelineTrack>
-      <div class="dynasty-bands">
-        @for (band of dynastyBands; track band.name) {
-          <div
-            class="dynasty-band"
-            [style.left]="getDynastyBandStyle(band).left"
-            [style.width]="getDynastyBandStyle(band).width"
-            [style.background-color]="band.color">
-            <span class="dynasty-label">{{ band.name }}&nbsp;<span class="dynasty-years">{{ formatYear(band.startYear) }} ~ {{ formatYear(band.endYear) }}</span></span>
-          </div>
-        }
-      </div>
-
-      @let dots = getEventDots();
-      <div class="event-dots">
-        @for (dot of dots; track dot.id) {
-          <div
-            class="event-dot"
-            [style.left]="getYearPosition(dot.year) + '%'"
-            [style.top.%]="getEventStaggerTop(dot, dots)"
-            [style.background-color]="dot.color"
-            [title]="dot.title + ' (' + dot.novel + ')'"
-            (click)="eventDotClick.emit(dot.id)">
-          </div>
-        }
-      </div>
-
-      <div class="year-ticks">
-        @for (year of getYearTicks(); track year) {
-          <div
-            class="year-tick"
-            [class.major-tick]="year % 100 === 0"
-            [style.left]="getYearPosition(year) + '%'">
-            @if (year % 100 === 0) {
-              <span class="year-label">{{ formatYear(year) }}</span>
-            }
-          </div>
-        }
-      </div>
-
-      @if (selectedStartYear !== null && selectedEndYear !== null) {
-        <div
-          class="time-selection"
-          [style.left]="getSelectionStyle()?.left"
-          [style.width]="getSelectionStyle()?.width">
-          <div class="selection-handle selection-handle-start" title="拖曳調整起始時間"></div>
-          <div class="selection-handle selection-handle-end" title="拖曳調整結束時間"></div>
-          <div class="selection-label">
-            <span>{{ formatYear(selectedStartYear) }} - {{ formatYear(selectedEndYear) }}</span>
-            <button class="clear-selection" (click)="clearSelection()" aria-label="清除選擇">×</button>
-          </div>
+      <div class="timeline-content">
+        <div class="dynasty-bands">
+          @for (band of dynastyBands; track band.name) {
+            <div
+              class="dynasty-band"
+              [style.left]="getDynastyBandStyle(band).left"
+              [style.width]="getDynastyBandStyle(band).width"
+              [style.background-color]="band.color">
+              <span class="dynasty-label">{{ band.name }}&nbsp;<span class="dynasty-years">{{ formatYear(band.startYear) }} ~ {{ formatYear(band.endYear) }}</span></span>
+            </div>
+          }
         </div>
-      }
+
+        @let dots = getEventDots();
+        <div class="event-dots">
+          @for (dot of dots; track dot.id) {
+            <div
+              class="event-dot"
+              [style.left]="getYearPosition(dot.year) + '%'"
+              [style.top.%]="getEventStaggerTop(dot, dots)"
+              [style.background-color]="dot.color"
+              [title]="dot.title + ' (' + dot.novel + ')'"
+              (click)="eventDotClick.emit(dot.id)">
+            </div>
+          }
+        </div>
+
+        <div class="year-ticks">
+          @for (year of getYearTicks(); track year) {
+            <div
+              class="year-tick"
+              [class.major-tick]="year % 100 === 0"
+              [style.left]="getYearPosition(year) + '%'">
+              @if (year % 100 === 0) {
+                <span class="year-label">{{ formatYear(year) }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        @if (selectedStartYear !== null && selectedEndYear !== null) {
+          <div
+            class="time-selection"
+            [style.left]="getSelectionStyle()?.left"
+            [style.width]="getSelectionStyle()?.width">
+            <div class="selection-handle selection-handle-start" title="拖曳調整起始時間"></div>
+            <div class="selection-handle selection-handle-end" title="拖曳調整結束時間"></div>
+            <div class="selection-label">
+              <span>{{ formatYear(selectedStartYear) }} - {{ formatYear(selectedEndYear) }}</span>
+              <button class="clear-selection" (click)="clearSelection()" aria-label="清除選擇">×</button>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   </div>
 </div>

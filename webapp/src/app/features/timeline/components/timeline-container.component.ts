@@ -37,7 +37,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   // 時間範圍設定（西元前 500 年～清乾隆 1800 年）
   readonly minYear = -500;
   readonly maxYear = 1800;
-  readonly totalYears = 1800 - (-500) + 1; // 總年數：2301 年
+  readonly yearSpan = 1800 - (-500); // 總年距：2300 年
 
   readonly dynastyBands: DynastyBand[] = [
     { name: '春秋', startYear: -500, endYear: -221, color: '#8B7355' },
@@ -242,11 +242,19 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    * 從位置計算年份
    */
   private getYearFromPosition(x: number): number {
-    if (!this.timelineTrack) return this.minYear;
+    if (!this.timelineTrack || !this.timelineContainer) return this.minYear;
 
-    const trackWidth = this.timelineTrack.nativeElement.scrollWidth;
-    const percent = Math.max(0, Math.min(1, x / trackWidth)); // 限制在 0-1 範圍
-    const year = Math.round(this.minYear + percent * this.totalYears);
+    const container = this.timelineContainer.nativeElement;
+    const track = this.timelineTrack.nativeElement;
+    
+    const containerWidth = container.clientWidth;
+    const contentWidth = track.scrollWidth - containerWidth;
+    
+    if (contentWidth <= 0) return this.minYear;
+    
+    const contentX = x - (containerWidth / 2);
+    const percent = Math.max(0, Math.min(1, contentX / contentWidth)); // 限制在 0-1 範圍
+    const year = Math.round(this.minYear + percent * this.yearSpan);
     
     // 限制在有效範圍內
     return Math.max(this.minYear, Math.min(this.maxYear, year));
@@ -434,7 +442,15 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    * 計算年份在時間軸上的位置（百分比）
    */
   getYearPosition(year: number): number {
-    return ((year - this.minYear) / this.totalYears) * 100;
+    return ((year - this.minYear) / this.yearSpan) * 100;
+  }
+
+  /**
+   * 獲取指定年份對應的朝代名稱
+   */
+  getDynastyName(year: number): string {
+    const dynasty = this.dynastyBands.find(d => year >= d.startYear && year <= d.endYear);
+    return dynasty ? dynasty.name : '';
   }
 
   /**
@@ -462,45 +478,45 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     // 限制年份在有效範圍內
     const targetYear = Math.max(this.minYear, Math.min(this.maxYear, year));
     
-    // 計算目標年份在時間軸上的位置（百分比）
-    const yearPercent = this.getYearPosition(targetYear);
+    // 計算目標年份在時間軸上的比例（0~1）
+    const ratio = (targetYear - this.minYear) / this.yearSpan;
     
-    // 計算目標 scrollLeft 位置
-    const trackWidth = this.timelineTrack.nativeElement.scrollWidth;
-    const containerWidth = this.timelineContainer.nativeElement.clientWidth;
-    const targetScrollLeft = (yearPercent / 100) * trackWidth - (containerWidth / 2);
-    
-    // 限制 scrollLeft 在有效範圍內
-    const maxScroll = trackWidth - containerWidth;
-    const finalScrollLeft = Math.max(0, Math.min(maxScroll, targetScrollLeft));
+    // 計算目標 scrollLeft 位置（由於左右 padding-left/right 各 50%，內容寬度 contentWidth = scrollWidth - clientWidth）
+    const container = this.timelineContainer.nativeElement;
+    const contentWidth = container.scrollWidth - container.clientWidth;
+    const targetScrollLeft = ratio * contentWidth;
     
     // 平滑滾動到目標位置
-    this.timelineContainer.nativeElement.scrollTo({
-      left: finalScrollLeft,
+    container.scrollTo({
+      left: targetScrollLeft,
       behavior: 'smooth'
     });
 
-    Logger.debug('時間軸跳轉到年份:', targetYear, '位置:', finalScrollLeft);
+    Logger.debug('時間軸跳轉到年份:', targetYear, '位置:', targetScrollLeft);
   }
 
   /**
    * 獲取當前可見的時間範圍
    */
   getVisibleTimeRange(): { start: number; end: number } {
-    if (!this.timelineContainer) {
+    if (!this.timelineContainer || !this.timelineTrack) {
       return { start: this.minYear, end: this.maxYear };
     }
 
     const container = this.timelineContainer.nativeElement;
     const scrollLeft = container.scrollLeft;
     const containerWidth = container.clientWidth;
-    const trackWidth = container.scrollWidth;
+    const contentWidth = container.scrollWidth - containerWidth;
 
-    const startPercent = scrollLeft / trackWidth;
-    const endPercent = (scrollLeft + containerWidth) / trackWidth;
+    if (contentWidth <= 0) {
+      return { start: this.minYear, end: this.maxYear };
+    }
 
-    const startYear = Math.round(this.minYear + startPercent * this.totalYears);
-    const endYear = Math.round(this.minYear + endPercent * this.totalYears);
+    const startPercent = Math.max(0, (scrollLeft - containerWidth / 2) / contentWidth);
+    const endPercent = Math.min(1, (scrollLeft + containerWidth / 2) / contentWidth);
+
+    const startYear = Math.round(this.minYear + startPercent * this.yearSpan);
+    const endYear = Math.round(this.minYear + endPercent * this.yearSpan);
 
     return { start: startYear, end: endYear };
   }
@@ -527,9 +543,12 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   }
 
   private updateCenterYear(el: HTMLElement): void {
-    const newYear = Math.round(
-      this.minYear + ((el.scrollLeft + el.clientWidth / 2) / el.scrollWidth) * this.totalYears
-    );
+    const contentWidth = el.scrollWidth - el.clientWidth;
+    if (contentWidth <= 0) return;
+
+    const ratio = el.scrollLeft / contentWidth;
+    const newYear = Math.round(this.minYear + ratio * this.yearSpan);
+    
     if (newYear !== this.currentCenterYear) {
       this.currentCenterYear = newYear;
       this.cdr.detectChanges();
