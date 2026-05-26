@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
@@ -26,6 +26,7 @@ interface DynastyBand {
     styleUrl: './timeline-container.component.scss'
 })
 export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDestroy {
+  constructor(private ngZone: NgZone, private cdr: ChangeDetectorRef) {}
   @ViewChild('timelineContainer', { static: false }) timelineContainer!: ElementRef<HTMLDivElement>;
   @ViewChild('timelineTrack', { static: false }) timelineTrack!: ElementRef<HTMLDivElement>;
   @Input() timelineItems: ValidatedTimelineItem[] = [];
@@ -129,6 +130,18 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
     container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
     container.addEventListener('touchend', this.onTouchEnd.bind(this));
+
+    // scroll 監聽器在 Angular zone 外執行，避免每幀觸發 change detection
+    this.ngZone.runOutsideAngular(() => {
+      let rafId: number | null = null;
+      container.addEventListener('scroll', () => {
+        if (rafId !== null) return;
+        rafId = requestAnimationFrame(() => {
+          rafId = null;
+          this.updateCenterYear(container as HTMLElement);
+        });
+      });
+    });
   }
 
   /**
@@ -513,12 +526,14 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     return ticks;
   }
 
-  onScroll(): void {
-    if (!this.timelineContainer) return;
-    const el = this.timelineContainer.nativeElement;
-    this.currentCenterYear = Math.round(
+  private updateCenterYear(el: HTMLElement): void {
+    const newYear = Math.round(
       this.minYear + ((el.scrollLeft + el.clientWidth / 2) / el.scrollWidth) * this.totalYears
     );
+    if (newYear !== this.currentCenterYear) {
+      this.currentCenterYear = newYear;
+      this.cdr.detectChanges();
+    }
   }
 
   getEventStaggerTop(dot: { year: number }, dots: { year: number }[]): number {

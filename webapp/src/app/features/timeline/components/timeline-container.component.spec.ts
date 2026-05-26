@@ -1,10 +1,13 @@
+import { NgZone, ChangeDetectorRef } from '@angular/core';
 import { TimelineContainerComponent } from './timeline-container.component';
 
 describe('TimelineContainerComponent', () => {
   let component: TimelineContainerComponent;
 
   beforeEach(() => {
-    component = new TimelineContainerComponent();
+    const ngZoneMock = { runOutsideAngular: (fn: () => void) => fn(), run: (fn: () => void) => fn() } as unknown as NgZone;
+    const cdrMock = { detectChanges: () => {} } as unknown as ChangeDetectorRef;
+    component = new TimelineContainerComponent(ngZoneMock, cdrMock);
   });
 
   describe('getEventStaggerTop', () => {
@@ -37,26 +40,26 @@ describe('TimelineContainerComponent', () => {
     });
   });
 
-  describe('onScroll', () => {
-    it('timelineContainer 未初始化時不更新 currentCenterYear', () => {
-      component.onScroll();
-      expect(component.currentCenterYear).toBe(0);
-    });
-
+  describe('updateCenterYear', () => {
     it('捲動到中間位置時計算正確的中心年份', () => {
-      (component as any).timelineContainer = {
-        nativeElement: { scrollLeft: 5752, clientWidth: 375, scrollWidth: 11505 }
-      };
-      component.onScroll();
+      const el = { scrollLeft: 5752, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      (component as any).updateCenterYear(el);
       expect(component.currentCenterYear).toBe(688);
     });
 
     it('捲動到最左邊時顯示最早的可見年份', () => {
-      (component as any).timelineContainer = {
-        nativeElement: { scrollLeft: 0, clientWidth: 375, scrollWidth: 11505 }
-      };
-      component.onScroll();
+      const el = { scrollLeft: 0, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      (component as any).updateCenterYear(el);
       expect(component.currentCenterYear).toBe(-462);
+    });
+
+    it('年份相同時不更新 currentCenterYear（避免多餘 detectChanges）', () => {
+      component.currentCenterYear = 688;
+      const cdrMock = (component as any).cdr;
+      spyOn(cdrMock, 'detectChanges');
+      const el = { scrollLeft: 5752, clientWidth: 375, scrollWidth: 11505 } as HTMLElement;
+      (component as any).updateCenterYear(el);
+      expect(cdrMock.detectChanges).not.toHaveBeenCalled();
     });
   });
 });

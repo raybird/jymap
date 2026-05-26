@@ -10,8 +10,7 @@
   <div
     class="timeline-container"
     #timelineContainer
-    [class.dragging]="isDragging"
-    (scroll)="onScroll()">
+    [class.dragging]="isDragging">
     <div class="timeline-track" #timelineTrack>
       <div class="dynasty-bands">
         @for (band of dynastyBands; track band.name) {
