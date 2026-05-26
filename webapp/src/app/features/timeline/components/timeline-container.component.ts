@@ -512,6 +512,15 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     return ticks;
   }
 
+  getEventStaggerTop(dot: { year: number }, dots: { year: number }[]): number {
+    const bucket = Math.floor(dot.year / 5) * 5;
+    const inBucket = dots.filter(d => Math.floor(d.year / 5) * 5 === bucket);
+    const idx = inBucket.indexOf(dot);
+    if (inBucket.length <= 1) return 50;
+    const positions = [30, 70, 15, 85, 50];
+    return positions[idx % positions.length];
+  }
+
   getNovelColor(novel: string): string {
     const map: Record<string, string> = {
       '越女劍': '#2E7D32', '天龍八部': '#B8860B', '射鵰英雄傳': '#C62828',
