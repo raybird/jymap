@@ -75,6 +75,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
 
   // 用於節流可見範圍事件（優化效能，避免過於頻繁的事件發送）
   private visibleRangeEmitter$ = new Subject<{ startYear: number; endYear: number }>();
+  currentCenterYear = 0;
 
   ngOnInit(): void {
     // 設定節流訂閱，優化拖曳時的事件發送頻率（每 50ms 最多發送一次）
@@ -510,6 +511,14 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
       ticks.push(year);
     }
     return ticks;
+  }
+
+  onScroll(): void {
+    if (!this.timelineContainer) return;
+    const el = this.timelineContainer.nativeElement;
+    this.currentCenterYear = Math.round(
+      this.minYear + ((el.scrollLeft + el.clientWidth / 2) / el.scrollWidth) * this.totalYears
+    );
   }
 
   getEventStaggerTop(dot: { year: number }, dots: { year: number }[]): number {
