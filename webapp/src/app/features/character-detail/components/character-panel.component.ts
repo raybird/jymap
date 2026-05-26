@@ -8,11 +8,10 @@ import * as TimeMapActions from '../../../core/state/time-map.actions';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
 
 @Component({
-  selector: 'app-character-panel',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './character-panel.component.html',
-  styleUrl: './character-panel.component.scss'
+    selector: 'app-character-panel',
+    imports: [CommonModule],
+    templateUrl: './character-panel.component.html',
+    styleUrl: './character-panel.component.scss'
 })
 export class CharacterPanelComponent implements OnDestroy {
   @Output() close = new EventEmitter<void>();

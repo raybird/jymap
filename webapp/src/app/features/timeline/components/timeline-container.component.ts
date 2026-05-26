@@ -20,11 +20,10 @@ interface DynastyBand {
  * 提供水平時間軸顯示、拖曳互動和時間範圍選擇功能
  */
 @Component({
-  selector: 'app-timeline-container',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './timeline-container.component.html',
-  styleUrl: './timeline-container.component.scss'
+    selector: 'app-timeline-container',
+    imports: [CommonModule],
+    templateUrl: './timeline-container.component.html',
+    styleUrl: './timeline-container.component.scss'
 })
 export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('timelineContainer', { static: false }) timelineContainer!: ElementRef<HTMLDivElement>;

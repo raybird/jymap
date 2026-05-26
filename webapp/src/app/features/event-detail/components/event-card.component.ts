@@ -9,11 +9,10 @@ import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
 
 @Component({
-  selector: 'app-event-card',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './event-card.component.html',
-  styleUrl: './event-card.component.scss'
+    selector: 'app-event-card',
+    imports: [CommonModule],
+    templateUrl: './event-card.component.html',
+    styleUrl: './event-card.component.scss'
 })
 export class EventCardComponent implements OnChanges, OnDestroy {
   @Input() event: ValidatedEvent | null = null;

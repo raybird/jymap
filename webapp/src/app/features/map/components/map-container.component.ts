@@ -17,11 +17,10 @@ import { Logger } from '../../../core/utils/logger';
  * 直接訂閱 NgRx Store 以實現時間軸與地圖狀態同步（Story 4.2）
  */
 @Component({
-  selector: 'app-map-container',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './map-container.component.html',
-  styleUrl: './map-container.component.scss'
+    selector: 'app-map-container',
+    imports: [CommonModule],
+    templateUrl: './map-container.component.html',
+    styleUrl: './map-container.component.scss'
 })
 export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;

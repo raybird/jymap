@@ -8,11 +8,10 @@ import { ValidatedEvent } from '../../../core/utils/data-validator';
  * 顯示搜尋結果列表，支援點擊跳轉
  */
 @Component({
-  selector: 'app-search-results',
-  standalone: true,
-  imports: [CommonModule],
-  templateUrl: './search-results.component.html',
-  styleUrl: './search-results.component.scss'
+    selector: 'app-search-results',
+    imports: [CommonModule],
+    templateUrl: './search-results.component.html',
+    styleUrl: './search-results.component.scss'
 })
 export class SearchResultsComponent implements OnInit, OnDestroy {
   @Input() results: SearchResult[] = [];

@@ -11,11 +11,10 @@ import { Logger } from '../../../core/utils/logger';
  * 提供搜尋輸入框和搜尋結果觸發功能
  */
 @Component({
-  selector: 'app-search-box',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: './search-box.component.html',
-  styleUrl: './search-box.component.scss'
+    selector: 'app-search-box',
+    imports: [CommonModule, FormsModule],
+    templateUrl: './search-box.component.html',
+    styleUrl: './search-box.component.scss'
 })
 export class SearchBoxComponent implements OnInit, OnDestroy {
   @ViewChild('searchInput', { static: false }) searchInput!: ElementRef<HTMLInputElement>;
