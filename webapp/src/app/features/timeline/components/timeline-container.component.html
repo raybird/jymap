@@ -1,13 +1,22 @@
 <div class="timeline-wrapper">
-  <div 
-    class="timeline-container" 
+  @if (currentCenterYear !== 0) {
+    <div class="year-indicator">
+      {{ currentCenterYear < 0 ? '西元前' + (-currentCenterYear) + '年' : '西元' + currentCenterYear + '年' }}
+    </div>
+  }
+
+  <div class="center-needle"></div>
+
+  <div
+    class="timeline-container"
     #timelineContainer
-    [class.dragging]="isDragging">
+    [class.dragging]="isDragging"
+    (scroll)="onScroll()">
     <div class="timeline-track" #timelineTrack>
       <div class="dynasty-bands">
         @for (band of dynastyBands; track band.name) {
-          <div 
-            class="dynasty-band" 
+          <div
+            class="dynasty-band"
             [style.left]="getDynastyBandStyle(band).left"
             [style.width]="getDynastyBandStyle(band).width"
             [style.background-color]="band.color">
@@ -16,11 +25,13 @@
         }
       </div>
 
+      @let dots = getEventDots();
       <div class="event-dots">
-        @for (dot of getEventDots(); track dot.id) {
+        @for (dot of dots; track dot.id) {
           <div
             class="event-dot"
             [style.left]="getYearPosition(dot.year) + '%'"
+            [style.top.%]="getEventStaggerTop(dot, dots)"
             [style.background-color]="dot.color"
             [title]="dot.title + ' (' + dot.novel + ')'"
             (click)="eventDotClick.emit(dot.id)">
@@ -30,8 +41,8 @@
 
       <div class="year-ticks">
         @for (year of getYearTicks(); track year) {
-          <div 
-            class="year-tick" 
+          <div
+            class="year-tick"
             [class.major-tick]="year % 100 === 0"
             [style.left]="getYearPosition(year) + '%'">
             @if (year % 100 === 0) {
@@ -42,8 +53,8 @@
       </div>
 
       @if (selectedStartYear !== null && selectedEndYear !== null) {
-        <div 
-          class="time-selection" 
+        <div
+          class="time-selection"
           [style.left]="getSelectionStyle()?.left"
           [style.width]="getSelectionStyle()?.width">
           <div class="selection-handle selection-handle-start" title="拖曳調整起始時間"></div>
@@ -57,4 +68,3 @@
     </div>
   </div>
 </div>
-
