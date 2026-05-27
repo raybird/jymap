@@ -123,15 +123,6 @@ webapp/src/app/
 | [🗺️ cap-map](https://github.com/raybird/cap-map) | 專為臺灣國中會考社會科設計的互動式時空地圖，結合歷史時間軸與地理空間判讀，幫助學生建立立體史觀與強化地圖判讀能力。 |
 | [⚔️ three-kingdoms-map](https://github.com/raybird/three-kingdoms-map) | 專為三國歷史愛好者設計的互動式時空地圖，涵蓋東漢末年至三國統一期間的史詩級歷史戰役、政治事件與人物軌跡。 |
 
----
-
-## ☕ 贊助專案 (Donate)
-
-如果您喜歡這個專案，歡迎給作者買杯咖啡，您的支持是我們持續維護與擴充資料庫的最大動力！
-
-* 💳 **綠界線上贊助**：[點此贊助我](https://p.ecpay.com.tw/C50D090)
-* 📱 **掃描 QR Code 贊助**：  
-  ![Buy Me a Coffee](docs/buymeacoffee.png)
 
 ---
 
