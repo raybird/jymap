@@ -65,5 +65,6 @@
   {"year":1760,"dynasty":"清","eventIds":["event-041"]},
   {"year":1761,"dynasty":"清","eventIds":["event-076","event-112"]},
   {"year":1762,"dynasty":"清","eventIds":["event-077","event-113","event-114"]},
+  {"year":1769,"dynasty":"清","eventIds":["event-135","event-136"]},
   {"year":1770,"dynasty":"清","eventIds":["event-042","event-078"]}
 ]
