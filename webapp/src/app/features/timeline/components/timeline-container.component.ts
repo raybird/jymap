@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, ViewChild, ElementRef, Input, Output, EventEmitter, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
-import { throttleTime } from 'rxjs/operators';
+import { throttleTime, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from '../../../core/utils/data-validator';
 import { Logger } from '../../../core/utils/logger';
 
@@ -77,27 +77,36 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   // 用於節流可見範圍事件（優化效能，避免過於頻繁的事件發送）
   private visibleRangeEmitter$ = new Subject<{ startYear: number; endYear: number }>();
   currentCenterYear = 0;
+  private listenerController = new AbortController();
+  private scrollFrame: number | null = null;
+  private initFrame: number | null = null;
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     // 設定節流訂閱，優化拖曳時的事件發送頻率（每 50ms 最多發送一次）
     // 這樣可以減少 NgRx 狀態更新頻率，提升效能
     this.visibleRangeEmitter$.pipe(
-      throttleTime(50, undefined, { leading: true, trailing: true })
+      throttleTime(50, undefined, { leading: true, trailing: true }),
+      takeUntil(this.destroy$)
     ).subscribe(range => {
       this.timeRangeChange.emit(range);
     });
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.initTimeline();
-      setTimeout(() => this.scrollToYear(1200), 300);
-    }, 100);
+    this.initTimeline();
+    this.initFrame = requestAnimationFrame(() => {
+      this.initFrame = null;
+      this.scrollToYear(1200);
+    });
   }
 
   ngOnDestroy(): void {
     // 清理事件監聽器和 Subject
     this.removeEventListeners();
+    if (this.initFrame !== null) cancelAnimationFrame(this.initFrame);
+    this.destroy$.next();
+    this.destroy$.complete();
     this.visibleRangeEmitter$.complete();
   }
 
@@ -120,27 +129,27 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    */
   private setupDragHandlers(): void {
     const container = this.timelineContainer.nativeElement;
+    const signal = this.listenerController.signal;
 
     // 滑鼠事件（桌面）
-    container.addEventListener('mousedown', this.onDragStart.bind(this));
-    document.addEventListener('mousemove', this.onDragMove.bind(this));
-    document.addEventListener('mouseup', this.onDragEnd.bind(this));
+    container.addEventListener('mousedown', this.onDragStart.bind(this), { signal });
+    document.addEventListener('mousemove', this.onDragMove.bind(this), { signal });
+    document.addEventListener('mouseup', this.onDragEnd.bind(this), { signal });
 
     // 觸控事件（平板）
-    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true });
-    container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false });
-    container.addEventListener('touchend', this.onTouchEnd.bind(this));
+    container.addEventListener('touchstart', this.onTouchStart.bind(this), { passive: true, signal });
+    container.addEventListener('touchmove', this.onTouchMove.bind(this), { passive: false, signal });
+    container.addEventListener('touchend', this.onTouchEnd.bind(this), { signal });
 
     // scroll 監聽器在 Angular zone 外執行，避免每幀觸發 change detection
     this.ngZone.runOutsideAngular(() => {
-      let rafId: number | null = null;
       container.addEventListener('scroll', () => {
-        if (rafId !== null) return;
-        rafId = requestAnimationFrame(() => {
-          rafId = null;
+        if (this.scrollFrame !== null) return;
+        this.scrollFrame = requestAnimationFrame(() => {
+          this.scrollFrame = null;
           this.updateCenterYear(container as HTMLElement);
         });
-      });
+      }, { signal });
     });
   }
 
@@ -152,16 +161,17 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     const track = this.timelineTrack?.nativeElement;
     
     if (!container || !track) return;
+    const signal = this.listenerController.signal;
 
     // 滑鼠框選（桌面）
-    track.addEventListener('mousedown', this.onSelectionStart.bind(this));
-    document.addEventListener('mousemove', this.onSelectionMove.bind(this));
-    document.addEventListener('mouseup', this.onSelectionEnd.bind(this));
+    track.addEventListener('mousedown', this.onSelectionStart.bind(this), { signal });
+    document.addEventListener('mousemove', this.onSelectionMove.bind(this), { signal });
+    document.addEventListener('mouseup', this.onSelectionEnd.bind(this), { signal });
 
     // 觸控框選（平板）
-    track.addEventListener('touchstart', this.onSelectionTouchStart.bind(this), { passive: false });
-    track.addEventListener('touchmove', this.onSelectionTouchMove.bind(this), { passive: false });
-    track.addEventListener('touchend', this.onSelectionEnd.bind(this));
+    track.addEventListener('touchstart', this.onSelectionTouchStart.bind(this), { passive: false, signal });
+    track.addEventListener('touchmove', this.onSelectionTouchMove.bind(this), { passive: false, signal });
+    track.addEventListener('touchend', this.onSelectionEnd.bind(this), { signal });
   }
 
   /**
@@ -322,7 +332,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     
     // 使用 requestAnimationFrame 優化拖曳效能
     requestAnimationFrame(() => {
-      if (!this.timelineContainer) return;
+      if (this.listenerController.signal.aborted || !this.timelineContainer) return;
       
       const x = e.pageX - this.timelineContainer.nativeElement.offsetLeft;
       const walk = (x - this.dragStartX) * 2; // 拖曳靈敏度
@@ -383,7 +393,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
       e.preventDefault(); // 只在確認是拖曳時才阻止預設行為
       
       requestAnimationFrame(() => {
-        if (!this.timelineContainer) return;
+        if (this.listenerController.signal.aborted || !this.timelineContainer) return;
         
         const x = touch.pageX - this.timelineContainer.nativeElement.offsetLeft;
         const walk = (x - this.dragStartX) * 2;
@@ -419,7 +429,11 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    * 移除事件監聽器
    */
   private removeEventListeners(): void {
-    // 事件監聽器會在組件銷毀時自動清理
+    this.listenerController.abort();
+    if (this.scrollFrame !== null) {
+      cancelAnimationFrame(this.scrollFrame);
+      this.scrollFrame = null;
+    }
   }
 
   /**
@@ -493,6 +507,21 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     });
 
     Logger.debug('時間軸跳轉到年份:', targetYear, '位置:', targetScrollLeft);
+  }
+
+  getScrollPosition(): number {
+    return this.timelineContainer?.nativeElement.scrollLeft ?? 0;
+  }
+
+  restoreScrollPosition(left: number): void {
+    this.clearRangeHighlight();
+    this.timelineContainer?.nativeElement.scrollTo({ left, behavior: 'instant' });
+  }
+
+  clearRangeHighlight(): void {
+    this.selectedStartYear = null;
+    this.selectedEndYear = null;
+    this.isSelecting = false;
   }
 
   /**

@@ -1,113 +1,131 @@
-<mat-sidenav-container class="app-sidenav-container">
-  <!-- 主內容 -->
+<mat-sidenav-container class="app-sidenav-container" [hasBackdrop]="false">
   <mat-sidenav-content>
-
     <div class="app-viewport">
       <div class="map-layer">
         <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5"
+          [detailPanel]="detailPanel.nativeElement"
           [selectedNovel]="(selectedNovel$ | async) || null"
-          (eventClick)="onMapEventClick($event)"
-          (characterClick)="onCharacterClick($event)">
+          (eventClick)="onMapEventClick($event)" (characterClick)="onCharacterClick($event)">
         </app-map-container>
       </div>
-
       <div class="ui-layer">
-        <div class="top-overlay">
+        <div class="top-overlay" (focusout)="onSearchAreaFocusOut($event)">
           <div class="top-bar">
-            <app-search-box
-              [selectedNovel]="(selectedNovel$ | async) ?? null"
+            <app-search-box [keyword]="searchKeyword"
               (searchResultsChange)="onSearchResultsChange($event)"
               (searchKeywordChange)="onSearchKeywordChange($event)"
-              (focusChange)="onSearchFocusChange($event)"
-              (novelClear)="onNovelSelect(null)">
+              (focusChange)="onSearchFocusChange($event)">
             </app-search-box>
           </div>
-
-          <!-- Autocomplete 下拉覆蓋層 -->
-          @if (isSearchFocused) {
-            <div class="search-results-overlay">
-              <!-- 有輸入關鍵字：顯示搜尋結果 -->
-              @if (searchKeyword && searchKeyword.trim().length > 0) {
-                <app-search-results [results]="searchResults" [maxResults]="10" [showTopResults]="true"
-                  (resultClick)="onSearchResultClick($event)">
-                </app-search-results>
+          @if (view$ | async; as view) {
+            <div class="filter-summary" aria-label="目前探索條件">
+              @if (history.length) {
+                <button type="button" class="back-button" (click)="goBack()">← 返回上一步</button>
               }
-              <!-- 無關鍵字：顯示小說選擇列表 -->
-              @else {
-                <div class="novel-dropdown">
-                  <div class="novel-dropdown-header">選擇小說篩選</div>
-                  <button
-                    class="novel-option"
-                    [class.active]="(selectedNovel$ | async) === null"
-                    (click)="onNovelSelect(null)">
-                    <span class="novel-icon">📚</span>
-                    <span>所有小說（顯示全部）</span>
-                  </button>
-                  @for (novel of novels; track novel) {
-                    <button
-                      class="novel-option"
-                      [class.active]="(selectedNovel$ | async) === novel"
-                      (click)="onNovelSelect(novel)">
-                      <span class="novel-icon">📖</span>
-                      <span>{{ novel }}</span>
-                    </button>
-                  }
-
-                  @if (characters.length > 0) {
-                    <div class="novel-dropdown-header dropdown-section-divider">追蹤人物軌跡</div>
-                    @for (c of characters; track c) {
-                      <button
-                        class="novel-option character-option"
-                        [class.active]="(selectedCharacter$ | async) === c"
-                        (click)="onCharacterClick(c)">
-                        <span class="novel-icon">⛩️</span>
-                        <span>{{ c }}</span>
+              @if (view.selectedNovel) {
+                <button type="button" (click)="clearNovelFilter()" aria-label="移除小說條件">
+                  {{ view.selectedNovel }} ×
+                </button>
+              }
+              @if (view.selectedCharacter) {
+                <button type="button" (click)="onCloseCharacterPanel()" aria-label="停止追蹤人物">
+                  追蹤 {{ view.selectedCharacter }} ×
+                </button>
+              }
+              @if (view.currentTimeRange; as range) {
+                <button type="button" (click)="clearTimeFilter()" aria-label="移除時間條件">
+                  {{ formatYear(range.startYear) }}–{{ formatYear(range.endYear) }} ×
+                </button>
+              }
+              <span aria-live="polite">視野內 {{ view.visibleEvents.length }} 件事件</span>
+              @if (view.selectedNovel || view.currentTimeRange || view.selectedCharacter) {
+                <button type="button" (click)="resetFilters()" aria-label="顯示全部事件">顯示全部</button>
+              }
+            </div>
+            @if (!view.loadingEvents && view.events.length && !view.visibleEvents.length) {
+              <div class="empty-view">
+                沒有符合目前條件的事件。
+                <button type="button" (click)="clearTimeFilter()">解除時間限制</button>
+                <button type="button" (click)="resetFilters()">顯示全部</button>
+              </div>
+            }
+          }
+          @if (notice) { <div class="navigation-notice"><span role="status">{{ notice }}</span><button type="button" aria-label="關閉提示" (click)="notice = ''">×</button></div> }
+          @if (isSearchFocused) {
+            <div class="search-results-overlay novel-dropdown">
+              <p class="search-scope">搜尋全部作品，不受目前地圖篩選限制</p>
+              @if (searchKeyword.trim()) {
+                @if (suggestions.characters.length) {
+                  <section class="search-group" data-kind="characters" aria-label="人物搜尋結果">
+                    <h3 class="novel-dropdown-header">人物 · 追蹤足跡</h3>
+                    @for (name of suggestions.characters; track name) {
+                      <button type="button" class="novel-option" (click)="onCharacterClick(name)">
+                        <span aria-hidden="true">👤</span>{{ name }}<span class="option-action">查看年表與軌跡 →</span>
                       </button>
                     }
-                  }
+                  </section>
+                }
+                @if (suggestions.novels.length) {
+                  <section class="search-group" data-kind="novels" aria-label="小說搜尋結果">
+                    <h3 class="novel-dropdown-header">小說 · 瀏覽作品</h3>
+                    @for (novel of suggestions.novels; track novel) {
+                      <button type="button" class="novel-option" (click)="onNovelSelect(novel)">
+                        <span aria-hidden="true">📖</span>{{ novel }}<span class="option-action">查看作品事件 →</span>
+                      </button>
+                    }
+                  </section>
+                }
+                <section class="search-group" data-kind="events" aria-label="事件搜尋結果">
+                  <app-search-results [results]="searchResults" [maxResults]="10" [showTopResults]="true"
+                    (resultClick)="onSearchResultClick($event)">
+                  </app-search-results>
+                </section>
+              } @else {
+                <div class="browse-tabs" role="group" aria-label="探索入口">
+                  <button type="button" [attr.aria-pressed]="browseCategory === 'novels'" (click)="browseCategory = 'novels'">瀏覽小說</button>
+                  <button type="button" [attr.aria-pressed]="browseCategory === 'characters'" (click)="browseCategory = 'characters'">尋找人物</button>
                 </div>
+                @if (browseCategory === 'novels') {
+                  @for (novel of novels; track novel) {
+                    <button type="button" class="novel-option" (click)="onNovelSelect(novel)">📖 {{ novel }}</button>
+                  }
+                } @else {
+                  <p class="search-scope">輸入名字可搜尋全部人物，也可以從這些人物開始。</p>
+                  @for (name of characters; track name) {
+                    <button type="button" class="novel-option" (click)="onCharacterClick(name)">👤 {{ name }}</button>
+                  }
+                }
               }
             </div>
           }
         </div>
-
         <div class="bottom-overlay">
           <app-timeline-container [timelineItems]="(timeline$ | async) || []" [events]="(events$ | async) || []"
             (timeRangeChange)="onTimeRangeChange($event)" (eventDotClick)="onEventDotClick($event)">
           </app-timeline-container>
         </div>
       </div>
-
       @if (loading$ | async) {
-      <div class="loading-overlay">
-        <div class="loader"></div>
-        <p>載入金庸世界中...</p>
-      </div>
+        <div class="loading-overlay"><div class="loader"></div><p>載入金庸世界中...</p></div>
       }
-
       @if (error$ | async; as error) {
-      <div class="error-overlay">
-        <p>{{ error }}</p>
-        <button (click)="loadData()">重試</button>
-      </div>
+        <div class="error-overlay"><p>{{ error }}</p><button (click)="loadData()">重試</button></div>
       }
     </div>
-
   </mat-sidenav-content>
-
-  <!-- 右側抽屜：人物面板 或 事件卡片 -->
   <mat-sidenav class="event-card-sidenav" #eventSidenav position="end"
-    [opened]="((selectedEvent$ | async) !== null) || ((selectedCharacter$ | async) !== null)"
-    mode="over"
-    (closed)="onSidenavClosed()">
+    [opened]="!isSearchFocused && (((selectedEvent$ | async) !== null) || ((selectedCharacter$ | async) !== null))"
+    mode="over" (closed)="onSidenavClosed()">
     <ng-container *ngIf="(selectedCharacter$ | async) !== null; else eventCardTpl">
-      <app-character-panel (close)="onCloseCharacterPanel()"></app-character-panel>
+      <app-character-panel [canGoBack]="history.length > 0" (back)="goBack()"
+        (focusEvent)="onCharacterEventClick($event)" (openEvent)="onNavigateToEvent($event)"
+        (close)="onCloseCharacterPanel()">
+      </app-character-panel>
     </ng-container>
     <ng-template #eventCardTpl>
-      <app-event-card [event]="selectedEvent$ | async"
-                      (close)="onCloseEventCard()"
-                      (navigateToEvent)="onNavigateToEvent($event)"
-                      (characterClick)="onCharacterClick($event)">
+      <app-event-card [event]="selectedEvent$ | async" [canGoBack]="history.length > 0"
+        (back)="goBack()" (close)="onCloseEventCard()" (navigateToEvent)="onNavigateToEvent($event)"
+        (characterClick)="onCharacterClick($event)">
       </app-event-card>
     </ng-template>
   </mat-sidenav>

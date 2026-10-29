@@ -1,3 +1,4 @@
+import type { ExplorationState } from './time-map.reducer';
 import { createAction, props } from '@ngrx/store';
 import { ValidatedEvent, ValidatedTimelineItem } from '../utils/data-validator';
 import { DataLoadResult } from '../services/data.service';
@@ -66,3 +67,11 @@ export const selectCharacter = createAction(
 
 // 退出人物模式（還原進入前的 timeRange / selectedNovel snapshot）
 export const clearSelectedCharacter = createAction('[TimeMap] Clear Selected Character');
+
+export const focusCharacterEvent = createAction(
+  '[TimeMap] Focus Character Event', props<{ eventId: string }>()
+);
+export const restoreExploration = createAction(
+  '[TimeMap] Restore Exploration', props<{ snapshot: ExplorationState }>()
+);
+export const resetFilters = createAction('[TimeMap] Reset Filters');

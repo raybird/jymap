@@ -4,7 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
-import { RelatedEventsService } from '../../../core/services/related-events.service';
+import { RelatedEventsService, ScoredEvent } from '../../../core/services/related-events.service';
 import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
 
@@ -15,23 +15,29 @@ import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
     styleUrl: './event-card.component.scss'
 })
 export class EventCardComponent implements OnChanges, OnDestroy {
+  @Input() canGoBack = false;
+  @Output() back = new EventEmitter<void>();
   @Input() event: ValidatedEvent | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() navigateToEvent = new EventEmitter<ValidatedEvent>();
   @Output() characterClick = new EventEmitter<string>();
 
-  relatedEvents: ValidatedEvent[] = [];
+  relatedEvents: ScoredEvent[] = [];
+  private allEvents: ValidatedEvent[] = [];
   private destroy$ = new Subject<void>();
 
   constructor(
     private store: Store<AppState>,
     private relatedEventsService: RelatedEventsService
-  ) {}
+  ) {
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(takeUntil(this.destroy$)).subscribe(events => {
+      this.allEvents = events;
+      this.findRelated();
+    });
+  }
 
   ngOnChanges(): void {
-    if (this.event) {
-      this.findRelated();
-    }
+    this.findRelated();
   }
 
   ngOnDestroy(): void {
@@ -40,12 +46,9 @@ export class EventCardComponent implements OnChanges, OnDestroy {
   }
 
   private findRelated(): void {
-    if (!this.event) return;
-    this.store.select(TimeMapSelectors.selectAllEvents).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(allEvents => {
-      this.relatedEvents = this.relatedEventsService.findRelatedEvents(this.event!, allEvents, 5);
-    });
+    this.relatedEvents = this.event
+      ? this.relatedEventsService.findRelatedEventsWithReasons(this.event, this.allEvents, 5)
+      : [];
   }
 
   onRelatedClick(e: ValidatedEvent): void {

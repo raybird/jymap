@@ -24,6 +24,7 @@ import { Logger } from '../../../core/utils/logger';
 })
 export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapContainer', { static: false }) mapContainer!: ElementRef<HTMLDivElement>;
+  @Input() detailPanel: HTMLElement | null = null;
   @Input() center: [number, number] = [35.0, 105.0];
   @Input() zoom: number = 5;
   @Input() set selectedNovel(novel: string | null) {
@@ -39,6 +40,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   visibleEvents$: Observable<ValidatedEvent[]>;
 
   private map: L.Map | null = null;
+  private resizeObserver: ResizeObserver | null = null;
+  private pendingHighlight: (() => void) | null = null;
   private markers: L.Marker[] = [];
   private baseLayer: L.TileLayer | null = null;
   private destroy$ = new Subject<void>();
@@ -54,9 +57,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(events => {
       if (this.map) {
-        requestAnimationFrame(() => {
-          this.updateMarkers(events);
-        });
+        this.updateMarkers(events);
       }
     });
 
@@ -65,6 +66,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(novel => {
       this._selectedNovel = novel;
+      this.refreshMarkerStyles();
     });
 
     this.store.select(TimeMapSelectors.selectSelectedCharacter).pipe(
@@ -92,33 +94,21 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    // 使用 setTimeout 確保 DOM 完全渲染後再初始化地圖
-    // 需要等待一個 tick 讓 ViewChild 完全初始化
-    setTimeout(() => {
-      if (!this.mapContainer || !this.mapContainer.nativeElement) {
-        Logger.error('地圖容器 ViewChild 未初始化');
-        // 重試一次
-        setTimeout(() => this.ngAfterViewInit(), 100);
-        return;
+    this.resizeObserver = new ResizeObserver(() => {
+      if (this.map) {
+        this.map.invalidateSize();
+      } else {
+        this.initMap();
       }
-      this.initMap();
-
-      // 地圖初始化完成後，獲取當前可見事件並添加標記
-      this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(
-        take(1),
-        takeUntil(this.destroy$)
-      ).subscribe(events => {
-        if (this.map) {
-          requestAnimationFrame(() => {
-            this.updateMarkers(events);
-          });
-        }
-      });
-    }, 100);
+    });
+    this.resizeObserver.observe(this.mapContainer.nativeElement);
+    this.initMap();
   }
 
 
   ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
+    this.cancelPendingHighlight();
     this.destroy$.next();
     this.destroy$.complete();
 
@@ -142,7 +132,6 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     // 確保容器有尺寸
     if (container.offsetWidth === 0 || container.offsetHeight === 0) {
       Logger.warn('地圖容器尺寸為 0，等待容器渲染...');
-      setTimeout(() => this.initMap(), 100);
       return;
     }
 
@@ -186,6 +175,13 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
+    const bounds = L.latLngBounds(jymapBounds);
+    const currentZoom = this.map.getZoom();
+    if (currentZoom < 3) this.map.setZoom(3);
+    if (!bounds.contains(this.map.getCenter())) {
+      this.map.setView(bounds.getCenter(), Math.max(3, currentZoom));
+    }
+
     this.baseLayer = L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
       maxZoom: 19,
@@ -200,27 +196,6 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // 載入底圖
     this.baseLayer.addTo(this.map);
-
-    // 確保地圖視圖在邊界內，並限制最小縮放級別
-    // 使用 setTimeout 確保地圖完全初始化後再調整視圖
-    setTimeout(() => {
-      if (this.map) {
-        // 強制將地圖視圖限制在邊界內
-        const bounds = L.latLngBounds(jymapBounds);
-        const currentZoom = this.map.getZoom();
-        // 如果當前縮放級別小於 minZoom，強制調整
-        if (currentZoom < 3) {
-          this.map.setZoom(3);
-        }
-        // 確保地圖中心在邊界內
-        const currentCenter = this.map.getCenter();
-        if (!bounds.contains(currentCenter)) {
-          this.map.setView(bounds.getCenter(), Math.max(3, currentZoom));
-        }
-        // 觸發一次 invalidateSize 確保正確渲染
-        this.map.invalidateSize();
-      }
-    }, 100);
 
     // 監聽地圖縮放事件，更新標記大小（符合 Story 2.3：標記在不同縮放級別下保持適當大小）
     this.map.on('zoomend', () => {
@@ -241,12 +216,13 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.trajectoryLayer = L.layerGroup().addTo(this.map);
 
-    // 確保地圖正確渲染
-    setTimeout(() => {
-      if (this.map) {
-        this.map.invalidateSize();
-      }
-    }, 100);
+    this.map.invalidateSize();
+    this.store.select(TimeMapSelectors.selectVisibleEvents).pipe(take(1)).subscribe(events => {
+      this.updateMarkers(events);
+    });
+    this.store.select(TimeMapSelectors.selectCharacterTrajectory).pipe(take(1)).subscribe(points => {
+      this.drawTrajectory(points);
+    });
   }
 
   private getNovelColor(novel: string): string {
@@ -410,7 +386,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /**
    * 更新地圖標記（當事件資料變更時）
-   * 實作淡入淡出動畫（符合 Story 4.3）
+   * 同步更新標記集合，新增標記使用淡入動畫
    */
   updateMarkers(events: ValidatedEvent[]): void {
     if (!this.map) {
@@ -432,49 +408,54 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return eventId && !newEventIds.has(eventId);
     });
 
-    // 移除舊標記（淡出動畫）
-    markersToRemove.forEach((marker, index) => {
-      const el = marker.getElement();
-      if (el) {
-        el.style.transition = 'opacity 200ms ease-out';
-        el.style.opacity = '0';
+    markersToRemove.forEach(marker => this.map!.removeLayer(marker));
+    this.markers = this.markers.filter(marker => !markersToRemove.includes(marker));
+    const existingIds = new Set(this.markers.map(marker => (marker as any).eventId));
+    validEvents.filter(event => !existingIds.has(event.id)).forEach(event => {
+      const marker = this.createMarker(event);
+      if (marker) {
+        marker.addTo(this.map!);
+        this.markers.push(marker);
+        marker.getElement()?.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 200 });
       }
-      setTimeout(() => {
-        if (this.map) {
-          this.map.removeLayer(marker);
-        }
-      }, 200 + index * 10);
     });
-
-    // 等淡出完成後，清除 markers 陣列並重新加入所有新標記
-    const delay = markersToRemove.length > 0 ? 250 : 0;
-    setTimeout(() => {
-      // 從 this.markers 中移除已被清除的標記
-      this.markers = this.markers.filter(m => !markersToRemove.includes(m));
-
-      // 找出真正需要新增的事件（不在當前 markers 中）
-      const existingIds = new Set(this.markers.map(m => (m as any).eventId));
-      const eventsToAdd = validEvents.filter(e => !existingIds.has(e.id));
-
-      eventsToAdd.forEach((event, i) => {
-        setTimeout(() => {
-          const marker = this.createMarker(event);
-          if (marker) {
-            (marker as any).eventId = event.id;
-            marker.addTo(this.map!);
-            this.markers.push(marker);
-          }
-        }, i * 10);
-      });
-    }, delay);
   }
 
-  /**
-   * 縮放到指定位置
-   */
-  flyTo(lat: number, lng: number, zoom?: number): void {
-    if (this.map) {
-      this.map.flyTo([lat, lng], zoom || this.map.getZoom());
+  flyTo(lat: number, lng: number, zoom?: number, eventId?: string): void {
+    if (!this.map) return;
+    this.cancelPendingHighlight();
+    this.map.stop();
+    const targetZoom = zoom ?? this.map.getZoom();
+    let target = L.latLng(lat, lng);
+    if (eventId && window.matchMedia('(max-width: 768px)').matches && this.detailPanel) {
+      const point = this.map.project(target, targetZoom);
+      target = this.map.unproject(L.point(point.x, point.y + this.detailPanel.clientHeight / 2), targetZoom);
+    }
+    if (eventId) {
+      if (this.map.getCenter().equals(target) && this.map.getZoom() === targetZoom) {
+        this.highlightMarker(eventId);
+        return;
+      }
+      this.pendingHighlight = () => {
+        this.pendingHighlight = null;
+        this.highlightMarker(eventId);
+      };
+      this.map.once('moveend', this.pendingHighlight);
+    }
+    this.map.flyTo(target, targetZoom);
+  }
+
+  restoreView(center: [number, number], zoom: number): void {
+    this.cancelPendingHighlight();
+    this.map?.stop();
+    this.map?.closePopup();
+    this.map?.setView(center, zoom, { animate: false });
+  }
+
+  private cancelPendingHighlight(): void {
+    if (this.pendingHighlight) {
+      this.map?.off('moveend', this.pendingHighlight);
+      this.pendingHighlight = null;
     }
   }
 
@@ -516,6 +497,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.map || events.length === 0) {
       return;
     }
+    this.cancelPendingHighlight();
+    this.map.stop();
 
     const validEvents = events.filter(
       event => event.validationStatus === 'valid' &&
@@ -563,17 +546,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    // 獲取標記位置
     const position = marker.getLatLng();
-
-    // 飛到標記位置並縮放（如果當前縮放級別太小）
-    const currentZoom = this.map.getZoom();
-    const targetZoom = Math.max(currentZoom, 8); // 至少縮放到 8 級
-
-    this.map.flyTo(position, targetZoom, {
-      duration: 0.8, // 動畫時間 0.8 秒
-      easeLinearity: 0.25
-    });
 
     // 高亮標記（添加視覺效果）
     const markerElement = marker.getElement();
@@ -638,6 +611,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
   private drawTrajectory(points: Array<[number, number]>): void {
     if (!this.map || !this.trajectoryLayer) return;
 
+    this.cancelPendingHighlight();
     this.trajectoryLayer.clearLayers();
 
     if (points.length < 2) {

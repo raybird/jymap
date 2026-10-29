@@ -22,6 +22,8 @@ export interface SearchResult {
   providedIn: 'root'
 })
 export class SearchService {
+  private characterIndex = new Fuse<string>([], { threshold: 0.3 });
+  private novelIndex = new Fuse<string>([], { threshold: 0.3 });
   private fuseInstance: Fuse<ValidatedEvent> | null = null;
   private eventsSubject = new BehaviorSubject<ValidatedEvent[]>([]);
   private searchResultsSubject = new BehaviorSubject<SearchResult[]>([]);
@@ -51,6 +53,8 @@ export class SearchService {
    * 在資料載入時預先建立索引，提升搜尋效能
    */
   private buildIndex(events: ValidatedEvent[]): void {
+    this.characterIndex.setCollection([...new Set(events.flatMap(event => event.characters))]);
+    this.novelIndex.setCollection([...new Set(events.map(event => event.novel))]);
     if (events.length === 0) {
       this.fuseInstance = null;
       return;
@@ -122,7 +126,7 @@ export class SearchService {
     // 轉換為 SearchResult 格式
     const searchResults: SearchResult[] = results.map(result => ({
       event: result.item,
-      score: result.score ? 1 - result.score : 0, // Fuse.js 分數是距離，轉換為相關性（0-1）
+      score: 1 - (result.score ?? 1), // Fuse.js 分數是距離，轉換為相關性（0-1）
       matchedFields: result.matches?.map(m => {
         // 處理嵌套欄位（如 'characters' 陣列中的項目）
         const key = m.key || '';
@@ -147,6 +151,15 @@ export class SearchService {
     this.searchResultsSubject.next(searchResults);
 
     return searchResults;
+  }
+
+  suggest(keyword: string): { characters: string[]; novels: string[] } {
+    const query = keyword.trim();
+    if (!query) return { characters: [], novels: [] };
+    return {
+      characters: this.characterIndex.search(query, { limit: 8 }).map(result => result.item),
+      novels: this.novelIndex.search(query, { limit: 5 }).map(result => result.item)
+    };
   }
 
   /**

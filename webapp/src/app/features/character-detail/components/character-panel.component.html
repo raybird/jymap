@@ -1,4 +1,5 @@
 <div class="character-panel" *ngIf="(character$ | async) as name">
+  @if (canGoBack) { <button type="button" class="exploration-back" (click)="back.emit()">← 返回上一個探索位置</button> }
   <div class="panel-header">
     <div class="header-left">
       <div class="header-label">追蹤中</div>
@@ -30,13 +31,29 @@
     </div>
 
     <div class="panel-body">
+      @let activeIndex = getActiveIndex(events, selectedEventId$ | async);
+      @if (events[activeIndex]; as active) {
+        <section class="character-step" aria-label="人物逐步探索">
+          <p class="step-progress" aria-live="polite">按年代探索 · 第 {{ activeIndex + 1 }} / {{ events.length }} 件</p>
+          <div class="step-controls">
+            <button type="button" [disabled]="activeIndex === 0" (click)="onEventClick(events[activeIndex - 1])">← 上一件</button>
+            <button type="button" [disabled]="activeIndex === events.length - 1" (click)="onEventClick(events[activeIndex + 1])">下一件 →</button>
+          </div>
+          <h4>{{ active.title }}</h4>
+          <p>{{ getYearText(active.year) }} · {{ active.novel }}</p>
+          <p>{{ active.summary || active.description }}</p>
+          <button type="button" class="open-event" (click)="openEvent.emit(active)">查看事件詳情 →</button>
+        </section>
+      }
+
       <h4 class="section-title">事件年表</h4>
       <div class="empty-hint" *ngIf="events.length === 0">無事件資料</div>
       <ol class="event-list">
         <li class="event-item"
             *ngFor="let e of events; let i = index"
-            (click)="onEventClick(e)"
-            [attr.aria-label]="'查看事件 ' + e.title">
+            [class.active]="i === activeIndex">
+          <button type="button" (click)="onEventClick(e)" [attr.aria-current]="i === activeIndex ? 'step' : null"
+            [attr.aria-label]="'定位事件 ' + e.title">
           <span class="seq">{{ i + 1 }}</span>
           <div class="event-meta">
             <div class="event-title">
@@ -45,6 +62,7 @@
             </div>
             <div class="event-sub">{{ e.dynasty }} · {{ getYearText(e.year) }} · {{ e.novel }}</div>
           </div>
+          </button>
         </li>
       </ol>
     </div>

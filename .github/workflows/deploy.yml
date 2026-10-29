@@ -31,6 +31,14 @@ jobs:
         run: npm ci
         working-directory: webapp
 
+      - name: Test
+        run: npm run test:ci
+        working-directory: webapp
+
+      - name: Test mobile layout
+        run: npm run test:mobile
+        working-directory: webapp
+
       - name: Build
         run: npx ng build --configuration production --base-href /jymap/
         working-directory: webapp

@@ -1,4 +1,5 @@
-import { NgZone, ChangeDetectorRef } from '@angular/core';
+import { fakeAsync, tick } from '@angular/core/testing';
+import { NgZone, ChangeDetectorRef, ElementRef } from '@angular/core';
 import { TimelineContainerComponent } from './timeline-container.component';
 
 describe('TimelineContainerComponent', () => {
@@ -9,6 +10,23 @@ describe('TimelineContainerComponent', () => {
     const cdrMock = { detectChanges: () => {} } as unknown as ChangeDetectorRef;
     component = new TimelineContainerComponent(ngZoneMock, cdrMock);
   });
+
+  it('銷毀後不再回應 document 的框選結束事件', fakeAsync(() => {
+    component.timelineContainer = new ElementRef(document.createElement('div'));
+    component.timelineTrack = new ElementRef(document.createElement('div'));
+    component.ngOnInit();
+    component.ngAfterViewInit();
+    tick(400);
+    component.selectedStartYear = 1200;
+    component.selectedEndYear = 1250;
+    const emit = spyOn(component.timeRangeChange, 'emit');
+    document.dispatchEvent(new MouseEvent('mouseup'));
+    expect(emit).toHaveBeenCalled();
+    component.ngOnDestroy();
+    emit.calls.reset();
+    document.dispatchEvent(new MouseEvent('mouseup'));
+    expect(emit).not.toHaveBeenCalled();
+  }));
 
   describe('getEventStaggerTop', () => {
     it('同 bucket 只有一個事件時回傳 50', () => {

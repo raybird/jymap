@@ -1,16 +1,5 @@
 <div class="search-box-container">
-  <div class="search-input-wrapper" [class.has-chip]="selectedNovel">
-    @if (selectedNovel) {
-      <span class="novel-chip">
-        {{ selectedNovel }}
-        <button
-          type="button"
-          class="chip-clear"
-          (click)="novelClear.emit(); $event.stopPropagation()"
-          aria-label="清除小說篩選"
-        >✕</button>
-      </span>
-    }
+  <div class="search-input-wrapper">
     <input
       #searchInput
       type="text"
@@ -19,9 +8,8 @@
       (input)="onSearchInput($event)"
       (keydown)="onKeyDown($event)"
       (focus)="onFocus()"
-      (blur)="onBlur()"
-      [placeholder]="selectedNovel ? '搜尋地點、事件、人物...' : '選擇小說或輸入關鍵字...'"
-      aria-label="搜尋或選擇小說"
+      placeholder="搜尋人物、小說、事件或朝代"
+      aria-label="搜尋金庸世界的人物、小說與事件"
       autocomplete="off"
     />
     @if (searchKeyword) {

@@ -40,6 +40,10 @@ export interface TimeMapState {
   } | null;
 }
 
+export type ExplorationState = Pick<TimeMapState,
+  'currentTimeRange' | 'selectedNovel' | 'selectedCharacter' | 'selectedEventId' |
+  'preCharacterSnapshot' | 'mapView'>;
+
 export const initialTimeMapState: TimeMapState = {
   events: [],
   timeline: [],
@@ -179,6 +183,34 @@ export const timeMapReducer = createReducer(
     };
   }),
 
+  on(TimeMapActions.focusCharacterEvent, (state, { eventId }) => {
+    const event = state.events.find(e => e.id === eventId);
+    if (!state.selectedCharacter || !event?.characters.includes(state.selectedCharacter)) return state;
+    return {
+      ...state,
+      selectedEventId: eventId,
+      selectedEventVersion: state.selectedEventVersion + 1
+    };
+  }),
+
+  on(TimeMapActions.restoreExploration, (state, { snapshot }) => ({
+    ...state,
+    ...snapshot,
+    selectedEventVersion: state.selectedEventVersion + 1,
+    selectedCharacterVersion: state.selectedCharacterVersion + 1,
+    visibleEvents: applyFilters(state.events, snapshot.currentTimeRange, snapshot.selectedNovel)
+  })),
+
+  on(TimeMapActions.resetFilters, (state) => ({
+    ...state,
+    currentTimeRange: null,
+    selectedNovel: null,
+    selectedCharacter: null,
+    selectedEventId: null,
+    preCharacterSnapshot: null,
+    visibleEvents: state.events
+  })),
+
   // 清除選中事件
   on(TimeMapActions.clearSelectedEvent, (state) => ({
     ...state,
@@ -228,6 +260,7 @@ export const timeMapReducer = createReducer(
     return {
       ...state,
       selectedCharacter: null,
+      selectedEventId: null,
       preCharacterSnapshot: null,
       currentTimeRange: restoredRange,
       selectedNovel: restoredNovel,

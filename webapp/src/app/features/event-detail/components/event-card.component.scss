@@ -219,3 +219,37 @@
     }
   }
 }
+
+.exploration-back {
+  flex-shrink: 0;
+  min-height: 44px;
+  border: 0;
+  border-bottom: 1px solid #d4c9b8;
+  background: #f5f0e8;
+  color: #634b2e;
+  text-align: left;
+  padding: 8px 20px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.related-item {
+  text-align: left;
+  font: inherit;
+}
+
+.rel-reason {
+  display: block;
+  font-size: 0.78rem;
+  color: #785a20;
+  margin: 4px 0;
+}
+
+button:focus-visible {
+  outline: 2px solid #8b2030;
+  outline-offset: 2px;
+}
+
+:host { display: block; height: 100%; }
+.card-body { min-height: 0; }
+.card-header, .card-meta { flex-shrink: 0; }

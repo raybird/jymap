@@ -150,6 +150,9 @@ export class DataValidator {
 
     return {
       ...event,
+      characters: Array.isArray(event.characters) ? event.characters : [],
+      sources: Array.isArray(event.sources) ? event.sources : [],
+      tags: Array.isArray(event.tags) ? event.tags : [],
       validationStatus,
       validationErrors: [...validation.errors, ...validation.warnings]
     };

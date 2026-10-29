@@ -22,9 +22,11 @@ ng test --include='**/some.spec.ts'  # 執行單一測試檔
 ## 部署
 
 push 到 `main` 分支後，GitHub Actions（`.github/workflows/deploy.yml`）會自動：
-1. 以 `--base-href /jymap/` 進行 production build
-2. 複製 `index.html` 為 `404.html`（SPA routing 支援）
-3. 部署至 GitHub Pages
+
+1. 執行 ChromeHeadless 測試，通過後才繼續建置
+2. 以 `--base-href /jymap/` 進行 production build
+3. 複製 `index.html` 為 `404.html`（SPA routing 支援）
+4. 部署至 GitHub Pages
 
 無需手動操作，merge 或直接 push 即觸發。
 
@@ -32,11 +34,11 @@ push 到 `main` 分支後，GitHub Actions（`.github/workflows/deploy.yml`）�
 
 | 層級 | 技術 |
 |------|------|
-| 框架 | Angular 18 Standalone Components |
-| 狀態管理 | NgRx 18（Store + Effects + Selectors） |
+| 框架 | Angular 20 Standalone Components |
+| 狀態管理 | NgRx 20（Store + Effects + Selectors） |
 | 地圖 | Leaflet 1.9（原生整合，非 Angular 包裝器） |
 | 搜尋 | Fuse.js 7 |
-| UI | Angular Material 18（MatSidenav 等） |
+| UI | Angular Material 20（MatSidenav 等） |
 | 測試 | Karma + Jasmine |
 
 ## 架構重點
@@ -73,6 +75,7 @@ features/
   search/         # SearchBoxComponent + SearchResultsComponent
   novel-filter/   # NovelFilterComponent（小說篩選）
   event-detail/   # EventCardComponent（側邊抽屜）
+  character-detail/ # CharacterPanelComponent（人物年表與軌跡）
 ```
 
 ### 組件與 Store 的互動模式

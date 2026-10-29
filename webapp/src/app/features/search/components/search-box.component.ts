@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, Output, EventEmitter, ViewChild, ElementR
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, takeUntil } from 'rxjs/operators';
 import { SearchService, SearchResult } from '../../../core/services/search.service';
 import { Logger } from '../../../core/utils/logger';
 
@@ -19,11 +19,10 @@ import { Logger } from '../../../core/utils/logger';
 export class SearchBoxComponent implements OnInit, OnDestroy {
   @ViewChild('searchInput', { static: false }) searchInput!: ElementRef<HTMLInputElement>;
   
-  @Input() selectedNovel: string | null = null;
+  @Input() set keyword(value: string) { this.searchKeyword = value; }
   @Output() searchResultsChange = new EventEmitter<SearchResult[]>();
   @Output() searchKeywordChange = new EventEmitter<string>();
   @Output() focusChange = new EventEmitter<boolean>();
-  @Output() novelClear = new EventEmitter<void>();
 
   searchKeyword = '';
   isSearching = false;
@@ -49,7 +48,6 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
     // debounce 200ms + 搜尋執行 < 100ms = 總回應時間 < 300ms
     this.searchSubject.pipe(
       debounceTime(200),
-      distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(keyword => {
       this.performSearch(keyword);
@@ -71,6 +69,7 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
     this.searchKeyword = keyword;
     this.searchKeywordChange.emit(keyword);
 
+    this.searchSubject.next(keyword);
     if (keyword.trim().length === 0) {
       this.searchService.clearResults();
       this.hasResults = false;
@@ -79,8 +78,7 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
     }
 
     this.isSearching = true;
-    // 透過 Subject 觸發 debounced 搜尋
-    this.searchSubject.next(keyword);
+
   }
 
   /**
@@ -101,6 +99,7 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
    */
   clearSearch(): void {
     this.searchKeyword = '';
+    this.searchSubject.next('');
     this.searchService.clearResults();
     this.hasResults = false;
     this.isSearching = false;
@@ -134,12 +133,4 @@ export class SearchBoxComponent implements OnInit, OnDestroy {
     this.focusChange.emit(true);
   }
 
-  /**
-   * 處理搜尋框失焦
-   */
-  onBlur(): void {
-    // 延遲讓點擊下拉選單的事件能優先執行
-    setTimeout(() => this.focusChange.emit(false), 200);
-  }
 }
-

@@ -1,10 +1,9 @@
-import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, OnInit, ViewChild, OnDestroy, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Store } from '@ngrx/store';
-import { Observable, Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
+import { Observable, Subject, timer } from 'rxjs';
+import { switchMap, map, take, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
 import { MapContainerComponent } from './features/map/components/map-container.component';
 import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
@@ -13,6 +12,7 @@ import { SearchResultsComponent } from './features/search/components/search-resu
 import { EventCardComponent } from './features/event-detail/components/event-card.component';
 import { CharacterPanelComponent } from './features/character-detail/components/character-panel.component';
 import { AppState } from './core/state/app.state';
+import { ExplorationState, TimeMapState } from './core/state/time-map.reducer';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
 import * as TimeMapActions from './core/state/time-map.actions';
 import { SearchService, SearchResult } from './core/services/search.service';
@@ -20,13 +20,22 @@ import { Logger } from './core/utils/logger';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet, CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
+    imports: [CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(MapContainerComponent) mapComponent!: MapContainerComponent;
   @ViewChild(TimelineContainerComponent) timelineComponent!: TimelineContainerComponent;
+
+  @ViewChild('eventSidenav', { read: ElementRef, static: true }) detailPanel!: ElementRef<HTMLElement>;
+  view$!: Observable<TimeMapState>;
+  suggestions = { characters: [] as string[], novels: [] as string[] };
+  browseCategory: 'novels' | 'characters' = 'novels';
+  notice = '';
+  history: { state: ExplorationState; keyword: string; results: SearchResult[];
+    timelineLeft: number; searchOpen: boolean }[] = [];
+  private navigation$ = new Subject<void>();
 
   events$!: Observable<ValidatedEvent[]>;
   timeline$!: Observable<ValidatedTimelineItem[]>;
@@ -58,12 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private searchService: SearchService
   ) {
     this.timeRangeChange$.pipe(
-      debounceTime(120),
-      distinctUntilChanged((prev, curr) => {
-        if (prev === null && curr === null) return true;
-        if (prev === null || curr === null) return false;
-        return prev.startYear === curr.startYear && prev.endYear === curr.endYear;
-      })
+      switchMap(range => timer(120).pipe(map(() => range), takeUntil(this.navigation$))),
+      takeUntil(this.destroy$)
     ).subscribe(range => {
       if (range) {
         this.store.dispatch(TimeMapActions.setTimeRange({
@@ -77,6 +82,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.view$ = this.store.select(TimeMapSelectors.selectTimeMapState);
     this.events$ = this.store.select(TimeMapSelectors.selectVisibleEvents);
     this.timeline$ = this.store.select(TimeMapSelectors.selectTimeline);
     this.loading$ = this.store.select(TimeMapSelectors.selectLoading);
@@ -92,9 +98,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.store.select(TimeMapSelectors.selectAllEvents).pipe(
       takeUntil(this.destroy$)
     ).subscribe(events => {
-      if (events.length > 0) {
-        this.searchService.setEvents(events);
-      }
+      this.searchService.setEvents(events);
+      const counts = new Map<string, number>();
+      events.forEach(event => event.characters.forEach(name => counts.set(name, (counts.get(name) ?? 0) + 1)));
+      this.characters = [...counts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'zh-Hant'))
+        .slice(0, 8).map(([name]) => name);
+      this.suggestions = this.searchService.suggest(this.searchKeyword);
     });
 
     // 訂閱小說列表供 autocomplete 下拉使用
@@ -102,41 +111,6 @@ export class AppComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$)
     ).subscribe(novels => {
       this.novels = novels;
-    });
-
-    this.store.select(TimeMapSelectors.selectAllCharacters).pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(list => {
-      this.characters = list;
-    });
-
-    // 小說篩選變更時，捲動時間軸並飛到地圖到該小說的年份範圍
-    this.selectedNovel$.pipe(
-      takeUntil(this.destroy$),
-      distinctUntilChanged()
-    ).subscribe(novel => {
-      if (!novel) {
-        this.store.dispatch(TimeMapActions.clearTimeRange());
-        return;
-      }
-      this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(allEvents => {
-        const novelEvents = allEvents.filter(e => e.novel === novel);
-        if (novelEvents.length === 0) return;
-        const years = novelEvents.map(e => e.year).sort((a, b) => a - b);
-        const minYear = years[0];
-        const maxYear = years[years.length - 1];
-        const midYear = Math.round((minYear + maxYear) / 2);
-        this.store.dispatch(TimeMapActions.setTimeRange({
-          startYear: minYear - 20,
-          endYear: maxYear + 20
-        }));
-        if (this.timelineComponent) {
-          this.timelineComponent.scrollToYear(midYear);
-        }
-        if (this.mapComponent) {
-          this.mapComponent.fitMapToEvents(novelEvents);
-        }
-      });
     });
   }
 
@@ -149,9 +123,10 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     // 清理 debounce Subject
-    this.timeRangeChange$.complete();
     this.destroy$.next();
     this.destroy$.complete();
+    this.timeRangeChange$.complete();
+    this.navigation$.complete();
   }
 
   getStatusBadgeClass(status: string): string {
@@ -202,56 +177,26 @@ export class AppComponent implements OnInit, OnDestroy {
    */
   onSearchKeywordChange(keyword: string): void {
     this.searchKeyword = keyword;
+    this.suggestions = this.searchService.suggest(keyword);
     if (!keyword || keyword.trim().length === 0) {
       this.searchResults = [];
     }
   }
 
   onSearchResultClick(event: ValidatedEvent): void {
-    Logger.debug('搜尋結果點擊:', event.title, '年份:', event.year);
-    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
-
-    if (this.timelineComponent) {
-      setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
-    }
-
-    if (this.mapComponent) {
-      this.mapComponent.flyTo(event.lat, event.lng, 8);
-      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
-    }
-
-    const yearRange = 10;
-    this.store.dispatch(TimeMapActions.setTimeRange({
-      startYear: event.year - yearRange,
-      endYear: event.year + yearRange
-    }));
+    this.onNavigateToEvent(event);
   }
 
   onMapEventClick(event: ValidatedEvent): void {
+    this.rememberView();
     this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
-    if (this.mapComponent) {
-      this.mapComponent.flyTo(event.lat, event.lng, 7);
-      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
-    }
+    this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
   }
 
   onEventDotClick(eventId: string): void {
     this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(events => {
       const event = events.find(e => e.id === eventId);
-      if (event) {
-        this.store.dispatch(TimeMapActions.selectEvent({ eventId }));
-        if (this.timelineComponent) {
-          setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
-        }
-        if (this.mapComponent) {
-          this.mapComponent.flyTo(event.lat, event.lng, 8);
-          setTimeout(() => this.mapComponent.highlightMarker(eventId), 800);
-        }
-        this.store.dispatch(TimeMapActions.setTimeRange({
-          startYear: event.year - 10,
-          endYear: event.year + 10
-        }));
-      }
+      if (event) this.onNavigateToEvent(event);
     });
   }
 
@@ -260,19 +205,21 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onNavigateToEvent(event: ValidatedEvent): void {
+    this.rememberView();
     this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
-    if (this.timelineComponent) {
-      setTimeout(() => this.timelineComponent.scrollToYear(event.year), 100);
-    }
-    if (this.mapComponent) {
-      this.mapComponent.flyTo(event.lat, event.lng, 8);
-      setTimeout(() => this.mapComponent.highlightMarker(event.id), 800);
-    }
-    const yearRange = 10;
+    this.store.select(TimeMapSelectors.selectSelectedNovel).pipe(take(1)).subscribe(novel => {
+      if (novel && novel !== event.novel) {
+        this.store.dispatch(TimeMapActions.setNovelFilter({ novel: null }));
+        this.notice = `已解除《${novel}》篩選，顯示《${event.novel}》的「${event.title}」。`;
+      }
+    });
+    this.isSearchFocused = false;
     this.store.dispatch(TimeMapActions.setTimeRange({
-      startYear: event.year - yearRange,
-      endYear: event.year + yearRange
+      startYear: event.year - 10,
+      endYear: event.year + 10
     }));
+    this.timelineComponent?.scrollToYear(event.year);
+    this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
   }
 
   /**
@@ -286,22 +233,118 @@ export class AppComponent implements OnInit, OnDestroy {
    * 處理從 autocomplete 下拉選取小說
    */
   onNovelSelect(novel: string | null): void {
+    this.rememberView();
     this.store.dispatch(TimeMapActions.setNovelFilter({ novel }));
     this.isSearchFocused = false;
+    if (!novel) {
+      this.store.dispatch(TimeMapActions.clearTimeRange());
+      return;
+    }
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(allEvents => {
+      const novelEvents = allEvents.filter(e => e.novel === novel);
+      if (novelEvents.length === 0) return;
+      const years = novelEvents.map(e => e.year).sort((a, b) => a - b);
+      const minYear = years[0];
+      const maxYear = years[years.length - 1];
+      const midYear = Math.round((minYear + maxYear) / 2);
+      this.store.dispatch(TimeMapActions.setTimeRange({
+        startYear: minYear - 20,
+        endYear: maxYear + 20
+      }));
+      if (this.timelineComponent) {
+        this.timelineComponent.scrollToYear(midYear);
+      }
+      if (this.mapComponent) {
+        this.mapComponent.fitMapToEvents(novelEvents);
+      }
+    });
   }
 
   onCharacterClick(name: string): void {
     if (!name) return;
+    this.rememberView();
     this.store.dispatch(TimeMapActions.selectCharacter({ character: name }));
     this.isSearchFocused = false;
     this.store.select(TimeMapSelectors.selectCharacterEvents).pipe(take(1)).subscribe(events => {
       if (events.length === 0) return;
-      const years = events.map(e => e.year);
-      const mid = Math.round((Math.min(...years) + Math.max(...years)) / 2);
-      if (this.timelineComponent) {
-        setTimeout(() => this.timelineComponent.scrollToYear(mid), 100);
+      this.onCharacterEventClick(events[0]);
+    });
+  }
+
+  onCharacterEventClick(event: ValidatedEvent): void {
+    this.navigation$.next();
+    this.store.dispatch(TimeMapActions.focusCharacterEvent({ eventId: event.id }));
+    this.store.select(TimeMapSelectors.selectTimeRange).pipe(take(1)).subscribe(range => {
+      if (range && (event.year < range.startYear || event.year > range.endYear)) {
+        this.store.dispatch(TimeMapActions.setTimeRange({ startYear: event.year - 10, endYear: event.year + 10 }));
       }
     });
+    this.timelineComponent?.scrollToYear(event.year);
+    this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
+  }
+
+  onSearchAreaFocusOut(event: FocusEvent): void {
+    if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) {
+      this.isSearchFocused = false;
+    }
+  }
+
+  clearNovelFilter(): void {
+    this.rememberView();
+    this.store.dispatch(TimeMapActions.setNovelFilter({ novel: null }));
+  }
+
+  clearTimeFilter(): void {
+    this.rememberView();
+    this.store.dispatch(TimeMapActions.clearTimeRange());
+    this.timelineComponent?.clearRangeHighlight();
+  }
+
+  resetFilters(): void {
+    this.rememberView();
+    this.store.dispatch(TimeMapActions.resetFilters());
+    this.timelineComponent?.clearRangeHighlight();
+    this.isSearchFocused = false;
+    this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(events => {
+      this.mapComponent?.fitMapToEvents(events);
+    });
+  }
+
+  formatYear(year: number): string {
+    return year < 0 ? `西元前${Math.abs(year)}年` : `${year}年`;
+  }
+
+  private rememberView(): void {
+    this.navigation$.next();
+    this.notice = '';
+    this.store.select(TimeMapSelectors.selectTimeMapState).pipe(take(1)).subscribe(state => {
+      const { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView } = state;
+      const currentMap = this.mapComponent?.getMap?.();
+      const savedMapView = currentMap
+        ? { center: [currentMap.getCenter().lat, currentMap.getCenter().lng] as [number, number], zoom: currentMap.getZoom() }
+        : mapView;
+      this.history.push({
+        state: { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView: savedMapView },
+        keyword: this.searchKeyword, results: this.searchResults,
+        timelineLeft: this.timelineComponent?.getScrollPosition() ?? 0,
+        searchOpen: this.isSearchFocused
+      });
+    });
+  }
+
+  goBack(): void {
+    const previous = this.history.pop();
+    if (!previous) return;
+    this.navigation$.next();
+    this.store.dispatch(TimeMapActions.restoreExploration({ snapshot: previous.state }));
+    this.searchKeyword = previous.keyword;
+    this.searchResults = previous.results;
+    this.suggestions = this.searchService.suggest(previous.keyword);
+    this.isSearchFocused = previous.searchOpen;
+    this.notice = '已返回上一個探索位置。';
+    this.timelineComponent?.restoreScrollPosition(previous.timelineLeft);
+    this.mapComponent?.restoreView(previous.state.mapView.center, previous.state.mapView.zoom);
+    if (previous.state.selectedEventId) this.mapComponent?.highlightMarker(previous.state.selectedEventId);
   }
 
   onCloseCharacterPanel(): void {
@@ -309,6 +352,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   onSidenavClosed(): void {
+    if (this.isSearchFocused) return;
     this.store.select(TimeMapSelectors.selectSelectedCharacter).pipe(take(1)).subscribe(c => {
       if (c !== null) {
         this.store.dispatch(TimeMapActions.clearSelectedCharacter());

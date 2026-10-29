@@ -6,7 +6,9 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "test:mobile": "ng test --watch=false --karma-config=karma.mobile.conf.cjs --browsers=ChromeHeadlessMobile --include=**/app.layout.spec.ts --include=**/app.component.spec.ts",
+    "test:ci": "ng test --watch=false --karma-config=karma.conf.cjs --browsers=ChromeHeadlessDesktop"
   },
   "private": true,
   "dependencies": {

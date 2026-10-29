@@ -10,6 +10,10 @@ export interface ScoredEvent {
 @Injectable({ providedIn: 'root' })
 export class RelatedEventsService {
   findRelatedEvents(currentEvent: ValidatedEvent, allEvents: ValidatedEvent[], limit = 5): ValidatedEvent[] {
+    return this.findRelatedEventsWithReasons(currentEvent, allEvents, limit).map(result => result.event);
+  }
+
+  findRelatedEventsWithReasons(currentEvent: ValidatedEvent, allEvents: ValidatedEvent[], limit = 5): ScoredEvent[] {
     const scored: ScoredEvent[] = [];
 
     for (const candidate of allEvents) {
@@ -19,7 +23,7 @@ export class RelatedEventsService {
     }
 
     scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, limit).map(s => s.event);
+    return scored.slice(0, limit);
   }
 
   private computeScore(current: ValidatedEvent, candidate: ValidatedEvent): ScoredEvent {

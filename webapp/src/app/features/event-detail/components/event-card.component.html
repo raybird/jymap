@@ -1,10 +1,11 @@
 <div class="event-card" *ngIf="event">
+  @if (canGoBack) { <button type="button" class="exploration-back" (click)="back.emit()">← 返回上一個探索位置</button> }
   <div class="card-header">
     <div class="header-left">
       <div class="dynasty-badge">{{ event.dynasty }}</div>
       <h3>{{ event.title }}</h3>
     </div>
-    <button class="close-btn" (click)="close.emit()">✕</button>
+    <button type="button" aria-label="關閉事件詳情" class="close-btn" (click)="close.emit()">✕</button>
   </div>
 
   <div class="card-meta">
@@ -30,7 +31,7 @@
                 *ngFor="let c of event.characters"
                 (click)="onCharacterClick(c)"
                 [attr.aria-label]="'查看 ' + c + ' 的軌跡'">
-          {{ c }}
+          追蹤 {{ c }}
         </button>
       </div>
     </div>
@@ -46,12 +47,13 @@
     </div>
 
     <div class="section related-section" *ngIf="relatedEvents.length > 0">
-      <h4>相關事件</h4>
+      <h4>繼續探索</h4>
       <div class="related-list">
-        <div class="related-item" *ngFor="let re of relatedEvents" (click)="onRelatedClick(re)">
-          <span class="rel-title">{{ re.title }}</span>
-          <span class="rel-meta">{{ re.dynasty }} · {{ re.year }} · {{ re.novel }}</span>
-        </div>
+        <button type="button" class="related-item" *ngFor="let re of relatedEvents" (click)="onRelatedClick(re.event)">
+          <span class="rel-title">{{ re.event.title }}</span>
+          <span class="rel-reason">{{ re.reasons.join(' · ') }}</span>
+          <span class="rel-meta">{{ re.event.dynasty }} · {{ getYearText(re.event.year) }} · {{ re.event.novel }}</span>
+        </button>
       </div>
     </div>
   </div>
