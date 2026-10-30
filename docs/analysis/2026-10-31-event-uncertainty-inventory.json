@@ -1,17 +1,17 @@
 {
   "checkedOn": "2026-10-31",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "7c96bfbf12f94b00bce8fc86eeb0eff2307d1ad98148a6eccd71c698db934b1f",
+  "sourceSha256": "0843a5ec967907195b549590eedd68ea36ef6093a477b4f168e61a2264a300f9",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
     "yearPending": 59,
     "dynastyPending": 27,
-    "locationPending": 31,
+    "locationPending": 30,
     "inferredYear": 194,
-    "approximateLocation": 235,
+    "approximateLocation": 236,
     "versionDifference": 4,
-    "pendingEvents": 81
+    "pendingEvents": 80
   },
   "events": [
     {
@@ -1625,13 +1625,13 @@
       "title": "韋小寶初遇王屋派",
       "year": 1670,
       "dynasty": "清",
-      "priority": "P3",
+      "priority": null,
       "yearPlaceholder": false,
       "yearPending": false,
       "dynastyPending": false,
-      "locationPending": true,
+      "locationPending": false,
       "inferredYear": true,
-      "approximateLocation": false,
+      "approximateLocation": true,
       "versionDifference": false
     },
     {
