@@ -1,15 +1,15 @@
 {
   "checkedOn": "2026-10-31",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "2e8695999ce84beecfdf37f86b4d4b47c94bfedd18beef029ceeba6baf00c666",
+  "sourceSha256": "ecb4c71c41747401c4596d2699feb587dafcc13d878e6a525a34e592653f9ae6",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
     "yearPending": 59,
     "dynastyPending": 27,
-    "locationPending": 30,
+    "locationPending": 29,
     "inferredYear": 194,
-    "approximateLocation": 236,
+    "approximateLocation": 237,
     "versionDifference": 4,
     "pendingEvents": 80
   },
@@ -699,9 +699,9 @@
       "yearPlaceholder": true,
       "yearPending": true,
       "dynastyPending": true,
-      "locationPending": true,
+      "locationPending": false,
       "inferredYear": false,
-      "approximateLocation": false,
+      "approximateLocation": true,
       "versionDifference": false
     },
     {

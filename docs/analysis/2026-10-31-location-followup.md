@@ -100,13 +100,25 @@
 
 | ID | 2026-10-31核對內容 | 處置與限制 |
 | --- | --- | --- |
-| event-021、023 絕情谷 | [絕情谷wiki](https://zh.wikipedia.org/wiki/絕情谷)估計在陝南鄂北山區；[第三十二回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1342_3.html)楊過由襄陽外荒谷走向北大道赴谷，[第三十七回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1347_3.html)由蒙古軍營縱騎向北赴谷；[第二十八回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1338_3.html)郭芙也由向北推想去絕情谷，但此句只是人物推測 | 座標31.7／110.5改為33.1／110.8，北移約155公里。舊點在襄陽西南，與向北的行程相反。新點在鄂陝交界，今屬十堰鄖陽區，只是區域代表點 |
+| event-021、023 絕情谷 | [絕情谷wiki](https://zh.wikipedia.org/wiki/絕情谷)估計在陝南鄂北山區；[第三十二回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1342_3.html)楊過由襄陽外荒谷走向北大道赴谷，[第三十七回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1347_3.html)由蒙古軍營縱騎向北赴谷；[第二十八回第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1338_3.html)郭芙也由向北推想去絕情谷，但此句只是人物推測 | 座標31.7／110.5改為33.1／110.8，北移約158公里。舊點在襄陽西南，與向北的行程相反。新點在鄂陝交界，今屬十堰鄖陽區，只是區域代表點 |
 | event-059 劍塚 | [第二十四回](https://www.jinyongbbs.com/jyxx/sdxl/1334.html)荒谷在襄陽周圍三四十里內、不近大路；[第二十六回第二頁](https://www.jinyongbbs.com/jyxx/sdxl/1336_2.html)楊過再到此谷後見劍塚 | 現有點距襄陽城區約11公里，在此範圍內。方向未寫，座標不改 |
 | event-090 百花谷 | [第三十四回](https://www.jinyongbbs.com/jyxx/sdxl/1344.html)黑龍潭在晉南，距當時樹林西北三十餘里；[第三頁](https://www.jinyongbbs.com/jyxx/sdxl/1344_3.html)瑛姑稱由此向北百餘里到百花谷；[第三十八回](https://www.jinyongbbs.com/jyxx/sdxl/1348.html)黃蓉離風陵渡後在晉南山陽見玉蜂，向西北追到傍晚即見此谷 | 座標34.0／109.0改為35.3／110.5，移動約200公里。舊點在黃河以南的終南山，與晉南不合。新點今屬運城萬榮縣，由風陵渡往北約75公里，只是區域代表點 |
 | event-185 蒙古軍營 | [第二十一回](https://www.jinyongbbs.com/jyxx/sdxl/1331.html)忽必烈退軍數十里；[第二頁](https://www.jinyongbbs.com/jyxx/sdxl/1331_2.html)郭靖與楊過由城中快馬不到半個時辰到大營 | 現有點距城區約8公里，比「數十里」略近，但方向未寫，不足以定新點，座標不改 |
 
-2026-10-31絕情谷里程限制：[第二十一回第二頁](https://www.jinyongbbs.com/jyxx/sdxl/1331_2.html)楊過的十八日之算，隱含單程約七八日；[第二十二回](https://www.jinyongbbs.com/jyxx/sdxl/1332.html)又說汗血馬不到三日可到。兩者都遠於陝南鄂北與襄陽的實際距離，也可能含山路與醒養時間，所以採方位線索，不採此里數。
+2026-10-31絕情谷里程限制：[第二十一回第二頁](https://www.jinyongbbs.com/jyxx/sdxl/1331_2.html)楊過的十八日之算，隱含單程約七八日；[第二十二回](https://www.jinyongbbs.com/jyxx/sdxl/1332.html)又說汗血馬不到三日可到。兩者都遠於陝南鄂北與襄陽的實際距離，也可能含山路與休息時間，所以採方位線索，不採此里數。
 
 2026-10-31 wiki未見百花谷獨立條目。[《神鵰》盤點](2026-10-30-shendiao-chapter-audit.md)寫於本次之前，其「保留舊座標」「保留舊示意點」紀錄保留不改。
 
-2026-10-31下一批：《笑傲》event-033，《俠客》event-045、046、119、120。
+## 《笑傲》event-033與《俠客》四筆
+
+2026-10-31處置：046改座標並移除位置待考；033、045、119、120座標不變。046移除依據是正文已寫明里程，不是為了降低清單數字；該筆仍有年代待考，全站待查維持80筆。
+
+| ID | 2026-10-31核對內容 | 處置與限制 |
+| --- | --- | --- |
+| event-033 黑木崖 | [第三十回第三頁](https://www.jinyongbbs.com/jyxx/xajh/1212_3.html)稱崖在河北境內，由恆山東行到平定州；[第四頁](https://www.jinyongbbs.com/jyxx/xajh/1212_4.html)由平定州西北四十餘里到猩猩灘，再向北行 | 河北與[平定州](https://zh.wikipedia.org/wiki/平定县)屬山西的行程無法同時成立，比照《碧血》206不改座標。舊點38.0／114.5在河北，距平定州約80公里，方向與「西北」相反。若改用行程，須同步改說明與本紀錄 |
+| event-045 俠客島 | [第十九回](https://www.jinyongbbs.com/jyxx/xkx/1498.html)自南海之濱漁村乘北風向南，[第二頁](https://www.jinyongbbs.com/jyxx/xkx/1498_2.html)明寫孤懸南海 | 現有20.0／115.0即在南海，相符。島為虛構，座標不改 |
+| event-046 侯監集 | [第一回](https://www.jinyongbbs.com/jyxx/xkx/1480.html)明寫開封東門十二里處有市鎮侯監集 | 座標34.0／113.0改為34.79／114.44，東北移約165公里；`位置待考`改`約略定位`，全站約略定位增為237、位置待考減為29。新點在OSM宋門以東約7公里，取清制里程換算，只是代表點 |
+| event-119 摩天崖 | [第三回第三頁](https://www.jinyongbbs.com/jyxx/xkx/1482_3.html)謝煙客一路南行，第六日起盡在崇山峻嶺，第七日午間到崖 | 現有江西點大致在開封正南，方向不衝突；但山區與日程不足以定點，也無法確認江西，座標不改 |
+| event-120 凌霄城 | [第十六回](https://www.jinyongbbs.com/jyxx/xkx/1495.html)凌霄城遠在西域，路程幾千里 | 與現有西域示意相符，只是山脈未定，座標不改 |
+
+2026-10-31下一批：《鴛鴦刀》event-082、122、127、128。
