@@ -1,0 +1,834 @@
+{
+  "date": "2026-10-30",
+  "work": "射鵰英雄傳",
+  "editionLabel": "金庸武俠網標稱新修版，未逐字校勘印本",
+  "chapters": 40,
+  "pages": 109,
+  "items": [
+    {
+      "chapter": 1,
+      "title": "第一回　风雪惊变",
+      "paragraphs": 232,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1268.html",
+          "extractedCharacters": 8799,
+          "htmlSha256": "a60678ee207c281aafa23aba69eb2571c7f82cfedb160b6d9eb53d45a4d0216f"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1268_2.html",
+          "extractedCharacters": 8506,
+          "htmlSha256": "5fbd6ac653c064f7a570c0137047c613182a70b2404896c60c683cad8f4e9c95"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1268_3.html",
+          "extractedCharacters": 10427,
+          "htmlSha256": "19772854154de5288b003e7a517211e806cf91723e1e2bb9cefc1fb53ae7ed20"
+        }
+      ]
+    },
+    {
+      "chapter": 2,
+      "title": "第二回　江南七怪",
+      "paragraphs": 203,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1269.html",
+          "extractedCharacters": 8598,
+          "htmlSha256": "cc16348962c2a30544ce69ead0dc468b88beee2d0a9517c18020daf0467266f4"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1269_2.html",
+          "extractedCharacters": 7834,
+          "htmlSha256": "70c597093ff34e145653d9f2b416d75f652baa8b456d8ab7afe47698b1730b6a"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1269_3.html",
+          "extractedCharacters": 9222,
+          "htmlSha256": "7ee3a5d2d0430ccc6ad87fbd9f08bff691bf31988c4c31f5bb91f5e86a57f2e5"
+        }
+      ]
+    },
+    {
+      "chapter": 3,
+      "title": "第三回　黄沙莽莽",
+      "paragraphs": 203,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1270.html",
+          "extractedCharacters": 7752,
+          "htmlSha256": "1c2b632dc288184bcbede527166eaae748905d352f6d6c05bbeb9b0df83b7c44"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1270_2.html",
+          "extractedCharacters": 6910,
+          "htmlSha256": "0e895fc4cdde6f994acdc09c406a48217eca8678062a69e05ea88ee5ce9051ae"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1270_3.html",
+          "extractedCharacters": 8418,
+          "htmlSha256": "d2f70aeebb00b1eee77eba7e86fbe92cf32ab08dc6a2a51d8b51f4a5c59a796d"
+        }
+      ]
+    },
+    {
+      "chapter": 4,
+      "title": "第四回　黑风双煞",
+      "paragraphs": 206,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1271.html",
+          "extractedCharacters": 7024,
+          "htmlSha256": "9cf75297490a421cf10a376183756270f2fac93a149d89bac2c6af9e74b2c03a"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1271_2.html",
+          "extractedCharacters": 7595,
+          "htmlSha256": "54a9cb445bd898717e08590178c7a39ffdf33fecf3b73ed68ec6dede2839e9f4"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1271_3.html",
+          "extractedCharacters": 8919,
+          "htmlSha256": "4b5f94eea435c1df9ce3198a20fc8ab8ca69ed8b40b0ab8d70e5132c641ddd92"
+        }
+      ]
+    },
+    {
+      "chapter": 5,
+      "title": "第五回　弯弓射雕",
+      "paragraphs": 163,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1272.html",
+          "extractedCharacters": 7892,
+          "htmlSha256": "4f8484159c4bfcbbc0e80e41ff39c48e7eb6c85a09d8aa88d567afe73baab462"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1272_2.html",
+          "extractedCharacters": 6414,
+          "htmlSha256": "65c0b9fdb205af1d23fe636d962895cb85bf40568622d4151948be4116335b70"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1272_3.html",
+          "extractedCharacters": 6553,
+          "htmlSha256": "d777dd40e4ffeed4e14b7b964eab0705f4066fc68f710344df4556d25623da71"
+        }
+      ]
+    },
+    {
+      "chapter": 6,
+      "title": "第六回　崖顶疑阵",
+      "paragraphs": 221,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1273.html",
+          "extractedCharacters": 6899,
+          "htmlSha256": "5cba78c03c9999f5c0580cb4e211bbb34ffb97cbf0252f61435b87ad6140cc3b"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1273_2.html",
+          "extractedCharacters": 5645,
+          "htmlSha256": "eb0c81506ca389ad4ed563783f2810d3149db4ab933c4abd04f57c5878ef92cc"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1273_3.html",
+          "extractedCharacters": 6865,
+          "htmlSha256": "a29d04b2d55c60a41c31a541a092d21f734218a44b2634a854baf4c5005d4a09"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1273_4.html",
+          "extractedCharacters": 6829,
+          "htmlSha256": "a1aef086e5c2718eb54260d90e4c3da75d1bdfc9e7e1ea73b282d9ae436cc59e"
+        }
+      ]
+    },
+    {
+      "chapter": 7,
+      "title": "第七回　比武招亲",
+      "paragraphs": 193,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1274.html",
+          "extractedCharacters": 10828,
+          "htmlSha256": "28f0e5b9e01dba9624ae06e310508efb72e2dcb2b5112779c541c653a2eaf72a"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1274_2.html",
+          "extractedCharacters": 8517,
+          "htmlSha256": "67a9c1e7bd98dccc4aa267abe52e553c84fea74a51a823f24e4229f248bd97a4"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1274_3.html",
+          "extractedCharacters": 7724,
+          "htmlSha256": "805544aa4c779f254b60f38cb2f7d93fd79c8688d80b2191fb892805582af64f"
+        }
+      ]
+    },
+    {
+      "chapter": 8,
+      "title": "第八回　各显神通",
+      "paragraphs": 131,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1275.html",
+          "extractedCharacters": 7984,
+          "htmlSha256": "4c400b7ee9ce807dbe37dc7c4ab8028634526335b2d48a716f96ffaa12eaf138"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1275_2.html",
+          "extractedCharacters": 7892,
+          "htmlSha256": "d8407d05306693f7a2d6b7b71afac2284ec5365fa471cb92fe9dc2504efcd013"
+        }
+      ]
+    },
+    {
+      "chapter": 9,
+      "title": "第九回　铁枪破犁",
+      "paragraphs": 203,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1276.html",
+          "extractedCharacters": 6380,
+          "htmlSha256": "70a59d5abc58a9c5515e04bba657b45aeb35806cf1db5d96c466b6a6aea712e2"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1276_2.html",
+          "extractedCharacters": 9454,
+          "htmlSha256": "c3d437a463924337085a4210c9aebe623e417216b081824765ee598546f7d79c"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1276_3.html",
+          "extractedCharacters": 8603,
+          "htmlSha256": "b16c2afd1c09404603fe5c417297a23bee0943f3532b3de292808bf93cd68ef4"
+        }
+      ]
+    },
+    {
+      "chapter": 10,
+      "title": "第十回　往事如烟",
+      "paragraphs": 176,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1277.html",
+          "extractedCharacters": 7001,
+          "htmlSha256": "9b6cf6fe0d11ac30e874e8ae1a3d29cc7aec5046c480c4b1e283ba4cedf33cfd"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1277_2.html",
+          "extractedCharacters": 14905,
+          "htmlSha256": "b05e817264c018675c0240ffff83774079ddd7b98c0b4b84115e454ae7b952ee"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1277_3.html",
+          "extractedCharacters": 5535,
+          "htmlSha256": "d1defcfd637561d1035e8881d1de7362d271ba9f03594956dc6cebefc098ef98"
+        }
+      ]
+    },
+    {
+      "chapter": 11,
+      "title": "第十一回　长春服输",
+      "paragraphs": 226,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1278.html",
+          "extractedCharacters": 10516,
+          "htmlSha256": "9d6a7faf41fe6cfe057416d859cf9747fbef263e7a2686f6746a9a2a6e1e159e"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1278_2.html",
+          "extractedCharacters": 9265,
+          "htmlSha256": "a54d6b5473b0b8e5f9e42c2e8736c65f14d898a7153b1863769fc05986dae9d0"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1278_3.html",
+          "extractedCharacters": 9269,
+          "htmlSha256": "bf57d7603090c6fbe2db89c8422094b356f642684b9551ecad3ebae57df1ee31"
+        }
+      ]
+    },
+    {
+      "chapter": 12,
+      "title": "第十二回　亢龙有悔",
+      "paragraphs": 232,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1279.html",
+          "extractedCharacters": 11725,
+          "htmlSha256": "bcda85ccdaacfe97f5cae1158aea0fc2ad478f303da3d060674e661c0859795c"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1279_2.html",
+          "extractedCharacters": 12100,
+          "htmlSha256": "bcafd37d5c5ef2cde3351b9f0711f92967d61c12af0fbcc2a50d19d5400b5d73"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1279_3.html",
+          "extractedCharacters": 8637,
+          "htmlSha256": "8bf4090563599a1e9fc54330cbe288dabf23c56a3567638522f1ae99d2efd2ad"
+        }
+      ]
+    },
+    {
+      "chapter": 13,
+      "title": "第十三回　五湖废人",
+      "paragraphs": 219,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1280.html",
+          "extractedCharacters": 8816,
+          "htmlSha256": "0f105e576f02bd731b92495ae0d236b0a915affc0d59cecf3828823512e6f1d9"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1280_2.html",
+          "extractedCharacters": 12260,
+          "htmlSha256": "632a0f7295d98cf0436b5f117d22a8c56815093ae61c25cb8319e21ccd323e6a"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1280_3.html",
+          "extractedCharacters": 8712,
+          "htmlSha256": "bcb1b651fc52ccd4ab6c7eb25d6fb5d8e7695f4d590bcd8a1869b786ef1201a1"
+        }
+      ]
+    },
+    {
+      "chapter": 14,
+      "title": "第十四回　桃花岛主",
+      "paragraphs": 163,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1281.html",
+          "extractedCharacters": 6577,
+          "htmlSha256": "6fe9cd4ec90db12696110c55e44fd96cbbab84ef9ac4a573609f8e0b453d7d80"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1281_2.html",
+          "extractedCharacters": 8803,
+          "htmlSha256": "d3950012d8aedee1001652bb03052caebd4a1b5c102f4df9e069e98b6c018feb"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1281_3.html",
+          "extractedCharacters": 7507,
+          "htmlSha256": "5f171c776c3a09dc77ffdb30fa0ac502b7b950b063f31f6c616a141f6346bafb"
+        }
+      ]
+    },
+    {
+      "chapter": 15,
+      "title": "第十五回　神龙摆尾",
+      "paragraphs": 130,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1282.html",
+          "extractedCharacters": 8247,
+          "htmlSha256": "969326672160d803c9747597b575721f672d79afd2f6aa7de4173f8438ba5bb6"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1282_2.html",
+          "extractedCharacters": 10121,
+          "htmlSha256": "e40205f02a5f10f2ed78effb01ad04a78e0a801949d82a488a0ff7abed539346"
+        }
+      ]
+    },
+    {
+      "chapter": 16,
+      "title": "第十六回　九阴真经",
+      "paragraphs": 169,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1283.html",
+          "extractedCharacters": 7520,
+          "htmlSha256": "87edf620039f316ba73bc6c1431186c720da7f3f21187cedbf4176fa741c792e"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1283_2.html",
+          "extractedCharacters": 8002,
+          "htmlSha256": "65c5d59367c4fd4960b6437deb256b199b1d404034b4f27d4c4dbb2c605960ef"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1283_3.html",
+          "extractedCharacters": 9203,
+          "htmlSha256": "0f92b9e0b8d50c748f81f65e3cce6be2a2a5909d3b0a66b86371cc9acad86217"
+        }
+      ]
+    },
+    {
+      "chapter": 17,
+      "title": "第十七回　双手互搏",
+      "paragraphs": 121,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1284.html",
+          "extractedCharacters": 9596,
+          "htmlSha256": "dbf071631ea87bd5ca7b689d53d2c0a8dd15b36906bf5d489d02c1b9e71bc0cf"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1284_2.html",
+          "extractedCharacters": 9310,
+          "htmlSha256": "eddca49693c9a0ecaccd3a5a967e070e55ec98e718c770b9c40ecc982a1e9307"
+        }
+      ]
+    },
+    {
+      "chapter": 18,
+      "title": "第十八回　三道试题",
+      "paragraphs": 203,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1285.html",
+          "extractedCharacters": 8553,
+          "htmlSha256": "db3dfa33c7d420b321bc6fb5dc0f1127e8ee0ff4f6143798d301e2166bdf492b"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1285_2.html",
+          "extractedCharacters": 8653,
+          "htmlSha256": "54d4fb3bbe9df459d305fd625d428fca51ba0e5ca2c8b32c0a8bc8245c452af5"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1285_3.html",
+          "extractedCharacters": 9577,
+          "htmlSha256": "63a1932d196df2c191e6378f63e1eff868ddef97e62d0bfecb544d5db7e6b2cb"
+        }
+      ]
+    },
+    {
+      "chapter": 19,
+      "title": "第十九回　洪涛群鲨",
+      "paragraphs": 155,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1286.html",
+          "extractedCharacters": 7051,
+          "htmlSha256": "726776f40e2aa49e24ffcaac1b4a79fac89d3153ecedd28239ec04e18be46d06"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1286_2.html",
+          "extractedCharacters": 6710,
+          "htmlSha256": "61d94dbe73ca1b167ccded54339447ee4250089e10e2875886ca6a08f773df91"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1286_3.html",
+          "extractedCharacters": 7914,
+          "htmlSha256": "54311aaa1c1a58743303bdb738f3bac8fd18414f18bc8a4427dfe6b5b5dc51eb"
+        }
+      ]
+    },
+    {
+      "chapter": 20,
+      "title": "第二十回　九阴假经",
+      "paragraphs": 82,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1287.html",
+          "extractedCharacters": 14036,
+          "htmlSha256": "05cf58df2435d9905df6f62989cb21c189779fdd9cbb785231aa0558ecb14f38"
+        }
+      ]
+    },
+    {
+      "chapter": 21,
+      "title": "第二十一回　千钧巨岩",
+      "paragraphs": 188,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1288.html",
+          "extractedCharacters": 12981,
+          "htmlSha256": "eb3996851b6fae2c24e9e295ea65777c7fafcabb02fa6b8f1c1794ffc86bdfcf"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1288_2.html",
+          "extractedCharacters": 5663,
+          "htmlSha256": "515ddbe6dd0aec0b5e851bd10e44996e76c0faaf420c228da5f21f9ad7ed9be2"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1288_3.html",
+          "extractedCharacters": 10803,
+          "htmlSha256": "abc79eff3480c43d82f5a5383542069488ecd7bd4683ba6044ece13db7b999b0"
+        }
+      ]
+    },
+    {
+      "chapter": 22,
+      "title": "第二十二回　骑鲨遨游",
+      "paragraphs": 211,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1289.html",
+          "extractedCharacters": 9743,
+          "htmlSha256": "11cbd6234b25a47b53745f022c0df3cce4188e1d08849c070d3b52d8138209ea"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1289_2.html",
+          "extractedCharacters": 8087,
+          "htmlSha256": "733e287919396aa81a2cc866c30ccb6c9cafe423633587729038f9f0aa9dbf30"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1289_3.html",
+          "extractedCharacters": 9505,
+          "htmlSha256": "e4bc6ff86945f4ed8aaa53542a7d4da6e62aedb2fefdcf1acc8fcece82dbe8ff"
+        }
+      ]
+    },
+    {
+      "chapter": 23,
+      "title": "第二十三回　大闹禁宫",
+      "paragraphs": 156,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1290.html",
+          "extractedCharacters": 8427,
+          "htmlSha256": "dc2e94e614eed60361c5be129c0e7e1da6d7cae54e3f2fc0d8e086fed92e033e"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1290_2.html",
+          "extractedCharacters": 7512,
+          "htmlSha256": "5c2ed3e0274540f6efc66ec019fdb9c4fc941377358ecfeeac9b3800c8cb9961"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1290_3.html",
+          "extractedCharacters": 7081,
+          "htmlSha256": "2b3478996da23c2fda2648886cb88d9b6a8becb2bcb97b724c81670b2b063a06"
+        }
+      ]
+    },
+    {
+      "chapter": 24,
+      "title": "第二十四回　密室疗伤",
+      "paragraphs": 191,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1291.html",
+          "extractedCharacters": 8003,
+          "htmlSha256": "8b79e267f217198fa698d4a75c2f354b15bd12e6041ab956ef4d81292c6e915c"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1291_2.html",
+          "extractedCharacters": 8561,
+          "htmlSha256": "ba6c95f0e361990fc5582a7e4a5bb2fff7e9402219af34bab3e1442f3005b056"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1291_3.html",
+          "extractedCharacters": 7149,
+          "htmlSha256": "3f4a63a7a9f2ca7959f068b4b01425b51b34707acdfb90c8cb30fdf3f491e1dd"
+        }
+      ]
+    },
+    {
+      "chapter": 25,
+      "title": "第二十五回　荒村野店",
+      "paragraphs": 224,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1292.html",
+          "extractedCharacters": 8589,
+          "htmlSha256": "9dc54ab861a94230ecf521854e85c21cbd2aeb110664756eb668da1b7aa67ed1"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1292_2.html",
+          "extractedCharacters": 10170,
+          "htmlSha256": "df6fe163d4cb2c8b143e37831b0780e0b1964ac3ac84fb15b155370a3869a68d"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1292_3.html",
+          "extractedCharacters": 10766,
+          "htmlSha256": "553e6f770d7e8103f3d3287e71249e070da1329b45a5e07f7be294187324b588"
+        }
+      ]
+    },
+    {
+      "chapter": 26,
+      "title": "第二十六回　新盟旧约",
+      "paragraphs": 138,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1293.html",
+          "extractedCharacters": 9986,
+          "htmlSha256": "7c3af618e4a5fb3f4b7126b18f5f259cb9c2839cc3d6f48d00fd6dcd985fdbca"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1293_2.html",
+          "extractedCharacters": 9443,
+          "htmlSha256": "829c6a1342d23c61c1ac5cd3d78cf0811403f151865121f4a50bb18b414f812c"
+        }
+      ]
+    },
+    {
+      "chapter": 27,
+      "title": "第二十七回　轩辕台前",
+      "paragraphs": 132,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1294.html",
+          "extractedCharacters": 8915,
+          "htmlSha256": "4977532edd421e75370b7647c8c33d55f5f0520123af92380304d0afe64e1f0b"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1294_2.html",
+          "extractedCharacters": 9805,
+          "htmlSha256": "26d0c7041aa4c60a17624620d5fe189f8b667bb54056071eb828b700f3ba5e2b"
+        }
+      ]
+    },
+    {
+      "chapter": 28,
+      "title": "第二十八回　铁掌峰顶",
+      "paragraphs": 150,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1295.html",
+          "extractedCharacters": 7670,
+          "htmlSha256": "41c96024a4bd5c223707690153060953d0dafcbe72c23e0c937f812f51b02075"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1295_2.html",
+          "extractedCharacters": 8437,
+          "htmlSha256": "391373dd00b1539d798a0a57e35df102554140a052bc7b9aa4102463ada498cc"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1295_3.html",
+          "extractedCharacters": 4307,
+          "htmlSha256": "8a6601cf925355f47b704d720c51609201183767b6a8bd6fee9b9a222f447f85"
+        }
+      ]
+    },
+    {
+      "chapter": 29,
+      "title": "第二十九回　黑沼隐女",
+      "paragraphs": 177,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1296.html",
+          "extractedCharacters": 10010,
+          "htmlSha256": "92bcd9371f261c1b9dc9f2c3168f3bb4f9c4ce7a7b5f041962319234b502a657"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1296_2.html",
+          "extractedCharacters": 7874,
+          "htmlSha256": "0af8ed981d57fcce761ddb83c7bd90b88e3537b4cee387a8c20d6e985e21f234"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1296_3.html",
+          "extractedCharacters": 7933,
+          "htmlSha256": "103f79490250772417aca8435d8802f8f38880a74a2c9a73ae2da65ea52aec61"
+        }
+      ]
+    },
+    {
+      "chapter": 30,
+      "title": "第三十回　一灯大师",
+      "paragraphs": 157,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1297.html",
+          "extractedCharacters": 6383,
+          "htmlSha256": "76c2051db7fb610d95d1d3986a9ccf2d7b74c1e223c0e16098c3418608dfca83"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1297_2.html",
+          "extractedCharacters": 8176,
+          "htmlSha256": "9d65ec001b3bcb294a0cfa3788ce457efd55cf0f10017d747f68aafb9a32c09b"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1297_3.html",
+          "extractedCharacters": 6762,
+          "htmlSha256": "56135928402e31af83245122ad7d616761ad6e7514304c1bc52bae04906f64d9"
+        }
+      ]
+    },
+    {
+      "chapter": 31,
+      "title": "第三十一回　鸯鸳锦帕",
+      "paragraphs": 180,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1298.html",
+          "extractedCharacters": 10639,
+          "htmlSha256": "2aff69eec1f8175deddd9478a1864ebefad6bd46208c64ebc77e0c8e22b0d016"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1298_2.html",
+          "extractedCharacters": 8916,
+          "htmlSha256": "c9f3efe2ecfaf998f8b1d5b42649fe2b5c6bc9616b683a308621f2df0e765cbe"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1298_3.html",
+          "extractedCharacters": 6308,
+          "htmlSha256": "e3d740234e8a81057dedfd68d1da51f532cef8a2d41b2dd4e8b58cd7b5242c25"
+        }
+      ]
+    },
+    {
+      "chapter": 32,
+      "title": "第三十二回　湍江险滩",
+      "paragraphs": 139,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1299.html",
+          "extractedCharacters": 10160,
+          "htmlSha256": "1a05be949bab5d976db8a879ae42780c3ee33d823678cf9de5b88fb56a869906"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1299_2.html",
+          "extractedCharacters": 9308,
+          "htmlSha256": "986a2fc695d0253ec651c3604cb39c7724670ef96a597b28ab35d8a2670dfe91"
+        }
+      ]
+    },
+    {
+      "chapter": 33,
+      "title": "第三十三回　来日大难",
+      "paragraphs": 83,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1300.html",
+          "extractedCharacters": 10752,
+          "htmlSha256": "f8dc80360616f0ff4d0b6ab8b80130f25a9d1961912d9b8198ee58d9e14702ca"
+        }
+      ]
+    },
+    {
+      "chapter": 34,
+      "title": "第三十四回　岛上巨变",
+      "paragraphs": 181,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1301.html",
+          "extractedCharacters": 9439,
+          "htmlSha256": "0c55550685287d1993f8706e8a7dd88dc4099de6047332a93eb8180aef38aa97"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1301_2.html",
+          "extractedCharacters": 7510,
+          "htmlSha256": "1e538e6574f1d6077676948a2e7a3742e026cc6fe6e5564eb42f212ce4f59dfe"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1301_3.html",
+          "extractedCharacters": 7682,
+          "htmlSha256": "bfe399bcf79f17402126877e1635f2ee37e7f169d3c19026c1f78c6dad387143"
+        }
+      ]
+    },
+    {
+      "chapter": 35,
+      "title": "第三十五回　铁枪庙中",
+      "paragraphs": 148,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1302.html",
+          "extractedCharacters": 7423,
+          "htmlSha256": "012c5d8da4a5d1047ab31be4a16dd9e8989c3500c9c1b109d0a83ef983d2cd34"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1302_2.html",
+          "extractedCharacters": 7727,
+          "htmlSha256": "19ece3ab7f2f1fce05e9672b7ed77a211e6846792778ef0f2d41a5585b22122b"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1302_3.html",
+          "extractedCharacters": 6772,
+          "htmlSha256": "8d1edda987e4189ddc799006f06b327648724330583dbf10daa02dbb0b968d8d"
+        }
+      ]
+    },
+    {
+      "chapter": 36,
+      "title": "第三十六回　大军西征",
+      "paragraphs": 194,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1303.html",
+          "extractedCharacters": 8040,
+          "htmlSha256": "06d85b12ecf1002b53b25f26e7e92a66a84e51e34bae95f8185bd21fab9bcdbc"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1303_2.html",
+          "extractedCharacters": 7062,
+          "htmlSha256": "ea437b9fdd99e65d1ce14bb6be83808d8753ad8b588621f0f5883933de9f41e2"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1303_3.html",
+          "extractedCharacters": 6927,
+          "htmlSha256": "3225434a8245c4a2d1e75b7d7848ac8ba36d56a4c2b145768703a9edcb6b5afd"
+        }
+      ]
+    },
+    {
+      "chapter": 37,
+      "title": "第三十七回　从天而降",
+      "paragraphs": 188,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1304.html",
+          "extractedCharacters": 8144,
+          "htmlSha256": "196ddd83ded276fed77465f90af886ab515d22668dc9ec86bb2d8b0f1653394d"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1304_2.html",
+          "extractedCharacters": 8490,
+          "htmlSha256": "88de91078d87478d0f0d57627f4b80b7e7854cb906d8ffa460818690464ae6d0"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1304_3.html",
+          "extractedCharacters": 7023,
+          "htmlSha256": "3714293987ea87658627b5a8d2a173b8b12c1deb9112b9aff81c4d674d0936f6"
+        }
+      ]
+    },
+    {
+      "chapter": 38,
+      "title": "第三十八回　锦囊密令",
+      "paragraphs": 137,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1305.html",
+          "extractedCharacters": 10238,
+          "htmlSha256": "943fd8a8dfd3b0d8b76218d8d2533c422ac1200422310774b6294351ae935aa8"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1305_2.html",
+          "extractedCharacters": 7861,
+          "htmlSha256": "a277d2eb7d353e7114709eab56790166cef75cb6430a1a35d95d2a91cf62a9fc"
+        }
+      ]
+    },
+    {
+      "chapter": 39,
+      "title": "第三十九回　是非善恶",
+      "paragraphs": 142,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1306.html",
+          "extractedCharacters": 9905,
+          "htmlSha256": "04ef9ec084ae1861fd430b977ad53c98d7dde5fc2b905dae5b3255b86a40a6d2"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1306_2.html",
+          "extractedCharacters": 9610,
+          "htmlSha256": "1b757ff8b957a7dbf9f24ba3bdf8b73774736132613839e9bedab92b9dc8b8bb"
+        }
+      ]
+    },
+    {
+      "chapter": 40,
+      "title": "第四十回　华山论剑",
+      "paragraphs": 176,
+      "pages": [
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1307.html",
+          "extractedCharacters": 6889,
+          "htmlSha256": "921ad8bbdc597ce8b3a99b4f946af1e54900bb1fca773ce4f17f3a08252d1153"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1307_2.html",
+          "extractedCharacters": 7519,
+          "htmlSha256": "6e34662eac3f98129718c734bdc00d94b385a84e2f7c75b05ff7941c1c66a9e1"
+        },
+        {
+          "url": "https://www.jinyongbbs.com/jyxx/sdyxz/1307_3.html",
+          "extractedCharacters": 8787,
+          "htmlSha256": "6723d5598ea0d059ff18a93e66025fe4ffc386efd7ae1cd5c3fdf32f51811b46"
+        }
+      ]
+    }
+  ]
+}
