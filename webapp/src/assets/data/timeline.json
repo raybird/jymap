@@ -63,9 +63,7 @@
   {"year":1753,"dynasty":"清","eventIds":["event-115","event-138","event-171","event-172"]},
   {"year":1758,"dynasty":"清","eventIds":["event-039","event-040","event-109","event-110","event-111","event-134","event-173","event-174","event-175","event-176"]},
   {"year":1759,"dynasty":"清","eventIds":["event-074","event-075","event-177","event-178"]},
-  {"year":1760,"dynasty":"清","eventIds":["event-041"]},
-  {"year":1761,"dynasty":"清","eventIds":["event-076","event-112"]},
-  {"year":1762,"dynasty":"清","eventIds":["event-077","event-113","event-114"]},
-  {"year":1769,"dynasty":"清","eventIds":["event-135","event-136"]},
+  {"year":1764,"dynasty":"清","eventIds":["event-041","event-076","event-113","event-219","event-220"]},
+  {"year":1769,"dynasty":"清","eventIds":["event-112","event-077","event-114","event-135","event-136","event-221","event-222","event-223","event-224","event-225","event-226","event-227","event-228","event-229"]},
   {"year":1780,"dynasty":"清","eventIds":["event-042","event-078","event-137","event-139","event-140","event-141"]}
 ]
