@@ -82,4 +82,16 @@
 | event-091 萬劫谷 | [第三回第三頁](https://www.jinyongbbs.com/jyxx/tlbb/1431_3.html)過瀾滄江善人渡到谷；[第四回](https://www.jinyongbbs.com/jyxx/tlbb/1432.html)由谷外向北上大理大路，黑玫瑰快馬預計翌日午後到；[第九回](https://www.jinyongbbs.com/jyxx/tlbb/1437.html)保定帝只稱想來離大理不遠 | 「快馬逾半日」與「不遠」並存，過江方向又與現有點不易相容，無法定新點，座標不改 |
 | event-231 無量山 | [無量山wiki](https://zh.wikipedia.org/wiki/无量山)稱山脈縱貫南澗、景東等地 | 現有24.7／100.5落在此範圍。山大而林地未名，維持示意 |
 
-2026-10-31下一批：《射鵰》event-054、253、254。
+## 《射鵰》三筆
+
+2026-10-31處置：054改座標；253、254座標不變。三筆均保留位置待考，年份與標籤不變。
+
+| ID | 2026-10-31核對內容 | 處置與限制 |
+| --- | --- | --- |
+| event-054 降龍十八掌 | [第十一回第三頁](https://www.jinyongbbs.com/jyxx/sdyxz/1278_3.html)二人游過長江；[第十二回](https://www.jinyongbbs.com/jyxx/sdyxz/1279.html)向南到姜廟鎮，授藝在鎮外松林，[第二頁](https://www.jinyongbbs.com/jyxx/sdyxz/1279_2.html)一月有餘傳十五掌；[第十三回](https://www.jinyongbbs.com/jyxx/sdyxz/1280.html)沿運河南下到宜興，再東行到太湖 | 座標30.8／120.8改為32.0／119.75。舊點在嘉興一帶，已在太湖以南，與行程順序相反。新點落在[江南運河](https://zh.wikipedia.org/wiki/江南运河)鎮江至常州段，距丹陽約14公里，只是區域代表點。渡江處未寫，OSM查無姜廟鎮，保留待考 |
+| event-253 黑沼 | [第二十八回第二頁](https://www.jinyongbbs.com/jyxx/sdyxz/1295_2.html)鐵掌山在瀘溪與辰溪之間；[第二十九回](https://www.jinyongbbs.com/jyxx/sdyxz/1296.html)出林後直向東北到桃源縣境，[第二頁](https://www.jinyongbbs.com/jyxx/sdyxz/1296_2.html)到午間奔出百餘里 | 現有28.5／110.5正在兩地之間，方向相符。瀘溪到桃源直線約138公里，正文「百餘里」與雕飛距離都不足以定點，座標不改 |
+| event-254 一燈救治 | [第二十九回第二頁](https://www.jinyongbbs.com/jyxx/sdyxz/1296_2.html)自桃源縣境依地圖再行七八十里，入窄路八九里後棄馬上嶺 | 現有28.9／111.4在桃源縣城附近。里程已知但方向未寫，也只有虛構地圖可循，座標不改 |
+
+2026-10-31版本限制：黑沼與一燈隱居處都只見於小說，wiki的[瑛姑條目](https://zh.wikipedia.org/wiki/劉瑛_(金庸))只確認第二十九回情節，不提供現實位置。
+
+2026-10-31下一批：《神鵰》event-021、023、059、090、185。

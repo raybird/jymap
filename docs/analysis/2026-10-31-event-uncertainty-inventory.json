@@ -1,7 +1,7 @@
 {
   "checkedOn": "2026-10-31",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "5a399c5f6d395788f4338d220bf0fcb8c1b089e14f9ae3631d4215fc14e141bd",
+  "sourceSha256": "415184f92ad911376977289bbff0fb404350c4b5676e30659bcb6c37b1948c18",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
