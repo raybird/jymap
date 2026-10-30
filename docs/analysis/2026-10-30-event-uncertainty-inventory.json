@@ -1,17 +1,17 @@
 {
   "checkedOn": "2026-10-30",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "587167c84333b3ad7969e4fdcf7315e70b875b8f81733a79b08eb6993db3243c",
+  "sourceSha256": "e345d6005b2880dfd19ffe6b2559ff04a0531e0dbb62a3d09c26516bb5a3954c",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
-    "yearPending": 57,
+    "yearPending": 59,
     "dynastyPending": 27,
     "locationPending": 31,
     "inferredYear": 193,
     "approximateLocation": 235,
     "versionDifference": 4,
-    "pendingEvents": 79
+    "pendingEvents": 81
   },
   "events": [
     {
@@ -1730,9 +1730,9 @@
       "title": "胡一刀苗人鳳決鬥",
       "year": 1753,
       "dynasty": "清",
-      "priority": null,
+      "priority": "P2",
       "yearPlaceholder": false,
-      "yearPending": false,
+      "yearPending": true,
       "dynastyPending": false,
       "locationPending": false,
       "inferredYear": true,
@@ -2075,9 +2075,9 @@
       "title": "平阿四救走胡斐",
       "year": 1753,
       "dynasty": "清",
-      "priority": null,
+      "priority": "P2",
       "yearPlaceholder": false,
-      "yearPending": false,
+      "yearPending": true,
       "dynastyPending": false,
       "locationPending": false,
       "inferredYear": true,
