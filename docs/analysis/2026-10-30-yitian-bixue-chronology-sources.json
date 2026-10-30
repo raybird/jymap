@@ -1,0 +1,96 @@
+{
+  "checkedOn": "2026-10-30",
+  "note": "僅本批相關六回、18頁之下載HTML雜湊與擷取長度；未作印本逐字校勘。",
+  "pages": [
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1246.html",
+      "chars": 5987,
+      "sha256": "9bbf7c483a3d129f619c22967e94eec05e575523467e96ec1861bdc36201a07a"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1246_2.html",
+      "chars": 7119,
+      "sha256": "212bda07dee7fb7d03d805af017f50b154961669e2545e5b184fb8738f6bb3b9"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1246_3.html",
+      "chars": 4600,
+      "sha256": "9dfd2d2685ac47d1c4990922f5bc8d1ce24dd57dd4a96d6c3f2bf4d213ac178f"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1247.html",
+      "chars": 6935,
+      "sha256": "894272dac516b9d69ed8644a6114c7dc42e2fbe263cf132cbe278a0be7e8bf96"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1247_2.html",
+      "chars": 6766,
+      "sha256": "e8e806ab08d3669c523135c0e4be9418d9439806b856b3d5daecda36ac74ef7d"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1247_3.html",
+      "chars": 4882,
+      "sha256": "464696cf04ea5fea99aacbc1be09c482152416206ac36e362365237d756c6aaf"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1248.html",
+      "chars": 7413,
+      "sha256": "1c1c7341fbe68695250393eb6ed89b436c138818618cb9db49af8540aa422130"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1248_2.html",
+      "chars": 6989,
+      "sha256": "3c36f4ffa9bbd782f1bc8bb36d9f6fb5d1ad7f9599faa8e9a64cc678af0f5fcc"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1248_3.html",
+      "chars": 7616,
+      "sha256": "74794b99749afcacb2b046515ad072262686d2f51afd7490e7d7889f1208b074"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1249.html",
+      "chars": 7122,
+      "sha256": "5162ffc81ef873b5c7082420a525835b50c1435f286bae99d6039118e144a7ca"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1249_2.html",
+      "chars": 5974,
+      "sha256": "d0e48a083c31466e36276c1e67cca01d32e0224f98b84b959788a709076c98f4"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/bxj/1249_3.html",
+      "chars": 6006,
+      "sha256": "a3ccf17192931c64903ec2bfead24a0b9d689d2a00f5a322578dd2fe79cafc30"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1391.html",
+      "chars": 6903,
+      "sha256": "39832962ea9371978ee96c6e16c32b01d2096b0608d255df2e075057f9790730"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1391_2.html",
+      "chars": 7345,
+      "sha256": "aeb3c92266d75133affd59e2244ceae913e688c7a2532e22bf62760309babc91"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1391_3.html",
+      "chars": 5147,
+      "sha256": "98efe1bc42e143707e7987ead4ec3e6f999e844190a8242987e183d164256d1d"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1392.html",
+      "chars": 8670,
+      "sha256": "e372ee4d175ccbec11a3943ab75bc37147e03d75df758f12e049f97c931ce471"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1392_2.html",
+      "chars": 4764,
+      "sha256": "b81440d60dba246ad743433eeba571eac1d003b7789b55b58bc86d3a5a486ee8"
+    },
+    {
+      "url": "https://www.jinyongbbs.com/jyxx/yttlj/1392_3.html",
+      "chars": 6248,
+      "sha256": "1f66c5372ae49c4f0136680b4cb32bde5d03582fe66aa2f3a6ff5e2fa456a7b0"
+    }
+  ]
+}

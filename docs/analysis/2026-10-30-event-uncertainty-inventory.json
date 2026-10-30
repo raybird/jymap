@@ -1,7 +1,7 @@
 {
   "checkedOn": "2026-10-30",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "cc4620518aa945c650eb8f04f690d166aa005fe0eb1b32b93ab0ffd476de8ce1",
+  "sourceSha256": "587167c84333b3ad7969e4fdcf7315e70b875b8f81733a79b08eb6993db3243c",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
@@ -10,7 +10,7 @@
     "locationPending": 31,
     "inferredYear": 193,
     "approximateLocation": 235,
-    "versionDifference": 3,
+    "versionDifference": 4,
     "pendingEvents": 79
   },
   "events": [
@@ -1962,7 +1962,7 @@
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-131",
