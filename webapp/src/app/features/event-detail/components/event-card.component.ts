@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Store } from '@ngrx/store';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
+import { getEventDynastyText, getEventTimeText } from '../../../core/utils/event-time';
 import { RelatedEventsService, ScoredEvent } from '../../../core/services/related-events.service';
 import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
@@ -55,9 +56,8 @@ export class EventCardComponent implements OnChanges, OnDestroy {
     this.navigateToEvent.emit(e);
   }
 
-  getYearText(year: number): string {
-    return year < 0 ? `西元前${Math.abs(year)}年` : `西元${year}年`;
-  }
+  readonly getDynastyText = getEventDynastyText;
+  readonly getTimeText = getEventTimeText;
 
   onCharacterClick(name: string): void {
     this.characterClick.emit(name);

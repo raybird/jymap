@@ -5,6 +5,7 @@ import { Store } from '@ngrx/store';
 import { Observable, Subject, timer } from 'rxjs';
 import { switchMap, map, take, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
+import { getEventFocusYear, getEventSpan, overlapsTimeRange } from './core/utils/event-time';
 import { MapContainerComponent } from './features/map/components/map-container.component';
 import { TimelineContainerComponent } from './features/timeline/components/timeline-container.component';
 import { SearchBoxComponent } from './features/search/components/search-box.component';
@@ -214,11 +215,12 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
     this.isSearchFocused = false;
+    const span = getEventSpan(event);
     this.store.dispatch(TimeMapActions.setTimeRange({
-      startYear: event.year - 10,
-      endYear: event.year + 10
+      startYear: span.start - 10,
+      endYear: span.end + 10
     }));
-    this.timelineComponent?.scrollToYear(event.year);
+    this.timelineComponent?.scrollToYear(getEventFocusYear(event));
     this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
   }
 
@@ -243,9 +245,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.store.select(TimeMapSelectors.selectAllEvents).pipe(take(1)).subscribe(allEvents => {
       const novelEvents = allEvents.filter(e => e.novel === novel);
       if (novelEvents.length === 0) return;
-      const years = novelEvents.map(e => e.year).sort((a, b) => a - b);
-      const minYear = years[0];
-      const maxYear = years[years.length - 1];
+      const spans = novelEvents.map(getEventSpan);
+      const minYear = Math.min(...spans.map(s => s.start));
+      const maxYear = Math.max(...spans.map(s => s.end));
       const midYear = Math.round((minYear + maxYear) / 2);
       this.store.dispatch(TimeMapActions.setTimeRange({
         startYear: minYear - 20,
@@ -275,11 +277,12 @@ export class AppComponent implements OnInit, OnDestroy {
     this.navigation$.next();
     this.store.dispatch(TimeMapActions.focusCharacterEvent({ eventId: event.id }));
     this.store.select(TimeMapSelectors.selectTimeRange).pipe(take(1)).subscribe(range => {
-      if (range && (event.year < range.startYear || event.year > range.endYear)) {
-        this.store.dispatch(TimeMapActions.setTimeRange({ startYear: event.year - 10, endYear: event.year + 10 }));
+      if (range && !overlapsTimeRange(event, range)) {
+        const span = getEventSpan(event);
+        this.store.dispatch(TimeMapActions.setTimeRange({ startYear: span.start - 10, endYear: span.end + 10 }));
       }
     });
-    this.timelineComponent?.scrollToYear(event.year);
+    this.timelineComponent?.scrollToYear(getEventFocusYear(event));
     this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
   }
 

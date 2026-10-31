@@ -261,8 +261,8 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     marker.bindPopup(`
       <div class="marker-popup">
         <h3>${event.title}</h3>
-        <p><strong>朝代：</strong>${event.dynasty}</p>
-        <p><strong>年份：</strong>${event.year}</p>
+        <p><strong>朝代：</strong>${event.eraEstimate?.dynastyLabel ?? event.dynasty}</p>
+        <p><strong>年份：</strong>${event.eraEstimate?.label ?? event.year}</p>
         <p><strong>作品：</strong>${event.novel}</p>
         ${event.characters.length > 0 ? `<p><strong>人物：</strong>${characterLinks}</p>` : ''}
       </div>

@@ -1,5 +1,6 @@
 import { fakeAsync, tick } from '@angular/core/testing';
 import { NgZone, ChangeDetectorRef, ElementRef } from '@angular/core';
+import { ValidatedEvent } from '../../../core/utils/data-validator';
 import { TimelineContainerComponent } from './timeline-container.component';
 
 describe('TimelineContainerComponent', () => {
@@ -55,6 +56,96 @@ describe('TimelineContainerComponent', () => {
       expect(component.getEventStaggerTop(dots[2], dots)).toBe(15);
       expect(component.getEventStaggerTop(dots[3], dots)).toBe(85);
       expect(component.getEventStaggerTop(dots[4], dots)).toBe(50);
+    });
+  });
+
+  describe('年代推估區間帶', () => {
+    function makeEvent(id: string, novel: string, eraEstimate?: ValidatedEvent['eraEstimate']): ValidatedEvent {
+      return {
+        id, title: id, dynasty: '明', year: 1500, lat: 30, lng: 120, novel, characters: [], sources: [], tags: [],
+        validationStatus: 'valid', validationErrors: [], eraEstimate
+      };
+    }
+    const xiaoao = { startYear: 1398, endYear: 1661, label: '約 1398–1661 年間（確年未詳）', storyOrder: 1 };
+    const xiake = { startYear: 1358, endYear: null, label: '元末明初以後（確年未詳）', storyOrder: 1 };
+    const liancheng = { startYear: 1665, endYear: null, label: '約 1665 年後（確年未詳）', storyOrder: 1 };
+
+    it('推估事件不畫成點，避免佔位年份看起來像確年', () => {
+      component.events = [makeEvent('a', '笑傲江湖', xiaoao), makeEvent('b', '射鵰英雄傳')];
+      expect(component.getEventDots().map(dot => dot.id)).toEqual(['b']);
+    });
+
+    it('同一作品合併成一條區間帶並顯示筆數', () => {
+      component.events = [makeEvent('a', '笑傲江湖', xiaoao), makeEvent('b', '笑傲江湖', xiaoao)];
+      const bands = component.getEraBands();
+      expect(bands.length).toBe(1);
+      expect(bands[0].label).toBe('《笑傲江湖》約 1398–1661 年間（確年未詳）・2 筆');
+      expect(bands[0].openEnded).toBeFalse();
+    });
+
+    it('只有下限的區間延伸到時間軸終點並標記為開放', () => {
+      component.events = [makeEvent('a', '俠客行', xiake)];
+      const [band] = component.getEraBands();
+      expect(band.openEnded).toBeTrue();
+      expect(band.left + band.width).toBeCloseTo(100, 5);
+    });
+
+    it('區間重疊時分列，不重疊時可共用一列', () => {
+      component.events = [
+        makeEvent('a', '俠客行', xiake), makeEvent('b', '笑傲江湖', xiaoao), makeEvent('c', '連城訣', liancheng)
+      ];
+      const lanes = Object.fromEntries(component.getEraBands().map(band => [band.novel, band.lane]));
+      expect(lanes).toEqual({ '俠客行': 0, '笑傲江湖': 1, '連城訣': 1 });
+    });
+
+    it('區間離開視窗後，其餘區間的列位不變', () => {
+      const all = [makeEvent('a', '俠客行', xiake), makeEvent('b', '笑傲江湖', xiaoao)];
+      component.events = all;
+      component.getEraBands();
+      component.events = [all[1]];
+      expect(component.getEraBands()[0].lane).toBe(1);
+    });
+
+    function startDragAt(target: HTMLElement, clientX: number): void {
+      const down = new MouseEvent('mousedown', { clientX });
+      Object.defineProperty(down, 'target', { value: target });
+      (component as any).onDragStart(down);
+    }
+
+    it('點擊區間帶時發送作品名稱', () => {
+      const emit = spyOn(component.eraBandClick, 'emit');
+      component.onEraBandClick('笑傲江湖', new MouseEvent('click', { detail: 1 }));
+      expect(emit).toHaveBeenCalledOnceWith('笑傲江湖');
+    });
+
+    it('拖曳後放開不算點擊區間帶', () => {
+      const container = document.createElement('div');
+      component.timelineContainer = new ElementRef(container);
+      const emit = spyOn(component.eraBandClick, 'emit');
+      startDragAt(container, 100);
+      (component as any).onDragMove(new MouseEvent('mousemove', { clientX: 160 }));
+      component.onEraBandClick('笑傲江湖', new MouseEvent('click', { detail: 1 }));
+      expect(emit).not.toHaveBeenCalled();
+    });
+
+    it('拖曳後仍可用鍵盤啟動區間帶', () => {
+      const container = document.createElement('div');
+      component.timelineContainer = new ElementRef(container);
+      const emit = spyOn(component.eraBandClick, 'emit');
+      startDragAt(container, 100);
+      (component as any).onDragMove(new MouseEvent('mousemove', { clientX: 160 }));
+      component.onEraBandClick('笑傲江湖', new MouseEvent('click', { detail: 0 }));
+      expect(emit).toHaveBeenCalled();
+    });
+
+    it('拖曳距離未達門檻時仍算點擊', () => {
+      const container = document.createElement('div');
+      component.timelineContainer = new ElementRef(container);
+      const emit = spyOn(component.eraBandClick, 'emit');
+      startDragAt(container, 100);
+      (component as any).onDragMove(new MouseEvent('mousemove', { clientX: 103 }));
+      component.onEraBandClick('笑傲江湖', new MouseEvent('click', { detail: 1 }));
+      expect(emit).toHaveBeenCalled();
     });
   });
 

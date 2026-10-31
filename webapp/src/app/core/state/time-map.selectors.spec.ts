@@ -61,6 +61,18 @@ describe('character-mode selectors', () => {
     });
   });
 
+  describe('selectCharacterEvents 的推估事件', () => {
+    it('同作品依情節先後排序，不受佔位年份倒置影響', () => {
+      const era = { startYear: 1665, endYear: null, label: '約 1665 年後（確年未詳）' };
+      const list = [
+        makeEvent({ id: 'jail', year: 1700, characters: ['狄雲'], novel: '連城訣', eraEstimate: { ...era, storyOrder: 2 } }),
+        makeEvent({ id: 'home', year: 1701, characters: ['狄雲'], novel: '連城訣', eraEstimate: { ...era, storyOrder: 1 } })
+      ];
+      const got = Selectors.selectCharacterEvents.projector(list, '狄雲');
+      expect(got.map(e => e.id)).toEqual(['home', 'jail']);
+    });
+  });
+
   describe('selectCharacterTrajectory', () => {
     it('未進入人物模式時回傳空陣列', () => {
       expect(Selectors.selectCharacterTrajectory.projector([])).toEqual([]);

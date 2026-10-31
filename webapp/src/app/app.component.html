@@ -101,7 +101,8 @@
         </div>
         <div class="bottom-overlay">
           <app-timeline-container [timelineItems]="(timeline$ | async) || []" [events]="(events$ | async) || []"
-            (timeRangeChange)="onTimeRangeChange($event)" (eventDotClick)="onEventDotClick($event)">
+            (timeRangeChange)="onTimeRangeChange($event)" (eventDotClick)="onEventDotClick($event)"
+            (eraBandClick)="onNovelSelect($event)">
           </app-timeline-container>
         </div>
       </div>

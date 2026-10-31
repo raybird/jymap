@@ -40,7 +40,7 @@
             <button type="button" [disabled]="activeIndex === events.length - 1" (click)="onEventClick(events[activeIndex + 1])">下一件 →</button>
           </div>
           <h4>{{ active.title }}</h4>
-          <p>{{ getYearText(active.year) }} · {{ active.novel }}</p>
+          <p>{{ getTimeText(active) }} · {{ active.novel }}</p>
           <p>{{ active.summary || active.description }}</p>
           <button type="button" class="open-event" (click)="openEvent.emit(active)">查看事件詳情 →</button>
         </section>
@@ -60,7 +60,7 @@
               {{ e.title }}
               <span class="invalid-flag" *ngIf="isInvalidCoordinate(e)" title="座標缺失">⚠</span>
             </div>
-            <div class="event-sub">{{ e.dynasty }} · {{ getYearText(e.year) }} · {{ e.novel }}</div>
+            <div class="event-sub">{{ getDynastyText(e) }} · {{ getTimeText(e) }} · {{ e.novel }}</div>
           </div>
           </button>
         </li>

@@ -88,6 +88,15 @@ export class DataValidator {
       warnings.push('標籤欄位應為陣列');
     }
 
+    if (event.eraEstimate !== undefined) {
+      const era = event.eraEstimate;
+      if (typeof era.startYear !== 'number' || (era.endYear !== null && typeof era.endYear !== 'number') || !era.label) {
+        errors.push('年代推估區間須有數字起始年、數字或 null 的結束年與顯示文字');
+      } else if (era.endYear !== null && era.endYear < era.startYear) {
+        errors.push(`年代推估區間 ${era.startYear} 到 ${era.endYear} 的起訖顛倒`);
+      }
+    }
+
     return {
       isValid: errors.length === 0,
       errors,

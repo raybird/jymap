@@ -1,3 +1,19 @@
+/**
+ * 年代只能由情節推估區間時的資料；有值時 year 僅作排序佔位，不對外顯示
+ */
+export interface EraEstimate {
+  /** 推估區間起始年（可用負值表示西元前） */
+  startYear: number;
+  /** 推估區間結束年；null 表示正文只給下限 */
+  endYear: number | null;
+  /** 顯示文字，例如「約 1665 年後（確年未詳）」 */
+  label: string;
+  /** 取代朝代顯示的文字；省略時沿用 dynasty */
+  dynastyLabel?: string;
+  /** 同作品內依正文章回排定的情節先後 */
+  storyOrder: number;
+}
+
 export interface Event {
   /** 唯一識別碼 */
   id: string;
@@ -23,6 +39,8 @@ export interface Event {
   description?: string;
   /** 小說情節摘要（可选） */
   summary?: string;
+  /** 年代推估區間（可選） */
+  eraEstimate?: EraEstimate;
 }
 
 

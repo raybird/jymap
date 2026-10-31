@@ -49,11 +49,14 @@ export class RelatedEventsService {
       score += 2; reasons.push('同部作品');
     }
 
-    const yearDiff = Math.abs(current.year - candidate.year);
-    if (yearDiff === 0) {
-      score += 3; reasons.push('同年事件');
-    } else if (yearDiff <= 5) {
-      score += 1; reasons.push('時間相近');
+    // 推估事件的 year 只是佔位，不能當成同年或時間相近的依據
+    if (!current.eraEstimate && !candidate.eraEstimate) {
+      const yearDiff = Math.abs(current.year - candidate.year);
+      if (yearDiff === 0) {
+        score += 3; reasons.push('同年事件');
+      } else if (yearDiff <= 5) {
+        score += 1; reasons.push('時間相近');
+      }
     }
 
     return { event: candidate, score, reasons };

@@ -29,8 +29,8 @@
             </div>
             
             <div class="result-meta">
-              <span class="result-dynasty">{{ result.event.dynasty }}</span>
-              <span class="result-year">{{ result.event.year }}</span>
+              <span class="result-dynasty">{{ result.event.eraEstimate?.dynastyLabel ?? result.event.dynasty }}</span>
+              <span class="result-year">{{ result.event.eraEstimate?.label ?? result.event.year }}</span>
               <span class="result-novel">{{ result.event.novel }}</span>
             </div>
             

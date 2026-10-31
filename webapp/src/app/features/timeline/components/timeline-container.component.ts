@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { Subject } from 'rxjs';
 import { throttleTime, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from '../../../core/utils/data-validator';
+import { EraEstimate } from '../../../core/models';
+import { TIMELINE_MAX_YEAR } from '../../../core/utils/event-time';
 import { Logger } from '../../../core/utils/logger';
 
 /**
@@ -13,6 +15,19 @@ interface DynastyBand {
   startYear: number;
   endYear: number;
   color: string;
+}
+
+/**
+ * 年代推估區間帶：一部作品一條，取代該作品事件的點位
+ */
+interface EraBand {
+  novel: string;
+  left: number;
+  width: number;
+  lane: number;
+  label: string;
+  color: string;
+  openEnded: boolean;
 }
 
 /**
@@ -33,11 +48,12 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   @Input() events: ValidatedEvent[] = [];
   @Output() timeRangeChange = new EventEmitter<{ startYear: number; endYear: number } | null>();
   @Output() eventDotClick = new EventEmitter<string>();
+  @Output() eraBandClick = new EventEmitter<string>();
 
   // 時間範圍設定（西元前 500 年～清乾隆 1800 年）
   readonly minYear = -500;
-  readonly maxYear = 1800;
-  readonly yearSpan = 1800 - (-500); // 總年距：2300 年
+  readonly maxYear = TIMELINE_MAX_YEAR;
+  readonly yearSpan = TIMELINE_MAX_YEAR - (-500); // 總年距：2300 年
 
   readonly dynastyBands: DynastyBand[] = [
     { name: '春秋', startYear: -500, endYear: -221, color: '#8B7355' },
@@ -59,6 +75,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   // 拖曳狀態（public 以便在模板中使用）
   isDragging = false;
   private dragStartX = 0;
+  private dragMoved = false;
   private scrollLeft = 0;
   private currentScrollLeft = 0;
 
@@ -81,6 +98,10 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   private scrollFrame: number | null = null;
   private initFrame: number | null = null;
   private destroy$ = new Subject<void>();
+
+  // 區間帶的列位一經分配就固定，拖曳時區間進出視窗才不會讓其他列跳動
+  private eraLanes = new Map<string, number>();
+  private eraLaneEnds: number[] = [];
 
   ngOnInit(): void {
     // 設定節流訂閱，優化拖曳時的事件發送頻率（每 50ms 最多發送一次）
@@ -316,6 +337,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     }
 
     this.isDragging = true;
+    this.dragMoved = false;
     this.dragStartX = e.pageX - this.timelineContainer.nativeElement.offsetLeft;
     this.scrollLeft = this.timelineContainer.nativeElement.scrollLeft;
     this.timelineContainer.nativeElement.style.cursor = 'grabbing';
@@ -329,6 +351,10 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
     if (!this.isDragging || !this.timelineContainer) return;
 
     e.preventDefault();
+
+    if (Math.abs(e.pageX - this.timelineContainer.nativeElement.offsetLeft - this.dragStartX) > this.DRAG_THRESHOLD) {
+      this.dragMoved = true;
+    }
     
     // 使用 requestAnimationFrame 優化拖曳效能
     requestAnimationFrame(() => {
@@ -605,13 +631,59 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
   }
 
   getEventDots(): { id: string; year: number; color: string; title: string; novel: string }[] {
-    return this.events.map(e => ({
+    // 推估事件的 year 只是佔位，畫成點會造成假精度，改由區間帶呈現
+    return this.events.filter(e => !e.eraEstimate).map(e => ({
       id: e.id,
       year: e.year,
       color: this.getNovelColor(e.novel),
       title: e.title,
       novel: e.novel
     }));
+  }
+
+  /**
+   * 依目前可見事件產生區間帶，彼此重疊時分到不同列
+   */
+  getEraBands(): EraBand[] {
+    const byNovel = new Map<string, { era: EraEstimate; count: number }>();
+    for (const event of this.events) {
+      if (!event.eraEstimate) continue;
+      const entry = byNovel.get(event.novel);
+      if (entry) entry.count++;
+      else byNovel.set(event.novel, { era: event.eraEstimate, count: 1 });
+    }
+
+    return [...byNovel.entries()]
+      .sort(([, a], [, b]) => a.era.startYear - b.era.startYear)
+      .map(([novel, { era, count }]) => {
+        const end = era.endYear ?? this.maxYear;
+        return {
+          novel,
+          left: this.getYearPosition(era.startYear),
+          width: this.getYearPosition(end) - this.getYearPosition(era.startYear),
+          lane: this.getEraLane(novel, era.startYear, end),
+          label: `《${novel}》${era.label}・${count} 筆`,
+          color: this.getNovelColor(novel),
+          openEnded: era.endYear === null
+        };
+      });
+  }
+
+  private getEraLane(novel: string, startYear: number, endYear: number): number {
+    const assigned = this.eraLanes.get(novel);
+    if (assigned !== undefined) return assigned;
+
+    const free = this.eraLaneEnds.findIndex(laneEnd => laneEnd < startYear);
+    const lane = free === -1 ? this.eraLaneEnds.length : free;
+    this.eraLaneEnds[lane] = endYear;
+    this.eraLanes.set(novel, lane);
+    return lane;
+  }
+
+  onEraBandClick(novel: string, event: MouseEvent): void {
+    // 區間帶很長，拖曳常由其上開始，放開時不能當成點擊；鍵盤觸發的 detail 為 0，不受影響
+    if (this.dragMoved && event.detail !== 0) return;
+    this.eraBandClick.emit(novel);
   }
 }
 

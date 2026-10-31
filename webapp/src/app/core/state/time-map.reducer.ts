@@ -1,6 +1,7 @@
 import { createReducer, on } from '@ngrx/store';
 import * as TimeMapActions from './time-map.actions';
 import { ValidatedEvent, ValidatedTimelineItem } from '../utils/data-validator';
+import { getEventSpan, overlapsTimeRange } from '../utils/event-time';
 
 export interface TimeRange {
   startYear: number;
@@ -229,9 +230,9 @@ export const timeMapReducer = createReducer(
       return state;
     }
 
-    const years = charEvents.map(e => e.year).sort((a, b) => a - b);
-    const startYear = years[0] - 20;
-    const endYear = years[years.length - 1] + 20;
+    const spans = charEvents.map(getEventSpan);
+    const startYear = Math.min(...spans.map(s => s.start)) - 20;
+    const endYear = Math.max(...spans.map(s => s.end)) + 20;
     const newRange: TimeRange = { startYear, endYear };
 
     const snapshot = state.preCharacterSnapshot ?? {
@@ -275,7 +276,7 @@ export const timeMapReducer = createReducer(
 function applyFilters(events: ValidatedEvent[], range: TimeRange | null, novel: string | null): ValidatedEvent[] {
   let filtered = events;
   if (range) {
-    filtered = filtered.filter((event) => event.year >= range.startYear && event.year <= range.endYear);
+    filtered = filtered.filter((event) => overlapsTimeRange(event, range));
   }
   if (novel) {
     filtered = filtered.filter((event) => event.novel === novel);

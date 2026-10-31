@@ -1,6 +1,7 @@
 import { createFeatureSelector, createSelector } from '@ngrx/store';
 import { AppState } from './app.state';
 import { TimeMapState } from './time-map.reducer';
+import { compareEventsByTime } from '../utils/event-time';
 
 export const selectTimeMapState = createFeatureSelector<AppState, TimeMapState>('timeMap');
 
@@ -98,7 +99,7 @@ export const selectCharacterEvents = createSelector(
     return events
       .filter((e) => e.characters.includes(character))
       .slice()
-      .sort((a, b) => a.year - b.year);
+      .sort(compareEventsByTime);
   }
 );
 

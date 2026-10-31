@@ -115,9 +115,10 @@
 .dynasty-bands {
   position: relative;
   width: 100%;
-  height: 36px;
+  height: 22px;
+  flex: none;
   z-index: 5;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .dynasty-band {
@@ -189,10 +190,68 @@
 .event-dots {
   position: relative;
   width: 100%;
-  height: 60px;
+  height: 46px;
+  flex: none;
   z-index: 15;  /* 高於 year-ticks (10) 與 dynasty-bands (5)，確保能接收點擊 */
-  margin-top: 2px;
   overflow: visible;
+}
+
+.era-bands {
+  position: relative;
+  width: 100%;
+  height: 42px;
+  flex: none;
+  z-index: 15;
+}
+
+.era-band {
+  position: absolute;
+  height: 13px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  border: 1px dashed var(--era-color);
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--era-color) 16%, transparent);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: color-mix(in srgb, var(--era-color) 28%, transparent);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--era-color);
+    outline-offset: 1px;
+  }
+
+  /* 只有下限的區間沒有終點，以淡出表示可能更晚 */
+  &.open-ended {
+    border-right: none;
+    border-radius: 3px 0 0 3px;
+    background: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--era-color) 18%, transparent) 75%,
+      transparent
+    );
+  }
+}
+
+.era-band-label {
+  position: sticky;
+  left: 8px;
+  max-width: min(100%, calc(100vw - 72px));
+  padding: 0 6px;
+  overflow: hidden;
+  font-size: 0.66rem;
+  line-height: 12px;
+  font-weight: 700;
+  color: var(--era-color);
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .event-dot {
@@ -229,7 +288,8 @@
 .year-ticks {
   position: relative;
   width: 100%;
-  height: 35px;
+  height: 22px;
+  flex: none;
   z-index: 10;
 }
 
@@ -242,23 +302,23 @@
   &::after {
     content: '';
     position: absolute;
-    top: 4px;
+    top: 0;
     left: 50%;
     transform: translateX(-50%);
     width: 1px;
-    height: 8px;
+    height: 4px;
     background: rgba(44, 36, 27, 0.15);
   }
 
   &.major-tick::after {
-    height: 14px;
+    height: 7px;
     width: 1.5px;
     background: rgba(44, 36, 27, 0.3);
   }
 
   .year-label {
     position: absolute;
-    top: 20px;
+    top: 7px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 0.65rem;
@@ -338,20 +398,8 @@
 
 // 響應式設計（符合 NFR30）
 @media (max-width: 768px) {
-  .timeline-container {
-    height: 180px;
-  }
-
   .timeline-track {
     width: calc(2301 * 5px);
-  }
-
-  .dynasty-bands {
-    height: 44px;
-  }
-
-  .event-dots {
-    margin-top: 12px;
   }
 
   .year-label {

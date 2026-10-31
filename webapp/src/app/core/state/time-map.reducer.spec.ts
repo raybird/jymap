@@ -211,3 +211,24 @@ describe('timeMapReducer - character mode', () => {
     });
   });
 });
+
+describe('timeMapReducer - 年代推估事件', () => {
+  const era = { startYear: 1398, endYear: 1661, label: '約 1398–1661 年間（確年未詳）', storyOrder: 1 };
+  const estimated = makeEvent({ id: 'estimated', year: 1500, characters: ['令狐沖'], eraEstimate: era });
+  const state: TimeMapState = { ...initialTimeMapState, events: [estimated], visibleEvents: [estimated] };
+
+  it('時間範圍與區間重疊時保留，即使不含佔位年份', () => {
+    const next = timeMapReducer(state, TimeMapActions.setTimeRange({ startYear: 1600, endYear: 1650 }));
+    expect(next.visibleEvents).toEqual([estimated]);
+  });
+
+  it('時間範圍在區間之外時濾除，即使含佔位年份的舊值不再適用', () => {
+    const next = timeMapReducer(state, TimeMapActions.setTimeRange({ startYear: 1670, endYear: 1700 }));
+    expect(next.visibleEvents).toEqual([]);
+  });
+
+  it('選取人物時以區間計算時間範圍', () => {
+    const next = timeMapReducer(state, TimeMapActions.selectCharacter({ character: '令狐沖' }));
+    expect(next.currentTimeRange).toEqual({ startYear: 1378, endYear: 1681 });
+  });
+});

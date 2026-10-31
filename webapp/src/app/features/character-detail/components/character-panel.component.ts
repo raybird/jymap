@@ -5,6 +5,7 @@ import { Observable, Subject } from 'rxjs';
 import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
 import { ValidatedEvent } from '../../../core/utils/data-validator';
+import { getEventDynastyText, getEventTimeText } from '../../../core/utils/event-time';
 
 @Component({
     selector: 'app-character-panel',
@@ -38,16 +39,14 @@ export class CharacterPanelComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  getYearText(year: number): string {
-    return year < 0 ? `西元前${Math.abs(year)}年` : `西元${year}年`;
-  }
+  readonly getDynastyText = getEventDynastyText;
+  readonly getTimeText = getEventTimeText;
 
   getActiveRangeText(events: ValidatedEvent[]): string {
     if (events.length === 0) return '—';
-    const min = events[0].year;
-    const max = events[events.length - 1].year;
-    if (min === max) return this.getYearText(min);
-    return `${this.getYearText(min)} ~ ${this.getYearText(max)}`;
+    const first = getEventTimeText(events[0]);
+    const last = getEventTimeText(events[events.length - 1]);
+    return first === last ? first : `${first} ~ ${last}`;
   }
 
   getLocationCount(events: ValidatedEvent[]): number {
