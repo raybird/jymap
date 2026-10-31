@@ -1,16 +1,16 @@
 {
   "checkedOn": "2026-10-31",
   "source": "webapp/src/assets/data/events.json",
-  "sourceSha256": "2a2e15e108554ea497cc22b8df15312cf4ca5573ce057df51287a976971aa035",
+  "sourceSha256": "68f1782d9120aceb88868e7624cfd453ba234e56b189c69871b77a7ad1b776e4",
   "totalEvents": 257,
   "counts": {
     "yearPlaceholder": 36,
     "yearPending": 59,
-    "dynastyPending": 27,
+    "dynastyPending": 21,
     "locationPending": 28,
     "inferredYear": 194,
     "approximateLocation": 237,
-    "versionDifference": 4,
+    "versionDifference": 10,
     "pendingEvents": 80
   },
   "events": [
@@ -653,11 +653,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-044",
@@ -668,11 +668,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-045",
@@ -1193,11 +1193,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-080",
@@ -1748,11 +1748,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-117",
@@ -1763,11 +1763,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-118",
@@ -1778,11 +1778,11 @@
       "priority": "P1",
       "yearPlaceholder": true,
       "yearPending": true,
-      "dynastyPending": true,
+      "dynastyPending": false,
       "locationPending": false,
       "inferredYear": false,
       "approximateLocation": true,
-      "versionDifference": false
+      "versionDifference": true
     },
     {
       "id": "event-119",
