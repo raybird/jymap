@@ -79,13 +79,16 @@
 
 // 響應式設計
 @media (max-width: 768px) {
-  .search-box-container {
-    padding: 0.5rem;
+  .search-input {
+    font-size: 16px; // 低於 16px 時 iOS 聚焦會自動放大畫面
+    min-height: 44px;
+    padding: 0.5rem 0.75rem;
   }
 
-  .search-input {
-    font-size: 0.9rem;
-    padding: 0.5rem 0.75rem;
+  .clear-button {
+    width: 44px;
+    height: 44px;
+    margin-right: 0;
   }
 
   .search-hint {

@@ -254,6 +254,13 @@
   text-overflow: ellipsis;
 }
 
+.era-band.narrow .era-band-label {
+  position: static;
+  max-width: none;
+  overflow: visible;
+  padding: 0 2px;
+}
+
 .event-dot {
   position: absolute;
   transform: translate(-50%, -50%);
@@ -397,6 +404,16 @@
 }
 
 // 響應式設計（符合 NFR30）
+@media (max-height: 500px) {
+  .event-dots { height: 22px; }
+  .year-ticks { height: 18px; }
+
+  .year-tick .year-label {
+    top: 3px;
+    font-size: 0.6rem;
+  }
+}
+
 @media (max-width: 768px) {
   .timeline-track {
     width: calc(2301 * 5px);

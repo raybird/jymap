@@ -48,6 +48,12 @@ describe('App layout', () => {
       expect(parseFloat(style.height)).toBeLessThan(window.innerHeight * 0.7);
       expect(parseFloat(style.width)).toBeCloseTo(window.innerWidth, -1);
       expect(style.top).not.toBe('0px');
+      const handle: HTMLElement = fixture.nativeElement.querySelector('.sheet-handle');
+      expect(getComputedStyle(handle).display).toBe('flex');
+      expect(getComputedStyle(fixture.nativeElement.querySelector('.filter-summary')).display).toBe('none');
+      fixture.componentInstance.setSheetState('peek');
+      expect(panel.classList.contains('sheet-peek')).toBeTrue();
+      fixture.componentInstance.setSheetState('half');
     } else {
       expect(parseFloat(style.width)).toBe(420);
     }

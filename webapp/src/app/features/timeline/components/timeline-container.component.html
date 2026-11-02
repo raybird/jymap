@@ -35,6 +35,7 @@
               type="button"
               class="era-band"
               [class.open-ended]="band.openEnded"
+              [class.narrow]="band.shortLabel"
               [style.left.%]="band.left"
               [style.width.%]="band.width"
               [style.top.px]="band.lane * 14"
@@ -42,7 +43,7 @@
               [title]="'年代只能由情節推估，事件不一定平均分布在此區間內'"
               [attr.aria-label]="band.label + '，篩選此作品'"
               (click)="onEraBandClick(band.novel, $event)">
-              <span class="era-band-label">{{ band.label }}</span>
+              <span class="era-band-label">{{ band.shortLabel ?? band.label }}</span>
             </button>
           }
         </div>

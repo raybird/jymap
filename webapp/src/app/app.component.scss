@@ -1,8 +1,11 @@
 .app-sidenav-container {
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background: transparent;
 }
+
+.sheet-handle { display: none; }
 
 .event-card-sidenav {
   width: 420px;
@@ -301,27 +304,96 @@ button:focus-visible {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 62dvh;
-    max-height: calc(100dvh - 80px);
+    height: 50dvh;
+    max-height: calc(100dvh - 12px - env(safe-area-inset-top));
     border-radius: 16px 16px 0 0;
     overflow: hidden;
     background: #faf8f2;
+    transition: height 0.22s ease, transform 0.25s ease;
 
     &:not(.mat-drawer-opened) { transform: translateY(100%); }
     &.mat-drawer-opened { transform: translateY(0); }
+    &.sheet-peek { height: calc(150px + env(safe-area-inset-bottom)); }
+    &.sheet-full { height: calc(100dvh - 12px - env(safe-area-inset-top)); }
+    &.sheet-dragging { transition: none; }
+
+    ::ng-deep .mat-drawer-inner-container { padding-top: 36px; }
+    &.sheet-peek ::ng-deep .exploration-back { display: none; }
   }
 
-  .top-overlay .search-results-overlay {
-    max-height: calc(100dvh - 200px);
+  .sheet-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    background: #faf8f2;
+    cursor: grab;
+    touch-action: none;
+
+    span {
+      width: 40px;
+      height: 4px;
+      border-radius: 2px;
+      background: #cdbd9c;
+    }
   }
 
-  .filter-summary {
-    gap: 4px;
-    font-size: 0.75rem;
-    button { min-height: 44px; }
-  }
+  .panel-open .bottom-overlay { visibility: hidden; }
 
   .option-action { font-size: 0.7rem; }
+}
+
+@media (max-width: 768px), (max-height: 500px) {
+  .top-overlay {
+    top: calc(8px + env(safe-area-inset-top));
+
+    .novel-dropdown .novel-option { min-height: 44px; }
+
+    .search-results-overlay { max-height: calc(var(--vvh, 100dvh) - 84px); }
+  }
+
+  .bottom-overlay {
+    bottom: calc(20px + env(safe-area-inset-bottom));
+    left: calc(12px + env(safe-area-inset-left));
+    right: calc(12px + env(safe-area-inset-right));
+  }
+
+  // 面板與搜尋清單開著時，條件列只會壓縮地圖；面板本身有返回與關閉
+  .panel-open .filter-summary,
+  .search-open .filter-summary { display: none; }
+
+  .filter-summary {
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding: 4px 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    font-size: 0.75rem;
+    white-space: nowrap;
+
+    button, span { flex: none; }
+    button { min-height: 44px; }
+  }
+}
+
+@media (max-height: 500px) {
+  .top-overlay {
+    left: calc(12px + env(safe-area-inset-left));
+    width: min(340px, 46vw);
+    transform: none;
+
+    .search-results-overlay { max-height: calc(var(--vvh, 100dvh) - 64px); }
+  }
+
+  .bottom-overlay { height: 106px; }
 }
 
 .navigation-notice {

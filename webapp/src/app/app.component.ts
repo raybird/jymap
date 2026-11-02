@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy, ElementRef } from '@angular/co
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Store } from '@ngrx/store';
-import { Observable, Subject, timer } from 'rxjs';
+import { combineLatest, Observable, Subject, timer } from 'rxjs';
 import { switchMap, map, take, takeUntil } from 'rxjs/operators';
 import { ValidatedEvent, ValidatedTimelineItem } from './core/utils/data-validator';
 import { getEventFocusYear, getEventSpan, overlapsTimeRange } from './core/utils/event-time';
@@ -18,10 +18,12 @@ import * as TimeMapSelectors from './core/state/time-map.selectors';
 import * as TimeMapActions from './core/state/time-map.actions';
 import { SearchService, SearchResult } from './core/services/search.service';
 import { Logger } from './core/utils/logger';
+import { getInitialMapView, SheetState } from './core/utils/viewport';
+import { SheetHandleDirective } from './shared/sheet-handle.directive';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, MatSidenavModule, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
+    imports: [CommonModule, MatSidenavModule, SheetHandleDirective, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
@@ -30,6 +32,11 @@ export class AppComponent implements OnInit, OnDestroy {
   @ViewChild(TimelineContainerComponent) timelineComponent!: TimelineContainerComponent;
 
   @ViewChild('eventSidenav', { read: ElementRef, static: true }) detailPanel!: ElementRef<HTMLElement>;
+  readonly initialView = getInitialMapView();
+  hasDetail = false;
+  sheetState: SheetState = 'half';
+  private sheetEventId: string | null = null;
+  private viewportListeners = new AbortController();
   view$!: Observable<TimeMapState>;
   suggestions = { characters: [] as string[], novels: [] as string[] };
   browseCategory: 'novels' | 'characters' = 'novels';
@@ -95,6 +102,26 @@ export class AppComponent implements OnInit, OnDestroy {
 
     this.loadData();
 
+    combineLatest([this.selectedEvent$, this.selectedCharacter$]).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(([event, character]) => {
+      const open = event !== null || character !== null;
+      // 收起時改看別的事件要重新展開；關閉後下次都從一半高度開始
+      if (!open || (this.sheetState === 'peek' && (event?.id ?? null) !== this.sheetEventId)) {
+        this.setSheetState('half');
+      }
+      this.sheetEventId = event?.id ?? null;
+      this.hasDetail = open;
+    });
+
+    // iOS 的 dvh 不會扣掉鍵盤，搜尋清單高度改看 visualViewport
+    const viewport = window.visualViewport;
+    if (viewport) {
+      const update = () => document.documentElement.style.setProperty('--vvh', `${viewport.height}px`);
+      update();
+      viewport.addEventListener('resize', update, { signal: this.viewportListeners.signal });
+    }
+
     // 搜尋服務使用全部事件（不受時間範圍或小說篩選影響）
     this.store.select(TimeMapSelectors.selectAllEvents).pipe(
       takeUntil(this.destroy$)
@@ -123,6 +150,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.viewportListeners.abort();
     // 清理 debounce Subject
     this.destroy$.next();
     this.destroy$.complete();
@@ -348,6 +376,14 @@ export class AppComponent implements OnInit, OnDestroy {
     this.timelineComponent?.restoreScrollPosition(previous.timelineLeft);
     this.mapComponent?.restoreView(previous.state.mapView.center, previous.state.mapView.zoom);
     if (previous.state.selectedEventId) this.mapComponent?.highlightMarker(previous.state.selectedEventId);
+  }
+
+  // 直接改 class：同一輪接著 flyTo 要讀面板高度，等不到下一次變更偵測
+  setSheetState(state: SheetState): void {
+    this.sheetState = state;
+    const panel = this.detailPanel.nativeElement;
+    panel.classList.toggle('sheet-peek', state === 'peek');
+    panel.classList.toggle('sheet-full', state === 'full');
   }
 
   onCloseCharacterPanel(): void {

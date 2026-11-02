@@ -253,3 +253,29 @@ button:focus-visible {
 :host { display: block; height: 100%; }
 .card-body { min-height: 0; }
 .card-header, .card-meta { flex-shrink: 0; }
+
+@media (max-width: 768px), (max-height: 500px) {
+  .event-card {
+    animation: none;
+    border-left: 0;
+    box-shadow: none;
+  }
+
+  .characters .tag { min-height: 44px; }
+
+  .card-body .sources {
+    li { margin-bottom: 0; }
+
+    li a {
+      display: flex;
+      align-items: center;
+      min-height: 44px;
+    }
+  }
+
+  .close-btn {
+    flex: none;
+    width: 44px !important;
+    height: 44px !important;
+  }
+}

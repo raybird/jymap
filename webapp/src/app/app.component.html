@@ -1,8 +1,8 @@
 <mat-sidenav-container class="app-sidenav-container" [hasBackdrop]="false">
   <mat-sidenav-content>
-    <div class="app-viewport">
+    <div class="app-viewport" [class.panel-open]="hasDetail && !isSearchFocused" [class.search-open]="isSearchFocused">
       <div class="map-layer">
-        <app-map-container [center]="[35.0, 105.0]" [zoom]="5.5"
+        <app-map-container [center]="initialView.center" [zoom]="initialView.zoom"
           [detailPanel]="detailPanel.nativeElement"
           [selectedNovel]="(selectedNovel$ | async) || null"
           (eventClick)="onMapEventClick($event)" (characterClick)="onCharacterClick($event)">
@@ -37,7 +37,7 @@
                   {{ formatYear(range.startYear) }}–{{ formatYear(range.endYear) }} ×
                 </button>
               }
-              <span aria-live="polite">視野內 {{ view.visibleEvents.length }} 件事件</span>
+              <span aria-live="polite">顯示 {{ view.visibleEvents.length }} 件事件</span>
               @if (view.selectedNovel || view.currentTimeRange || view.selectedCharacter) {
                 <button type="button" (click)="resetFilters()" aria-label="顯示全部事件">顯示全部</button>
               }
@@ -117,6 +117,9 @@
   <mat-sidenav class="event-card-sidenav" #eventSidenav position="end"
     [opened]="!isSearchFocused && (((selectedEvent$ | async) !== null) || ((selectedCharacter$ | async) !== null))"
     mode="over" (closed)="onSidenavClosed()">
+    <button type="button" class="sheet-handle" [appSheetHandle]="sheetState" (sheetStateChange)="setSheetState($event)"
+      [attr.aria-label]="sheetState === 'full' ? '縮小詳情面板' : '展開詳情面板'"
+      [attr.aria-expanded]="sheetState === 'full'"><span></span></button>
     <ng-container *ngIf="(selectedCharacter$ | async) !== null; else eventCardTpl">
       <app-character-panel [canGoBack]="history.length > 0" (back)="goBack()"
         (focusEvent)="onCharacterEventClick($event)" (openEvent)="onNavigateToEvent($event)"

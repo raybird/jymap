@@ -33,6 +33,45 @@
       background-color: #f4e4bc;
     }
 
+    @media (max-width: 768px), (max-height: 500px) {
+      // 詳情由底部面板或側欄呈現，popup 只會被上方控制列遮住
+      .leaflet-popup-pane { display: none; }
+
+      .leaflet-top.leaflet-left {
+        top: auto;
+        left: auto;
+        right: calc(12px + env(safe-area-inset-right));
+        bottom: calc(176px + env(safe-area-inset-bottom));
+      }
+
+      .leaflet-bottom { bottom: env(safe-area-inset-bottom); }
+
+      .leaflet-control-zoom { margin: 0; }
+
+      .leaflet-control-zoom a {
+        width: 44px;
+        height: 44px;
+        line-height: 44px;
+        font-size: 22px;
+      }
+    }
+
+    @media (max-height: 500px) {
+      .leaflet-top.leaflet-left { bottom: calc(134px + env(safe-area-inset-bottom)); }
+    }
+
+    @media (pointer: coarse) {
+      .ink-marker-inner { position: relative; }
+
+      // 標記只有 22px，用透明範圍把觸控目標放大到 44px
+      .ink-marker-inner::after {
+        content: '';
+        position: absolute;
+        inset: -11px;
+        border-radius: 50%;
+      }
+    }
+
     .old-maps-layer {
       filter: sepia(65%) saturate(0.5) brightness(0.78) contrast(1.25);
       transition: filter 0.3s ease;

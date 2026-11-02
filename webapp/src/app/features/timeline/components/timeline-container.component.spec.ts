@@ -29,6 +29,19 @@ describe('TimelineContainerComponent', () => {
     expect(emit).not.toHaveBeenCalled();
   }));
 
+  it('沒有拖曳時，點擊頁面其他位置不改變時間範圍', fakeAsync(() => {
+    component.timelineContainer = new ElementRef(document.createElement('div'));
+    component.timelineTrack = new ElementRef(document.createElement('div'));
+    component.ngOnInit();
+    component.ngAfterViewInit();
+    tick(400);
+    const emit = spyOn(component.timeRangeChange, 'emit');
+    document.dispatchEvent(new MouseEvent('mouseup'));
+    tick(100);
+    expect(emit).not.toHaveBeenCalled();
+    component.ngOnDestroy();
+  }));
+
   describe('getEventStaggerTop', () => {
     it('同 bucket 只有一個事件時回傳 50', () => {
       const dots = [{ year: 1200 }];
@@ -86,8 +99,17 @@ describe('TimelineContainerComponent', () => {
     it('只有下限的區間延伸到時間軸終點並標記為開放', () => {
       component.events = [makeEvent('a', '俠客行', xiake)];
       const [band] = component.getEraBands();
+      expect(band.shortLabel).toBeNull();
       expect(band.openEnded).toBeTrue();
       expect(band.left + band.width).toBeCloseTo(100, 5);
+    });
+
+    it('區間太窄時改用短標籤，完整內容留給 aria-label', () => {
+      const narrow = { startYear: 1732, endYear: 1737, label: '約 1732–1737 年間（確年未詳）', storyOrder: 1 };
+      component.events = [makeEvent('a', '鴛鴦刀', narrow)];
+      const [band] = component.getEraBands();
+      expect(band.shortLabel).toBe('《鴛鴦刀》1 筆');
+      expect(band.label).toContain('1732–1737');
     });
 
     it('區間重疊時分列，不重疊時可共用一列', () => {

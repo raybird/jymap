@@ -28,12 +28,17 @@ interface EraBand {
   label: string;
   color: string;
   openEnded: boolean;
+  /** 區間太窄放不下完整標籤時改用的短標籤；完整內容留在 aria-label。 */
+  shortLabel: string | null;
 }
 
 /**
  * 時間軸容器組件
  * 提供水平時間軸顯示、拖曳互動和時間範圍選擇功能
  */
+// 時間軸每年 5px，少於這個年數放不下完整標籤
+const NARROW_ERA_YEARS = 30;
+
 @Component({
     selector: 'app-timeline-container',
     imports: [CommonModule],
@@ -378,11 +383,13 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
    * 滑鼠拖曳結束
    */
   private onDragEnd(): void {
-    if (!this.timelineContainer) return;
-    
+    // mouseup 綁在 document，點擊頁面任何地方都會進來，只有真的拖過才更新範圍
+    if (!this.timelineContainer || !this.isDragging) return;
+
     this.isDragging = false;
     this.timelineContainer.nativeElement.style.cursor = 'grab';
-    
+    if (!this.dragMoved) return;
+
     // 拖曳結束後發送當前可見時間範圍（符合 Story 4.2）
     this.emitCurrentVisibleRange();
   }
@@ -663,6 +670,7 @@ export class TimelineContainerComponent implements OnInit, AfterViewInit, OnDest
           width: this.getYearPosition(end) - this.getYearPosition(era.startYear),
           lane: this.getEraLane(novel, era.startYear, end),
           label: `《${novel}》${era.label}・${count} 筆`,
+          shortLabel: end - era.startYear < NARROW_ERA_YEARS ? `《${novel}》${count} 筆` : null,
           color: this.getNovelColor(novel),
           openEnded: era.endYear === null
         };
