@@ -1,0 +1,181 @@
+{
+ "date": "2026-11-02",
+ "work": "雪山飛狐",
+ "editionLabel": "金庸武俠網標稱新修版，未逐字校勘印本",
+ "chapters": 10,
+ "pages": 19,
+ "items": [
+  {
+   "chapter": 1,
+   "title": "一",
+   "paragraphs": 116,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1353.html",
+     "extractedCharacters": 7482,
+     "htmlSha256": "2c5c7efd1dfdf2638e0a98d3f32cf41083e180dde3b4ca2012a04c5ab603815c"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1353_2.html",
+     "extractedCharacters": 7477,
+     "htmlSha256": "9788c0f850894b8a1a03ba01fc7055ed8f5b114f72b058d17d5b6400d46f1531"
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "title": "二",
+   "paragraphs": 81,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1354.html",
+     "extractedCharacters": 10075,
+     "htmlSha256": "92c5b4d88575c226212863e84fd4df2006392c0112f31764ac2adecd49e4b985"
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "title": "三",
+   "paragraphs": 137,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1355.html",
+     "extractedCharacters": 7634,
+     "htmlSha256": "d47668382a6aa44162bc92e02f0d38ee3ee1fa48581eaa1f7ebe5c004e6823f2"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1355_2.html",
+     "extractedCharacters": 8905,
+     "htmlSha256": "f1a67440f811f441dace56f541f62834bb3768fd5cd5c194b14915f263824f59"
+    }
+   ]
+  },
+  {
+   "chapter": 4,
+   "title": "四",
+   "paragraphs": 117,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1356.html",
+     "extractedCharacters": 9877,
+     "htmlSha256": "bd97f4f6139b19a6dc4e10dbcd626de731a923bf98cce860822d9c985a3ebb62"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1356_2.html",
+     "extractedCharacters": 7462,
+     "htmlSha256": "ff6b6de20f9139492b54ae92ee1bcab11afdb462aca024c045a402c07360d1f6"
+    }
+   ]
+  },
+  {
+   "chapter": 5,
+   "title": "五",
+   "paragraphs": 118,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1357.html",
+     "extractedCharacters": 6928,
+     "htmlSha256": "931490942beafb5f705180d74204cd0632ed78783fa310b8836ad5bd3bcd0ef7"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1357_2.html",
+     "extractedCharacters": 7214,
+     "htmlSha256": "35af8a1dcd0b689d184b7ec1cebdce5a91e01c81ae1cab520011e5250be7ebff"
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "title": "六",
+   "paragraphs": 85,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1358.html",
+     "extractedCharacters": 8511,
+     "htmlSha256": "380e4895429775b84724425471a9de4c9c8659935932b34a450925649f8e5881"
+    }
+   ]
+  },
+  {
+   "chapter": 7,
+   "title": "七",
+   "paragraphs": 128,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1359.html",
+     "extractedCharacters": 7581,
+     "htmlSha256": "b3b95d48cb9cef381d8cf5d226d418c542855ef7f9110a9f1a94fa9a3ca03e7f"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1359_2.html",
+     "extractedCharacters": 7640,
+     "htmlSha256": "f5d47687eb1144b7352aeea148089d4e6d843639957a1ddc03424cd383dcbc8a"
+    }
+   ]
+  },
+  {
+   "chapter": 8,
+   "title": "八",
+   "paragraphs": 94,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1360.html",
+     "extractedCharacters": 4821,
+     "htmlSha256": "512e53cfbd28516abd9d7ae5207e9867f22f740b1cdc7c6749d003c38ce6c778"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1360_2.html",
+     "extractedCharacters": 5410,
+     "htmlSha256": "b289b0eb3071a839a71db080a0782068af05c4e1502a3c5a671a024659230e53"
+    }
+   ]
+  },
+  {
+   "chapter": 9,
+   "title": "九",
+   "paragraphs": 95,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1361.html",
+     "extractedCharacters": 6272,
+     "htmlSha256": "2cd782451ba2d2cc1e55764b4847d8bd7193a6c7f54e6d326f01db7b3ab5a70c"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1361_2.html",
+     "extractedCharacters": 5279,
+     "htmlSha256": "0b18d22a74ae0b07834fbdda1a8d46267482d617284fb6cef07eef17a5915e2b"
+    }
+   ]
+  },
+  {
+   "chapter": 10,
+   "title": "十",
+   "paragraphs": 131,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1362.html",
+     "extractedCharacters": 5983,
+     "htmlSha256": "4d4b75d3f5960b65e934844731479acf57916146399b79121a6e1962d0bb4a06"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1362_2.html",
+     "extractedCharacters": 6798,
+     "htmlSha256": "33e13a688c800974f3d82037e78481c32f9fee08c71d77899f33b49bcf0e7b06"
+    }
+   ]
+  },
+  {
+   "chapter": null,
+   "title": "后记",
+   "paragraphs": 25,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/xsfh/1363.html",
+     "extractedCharacters": 4158,
+     "htmlSha256": "b08f7df9286dc19f60eda1005b62e4292045df5c1d6109794cd90ea955695210"
+    }
+   ]
+  }
+ ]
+}

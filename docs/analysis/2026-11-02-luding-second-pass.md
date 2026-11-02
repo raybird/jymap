@@ -14,7 +14,7 @@
 
 | wiki年表 | 正文 | 結果 |
 | --- | --- | --- |
-| 1668 故事開始至鰲拜被擒 | [第2回暮春三月廿九](https://www.jinyongbbs.com/jyxx/ldj/1503.html)；韋小寶十三歲 | 相合 |
+| 1668 故事開始至鰲拜被擒 | [第2回暮春三月廿九](https://www.jinyongbbs.com/jyxx/ldj/1503_2.html)；韋小寶十三歲 | 相合 |
 | 1669 海大富死至入神龍教 | [第9回在宮中將近一年](https://www.jinyongbbs.com/jyxx/ldj/1510_2.html) | 相合 |
 | 1670 王屋派至雲南賜婚 | [第22回春風和暢](https://www.jinyongbbs.com/jyxx/ldj/1523_2.html)、[第29回盛暑](https://www.jinyongbbs.com/jyxx/ldj/1530_3.html) | 相合 |
 | 1671 炮轟神龍島至遇蘇菲亞 | 第35回海上大雪 | 相合 |
