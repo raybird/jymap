@@ -1,0 +1,21 @@
+{
+ "date": "2026-11-02",
+ "work": "鴛鴦刀",
+ "editionLabel": "GitHub OliverCWY/JY倉庫標稱新修版，未逐字校勘印本",
+ "chapters": 1,
+ "pages": 1,
+ "items": [
+  {
+   "chapter": null,
+   "title": "鸳鸯刀",
+   "paragraphs": 210,
+   "pages": [
+    {
+     "url": "https://github.com/OliverCWY/JY/blob/master/Markdown/新修版/鸳鸯刀/鸳鸯刀.md",
+     "extractedCharacters": 35768,
+     "htmlSha256": "beb2741fc12f7a028b69fb3a736259bc975737c000d87145f6bc34a7ec2ade98"
+    }
+   ]
+  }
+ ]
+}
