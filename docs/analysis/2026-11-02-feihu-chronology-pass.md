@@ -6,7 +6,7 @@
 
 ## 方法與限制
 
-2026-11-02重取[金庸武俠網全文](https://www.jinyongbbs.com/jyxx/fhwz/)二十章加附文，共61頁，[來源分頁清單](2026-11-02-feihu-year-source-manifest.json)列網址、擷取字數與HTML雜湊。以紀年、年齡、年距、月份做關鍵字掃描，不是逐字通讀，也不是印本校勘。[作品條目](https://zh.wikipedia.org/wiki/飛狐外傳)沒有故事年份。
+2026-11-02重取[金庸武俠網全文](https://www.jinyongbbs.com/jyxx/fhwz/)二十章加附文，共61頁，[來源分頁清單](2026-11-02-feihu-year-source-manifest.json)列網址、擷取字數與HTML雜湊。以紀年、年齡、年距、月份做關鍵字掃描，不是逐字通讀，也不是印本校勘。本輪未重讀wiki，第二輪沿用的wiki依據見[2026-10-30文件](2026-10-30-feihu-second-pass.md)。
 
 ## 這次多了什麼
 
