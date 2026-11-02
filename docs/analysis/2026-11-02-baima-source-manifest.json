@@ -1,0 +1,46 @@
+{
+ "date": "2026-11-02",
+ "work": "白馬嘯西風",
+ "editionLabel": "金庸武俠網標稱新修版，未逐字校勘印本",
+ "chapters": 1,
+ "pages": 6,
+ "items": [
+  {
+   "chapter": 1,
+   "title": "白马啸西风",
+   "paragraphs": 620,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426.html",
+     "extractedCharacters": 11988,
+     "htmlSha256": "457a12631a2f59883ba13574949afad16121eb632329028be0c1b4389f6cc100"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426_2.html",
+     "extractedCharacters": 9477,
+     "htmlSha256": "ce8bb0055a84fc8ae3fbcc751db5aaf161cda5f5eb0e89974c571cf79cb2914f"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426_3.html",
+     "extractedCharacters": 14608,
+     "htmlSha256": "df39c5dab946d8887162c0fa139df99fb99690a52e88838399ffdae193b9657d"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426_4.html",
+     "extractedCharacters": 11037,
+     "htmlSha256": "2fd136b2213e842a99e7af124ee04add4bb92bd7c89c1f6dcda8ac7e8d87cffe"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426_5.html",
+     "extractedCharacters": 10366,
+     "htmlSha256": "3d114837250949d5e6535d59dc6b3f04efe10cf0cad6f4b084892030449c7d6b"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/bmxxf/1426_6.html",
+     "extractedCharacters": 11980,
+     "htmlSha256": "0237a2ff1ddc95af81e36cd06934592cd4179980d51d0ac113aff311587861ba"
+    }
+   ]
+  }
+ ]
+}
