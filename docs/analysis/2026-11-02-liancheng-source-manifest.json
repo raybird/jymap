@@ -1,0 +1,260 @@
+{
+ "date": "2026-11-02",
+ "work": "連城訣",
+ "editionLabel": "金庸武俠網標稱新修版，未逐字校勘印本",
+ "chapters": 12,
+ "pages": 32,
+ "items": [
+  {
+   "chapter": 1,
+   "title": "第一回　乡下人进城",
+   "paragraphs": 184,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/45.html",
+     "extractedCharacters": 3799,
+     "htmlSha256": "1fdff089109f7609193208e74ade912fda940ad61b00bf939b534f409500b62d"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/45_2.html",
+     "extractedCharacters": 6932,
+     "htmlSha256": "b9949b12c2cad380ee1e9f1c543565b5b9090d05cf82f003f3f4247c9fc6daf1"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/45_3.html",
+     "extractedCharacters": 7528,
+     "htmlSha256": "2591bab2e3103ed5e157c697fc0a681bc9e2c49b9f608318a7a7a7260d1534af"
+    }
+   ]
+  },
+  {
+   "chapter": 2,
+   "title": "第二回　牢狱",
+   "paragraphs": 323,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/46.html",
+     "extractedCharacters": 6228,
+     "htmlSha256": "e6f6416e2380337a349eaf54b16591d12e5a3dfcc09e94f1739faaac54f79c30"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/46_2.html",
+     "extractedCharacters": 7996,
+     "htmlSha256": "ecbc4519d04a460822bb988cd5221a997923bdba8363d294ce4c055a7aa20759"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/46_3.html",
+     "extractedCharacters": 7093,
+     "htmlSha256": "23c7ebe44705f0ca11c483688f49f56d90d4b9a88b59040d108373dc6db4373f"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/46_4.html",
+     "extractedCharacters": 6462,
+     "htmlSha256": "8792d03a9ac994f1bbc8a86b60ca733fbbf15099b7a3ec44c3ffd1ce11b60fb8"
+    }
+   ]
+  },
+  {
+   "chapter": 3,
+   "title": "第三回　人淡如菊",
+   "paragraphs": 132,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/47.html",
+     "extractedCharacters": 7344,
+     "htmlSha256": "fda6300ee1434093a4e917913987d822e09d5300a4156786e63d646ae77b8d2e"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/47_2.html",
+     "extractedCharacters": 8042,
+     "htmlSha256": "fc06e7b86c5fcbc0146a665de0054a1712272eca23da12c1fd17fc24348095bb"
+    }
+   ]
+  },
+  {
+   "chapter": 4,
+   "title": "第四回　空心菜",
+   "paragraphs": 131,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/48.html",
+     "extractedCharacters": 7710,
+     "htmlSha256": "e5cbd19fd6ce059eba7381fa9026fc55c3a3fc5babc03007ab44904d3dc0fcdf"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/48_2.html",
+     "extractedCharacters": 6598,
+     "htmlSha256": "cdcc56ecc72f3f633643091026118513b1d16d9e866ca0ef3f50c7cc4e31d988"
+    }
+   ]
+  },
+  {
+   "chapter": 5,
+   "title": "第五回　老鼠汤",
+   "paragraphs": 200,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/49.html",
+     "extractedCharacters": 5281,
+     "htmlSha256": "004176a06d61f2f37cbbe0e4a960579d8c46977e7b606c3335b1ce7f6ef0637c"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/49_2.html",
+     "extractedCharacters": 7910,
+     "htmlSha256": "a313041b98e93fd4f4273fff2ef3a814876872effdbc8788abdd4c46581ff212"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/49_3.html",
+     "extractedCharacters": 7941,
+     "htmlSha256": "cdd87d5bbdddae2a7e20b6d224870aa8b522ef4ce8df32186a2c4d6d490539da"
+    }
+   ]
+  },
+  {
+   "chapter": 6,
+   "title": "第六回　血刀老祖",
+   "paragraphs": 187,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/50.html",
+     "extractedCharacters": 7893,
+     "htmlSha256": "6042b33d8d62a4479c30021b287a3e446eee5a5ae57da6a1b32fbbac787758dc"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/50_2.html",
+     "extractedCharacters": 7377,
+     "htmlSha256": "6a96d09c15038e8a1ba51b3347e7348beb2f4c9eb1a6c9dc3e4f33f36a683a4a"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/50_3.html",
+     "extractedCharacters": 6309,
+     "htmlSha256": "1e695c52d0dded4d83a1b312600dd56ed42250d0014fc598457f8bf1df4fcece"
+    }
+   ]
+  },
+  {
+   "chapter": 7,
+   "title": "第七回　落花流水",
+   "paragraphs": 180,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/51.html",
+     "extractedCharacters": 6414,
+     "htmlSha256": "458841fa75894718a30133d82ee2c6940cc4f4ae3fbc3a877e0162de46f01ea2"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/51_2.html",
+     "extractedCharacters": 8396,
+     "htmlSha256": "8cb5ded04b67dbb9d9f8bd130862e216794d0d7aa82a5b54214d707a9604909b"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/51_3.html",
+     "extractedCharacters": 6813,
+     "htmlSha256": "a7917574150041ed3bbfcefec0c467c83633b9d731601026c3a481b38f00f843"
+    }
+   ]
+  },
+  {
+   "chapter": 8,
+   "title": "第八回　羽衣",
+   "paragraphs": 230,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/52.html",
+     "extractedCharacters": 9648,
+     "htmlSha256": "eec7976fad76f31928958e07c998e509292c3309bb1ba439e99d97c998280a71"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/52_2.html",
+     "extractedCharacters": 6754,
+     "htmlSha256": "00a5477954e50dc7397ebfc3d9759ae672ff5e660157109ae6a876ff60863d01"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/52_3.html",
+     "extractedCharacters": 8615,
+     "htmlSha256": "87cd89b9a013905d667826188515a4929d31a2109340170122f8049e4cd5d193"
+    }
+   ]
+  },
+  {
+   "chapter": 9,
+   "title": "第九回　“梁山伯·祝英台”",
+   "paragraphs": 172,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/53.html",
+     "extractedCharacters": 9376,
+     "htmlSha256": "daf2eef73e4cbccbaea8036c719cb390eaa33481a4dcce2ead79ccafc78463de"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/53_2.html",
+     "extractedCharacters": 10142,
+     "htmlSha256": "3a7ada62b4b9d0bf133b100e5db8dd916c0c5678ca213adeb2ccccfb5c832039"
+    }
+   ]
+  },
+  {
+   "chapter": 10,
+   "title": "第十回　“唐诗选辑”",
+   "paragraphs": 158,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/54.html",
+     "extractedCharacters": 9792,
+     "htmlSha256": "6bb087442afca0dcacb340fc2cd0df349a12cdd3dd3433700496bed11e9fc1bd"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/54_2.html",
+     "extractedCharacters": 6811,
+     "htmlSha256": "33b6065049372b092c0fb7757c812d2c12705dbd142df94ed34a357d15f63d06"
+    }
+   ]
+  },
+  {
+   "chapter": 11,
+   "title": "第十一回　砌墙",
+   "paragraphs": 203,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/55.html",
+     "extractedCharacters": 7727,
+     "htmlSha256": "5231e5490749e6a514c25a3682591128820c52516b1b16717fbaada913cba8e5"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/55_2.html",
+     "extractedCharacters": 11304,
+     "htmlSha256": "013ab897a1c7e844ba4f2bb039160b504ebc4cae724db688676b418be8b1c972"
+    }
+   ]
+  },
+  {
+   "chapter": 12,
+   "title": "第十二回　连城宝藏",
+   "paragraphs": 138,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/56.html",
+     "extractedCharacters": 6125,
+     "htmlSha256": "6bab3a6189c1e185cef9bf97e2bef9d90cbc392958e40dd7b8c60e356c7a187b"
+    },
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/56_2.html",
+     "extractedCharacters": 5334,
+     "htmlSha256": "9d926ced02cc75eedc08a499ffd97af512aadf2e25fe8d4e385c39e96c584712"
+    }
+   ]
+  },
+  {
+   "chapter": null,
+   "title": "后记",
+   "paragraphs": 21,
+   "pages": [
+    {
+     "url": "https://www.jinyongbbs.com/jyxx/lcj/57.html",
+     "extractedCharacters": 2448,
+     "htmlSha256": "148dcf8a6b65f6201a42bb0df15f0ff25d48eeeb144d2d8b47a103866b93fc4b"
+    }
+   ]
+  }
+ ]
+}
