@@ -1,0 +1,21 @@
+{
+ "date": "2026-11-02",
+ "work": "越女劍",
+ "editionLabel": "GitHub OliverCWY/JY倉庫標稱新修版，未逐字校勘印本",
+ "chapters": 1,
+ "pages": 1,
+ "items": [
+  {
+   "chapter": null,
+   "title": "越女剑",
+   "paragraphs": 196,
+   "pages": [
+    {
+     "url": "https://github.com/OliverCWY/JY/blob/master/Markdown/新修版/越女剑/越女剑.md",
+     "extractedCharacters": 17193,
+     "htmlSha256": "5e2435f59cedc7c03870f857f84ad3ea5bee7c2462930d28db46fa0a828dc2b0"
+    }
+   ]
+  }
+ ]
+}
