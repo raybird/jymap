@@ -232,3 +232,33 @@ describe('timeMapReducer - 年代推估事件', () => {
     expect(next.currentTimeRange).toEqual({ startYear: 1378, endYear: 1681 });
   });
 });
+
+describe('timeMapReducer - view mode', () => {
+  const a = makeEvent({ id: 'a', year: 1200, novel: '射鵰英雄傳' });
+  const b = makeEvent({ id: 'b', year: 1300, novel: '倚天屠龍記' });
+  const base: TimeMapState = { ...initialTimeMapState, events: [a, b], visibleEvents: [a, b] };
+
+  it('預設為地圖，切到年表不改篩選結果', () => {
+    expect(initialTimeMapState.viewMode).toBe('map');
+    const filtered = timeMapReducer(base, TimeMapActions.setNovelFilter({ novel: '倚天屠龍記' }));
+    const next = timeMapReducer(filtered, TimeMapActions.setViewMode({ mode: 'chronicle' }));
+    expect(next.viewMode).toBe('chronicle');
+    expect(next.visibleEvents).toEqual([b]);
+    expect(next.selectedNovel).toBe('倚天屠龍記');
+  });
+
+  it('返回上一步會還原當時的顯示方式', () => {
+    const chronicle = timeMapReducer(base, TimeMapActions.setViewMode({ mode: 'chronicle' }));
+    const { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView } = base;
+    const next = timeMapReducer(chronicle, TimeMapActions.restoreExploration({
+      snapshot: { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView, viewMode: 'map' }
+    }));
+    expect(next.viewMode).toBe('map');
+  });
+
+  it('顯示全部只重設條件，不切換顯示方式', () => {
+    const chronicle = timeMapReducer(base, TimeMapActions.setViewMode({ mode: 'chronicle' }));
+    const next = timeMapReducer(chronicle, TimeMapActions.resetFilters());
+    expect(next.viewMode).toBe('chronicle');
+  });
+});

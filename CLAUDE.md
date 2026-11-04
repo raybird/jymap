@@ -49,6 +49,7 @@ push 到 `main` 分支後，GitHub Actions（`.github/workflows/deploy.yml`）�
 
 - **`visibleEvents` 在 reducer 計算**：`setTimeRange`、`clearTimeRange`、`setNovelFilter`、`loadEventsSuccess` 都會呼叫 `applyFilters()` 重算 `visibleEvents`，而非在 selector 動態過濾。這樣 selector 直接取 `state.visibleEvents` 即可，避免重複運算。
 - **`selectedEventVersion` 計數器**：每次 dispatch `selectEvent` 時遞增，確保即使選擇同一個 eventId，selector 也會重新發射，讓 UI 強制重新渲染。
+- **`viewMode`（`map` | `chronicle`）**：地圖與年表看同一份 `visibleEvents`，切換不動篩選條件；它屬於 `ExplorationState`，「返回上一步」會還原模式。AppComponent 把它同步到網址參數 `?view=chronicle`（`replaceState`，不新增瀏覽紀錄）。年表模式下地圖只以 `visibility: hidden` 隱藏，不銷毀，切回時尺寸與視角不變。
 
 ### 資料流
 
@@ -67,7 +68,7 @@ core/
   models/         # Event、TimelineItem、MapMarker 介面定義
   services/       # DataService（資料載入）、SearchService（Fuse.js）、RelatedEventsService
   state/          # actions / reducer / selectors / effects（單一 timeMap slice）
-  utils/          # DataValidator（驗證邏輯）、Logger
+  utils/          # DataValidator（驗證邏輯）、Logger、event-time、novel-colors（小說代表色）、wiki-links（從 sources 挑維基連結）
 
 features/
   map/            # MapContainerComponent：Leaflet 地圖，直接訂閱 Store
@@ -76,6 +77,7 @@ features/
   novel-filter/   # NovelFilterComponent（小說篩選）
   event-detail/   # EventCardComponent（側邊抽屜）
   character-detail/ # CharacterPanelComponent（人物年表與軌跡）
+  chronicle/      # ChronicleListComponent（年表：朝代分段、推估事件集中在「確年未詳」）、ViewModeToggleComponent
 ```
 
 ### 組件與 Store 的互動模式

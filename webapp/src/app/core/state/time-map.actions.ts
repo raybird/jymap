@@ -1,4 +1,4 @@
-import type { ExplorationState } from './time-map.reducer';
+import type { ExplorationState, ViewMode } from './time-map.reducer';
 import { createAction, props } from '@ngrx/store';
 import { ValidatedEvent, ValidatedTimelineItem } from '../utils/data-validator';
 import { DataLoadResult } from '../services/data.service';
@@ -75,3 +75,8 @@ export const restoreExploration = createAction(
   '[TimeMap] Restore Exploration', props<{ snapshot: ExplorationState }>()
 );
 export const resetFilters = createAction('[TimeMap] Reset Filters');
+
+// 切換地圖與年表
+export const setViewMode = createAction(
+  '[TimeMap] Set View Mode', props<{ mode: ViewMode }>()
+);

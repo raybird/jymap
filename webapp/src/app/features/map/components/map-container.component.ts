@@ -10,6 +10,7 @@ import { AppState } from '../../../core/state/app.state';
 import * as TimeMapSelectors from '../../../core/state/time-map.selectors';
 import * as TimeMapActions from '../../../core/state/time-map.actions';
 import { Logger } from '../../../core/utils/logger';
+import { DEFAULT_NOVEL_COLOR, getNovelColor } from '../../../core/utils/novel-colors';
 
 /**
  * 地圖容器組件
@@ -79,7 +80,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     this.store.select(TimeMapSelectors.selectCharacterDominantNovel).pipe(
       takeUntil(this.destroy$)
     ).subscribe(novel => {
-      this.currentTrajectoryColor = novel ? this.getNovelColor(novel) : '#666666';
+      this.currentTrajectoryColor = novel ? getNovelColor(novel) : DEFAULT_NOVEL_COLOR;
     });
 
     this.store.select(TimeMapSelectors.selectCharacterTrajectory).pipe(
@@ -225,17 +226,6 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private getNovelColor(novel: string): string {
-    const map: Record<string, string> = {
-      '越女劍': '#2E7D32', '天龍八部': '#B8860B', '射鵰英雄傳': '#C62828',
-      '神鵰俠侶': '#6A1B9A', '倚天屠龍記': '#1565C0', '笑傲江湖': '#00695C',
-      '碧血劍': '#D84315', '鹿鼎記': '#F57F17', '書劍恩仇錄': '#33691E',
-      '飛狐外傳': '#E65100', '雪山飛狐': '#455A64', '連城訣': '#4E342E',
-      '俠客行': '#283593', '白馬嘯西風': '#827717', '鴛鴦刀': '#AD1457',
-    };
-    return map[novel] || '#666666';
-  }
-
   /**
    * 建立標記
    */
@@ -342,7 +332,7 @@ export class MapContainerComponent implements OnInit, AfterViewInit, OnDestroy {
     const currentZoom = this.map?.getZoom() || this.zoom;
     const baseSize = isWeighted ? 20 : 14;
     const size = Math.min(baseSize + (currentZoom - 5) * 2, isWeighted ? 32 : 24);
-    const color = this.getNovelColor(event.novel);
+    const color = getNovelColor(event.novel);
     const c = 20, r = 18;
     const opacity = isWeighted ? 1 : 0.4;
     const glowOpacity = isWeighted ? 0.12 : 0.04;

@@ -1,21 +1,28 @@
 <mat-sidenav-container class="app-sidenav-container" [hasBackdrop]="false">
   <mat-sidenav-content>
-    <div class="app-viewport" [class.panel-open]="hasDetail && !isSearchFocused" [class.search-open]="isSearchFocused">
-      <div class="map-layer">
+    <div class="app-viewport" #viewport [class.panel-open]="hasDetail && !isSearchFocused" [class.search-open]="isSearchFocused">
+      <div class="map-layer" [style.visibility]="viewMode === 'chronicle' ? 'hidden' : null"
+        [attr.aria-hidden]="viewMode === 'chronicle' ? 'true' : null">
         <app-map-container [center]="initialView.center" [zoom]="initialView.zoom"
           [detailPanel]="detailPanel.nativeElement"
           [selectedNovel]="(selectedNovel$ | async) || null"
           (eventClick)="onMapEventClick($event)" (characterClick)="onCharacterClick($event)">
         </app-map-container>
       </div>
+      @if (viewMode === 'chronicle') {
+        <app-chronicle-list (openEvent)="onChronicleEventOpen($event)" (showOnMap)="onShowOnMap($event)"
+          (novelClick)="onNovelSelect($event)" (characterClick)="onCharacterClick($event)">
+        </app-chronicle-list>
+      }
       <div class="ui-layer">
-        <div class="top-overlay" (focusout)="onSearchAreaFocusOut($event)">
+        <div class="top-overlay" #topOverlay (focusout)="onSearchAreaFocusOut($event)">
           <div class="top-bar">
             <app-search-box [keyword]="searchKeyword"
               (searchResultsChange)="onSearchResultsChange($event)"
               (searchKeywordChange)="onSearchKeywordChange($event)"
               (focusChange)="onSearchFocusChange($event)">
             </app-search-box>
+            <app-view-mode-toggle [mode]="viewMode" (modeChange)="setViewMode($event)"></app-view-mode-toggle>
           </div>
           @if (view$ | async; as view) {
             <div class="filter-summary" aria-label="目前探索條件">

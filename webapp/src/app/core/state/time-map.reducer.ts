@@ -13,6 +13,9 @@ export interface MapView {
   zoom: number;
 }
 
+/** 主畫面顯示方式：地圖，或依時間排列的年表 */
+export type ViewMode = 'map' | 'chronicle';
+
 export interface TimeMapState {
   events: ValidatedEvent[];
   timeline: ValidatedTimelineItem[];
@@ -27,6 +30,7 @@ export interface TimeMapState {
   error: string | null;
   selectedCharacter: string | null;
   selectedCharacterVersion: number;
+  viewMode: ViewMode;
   preCharacterSnapshot: {
     timeRange: TimeRange | null;
     selectedNovel: string | null;
@@ -43,7 +47,7 @@ export interface TimeMapState {
 
 export type ExplorationState = Pick<TimeMapState,
   'currentTimeRange' | 'selectedNovel' | 'selectedCharacter' | 'selectedEventId' |
-  'preCharacterSnapshot' | 'mapView'>;
+  'preCharacterSnapshot' | 'mapView' | 'viewMode'>;
 
 export const initialTimeMapState: TimeMapState = {
   events: [],
@@ -62,6 +66,7 @@ export const initialTimeMapState: TimeMapState = {
   error: null,
   selectedCharacter: null,
   selectedCharacterVersion: 0,
+  viewMode: 'map',
   preCharacterSnapshot: null,
   validationStats: null
 };
@@ -200,6 +205,12 @@ export const timeMapReducer = createReducer(
     selectedEventVersion: state.selectedEventVersion + 1,
     selectedCharacterVersion: state.selectedCharacterVersion + 1,
     visibleEvents: applyFilters(state.events, snapshot.currentTimeRange, snapshot.selectedNovel)
+  })),
+
+  // 切換顯示方式不動篩選條件，兩種模式看的是同一份 visibleEvents
+  on(TimeMapActions.setViewMode, (state, { mode }) => ({
+    ...state,
+    viewMode: mode
   })),
 
   on(TimeMapActions.resetFilters, (state) => ({

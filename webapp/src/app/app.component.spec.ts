@@ -245,4 +245,136 @@ describe('AppComponent integration', () => {
     fixture.destroy();
     tick(400);
   }));
+  describe('年表模式', () => {
+    const originalUrl = window.location.href;
+    const other: ValidatedEvent = { ...event, id: 'e2', novel: '神鵰俠侶', title: '絕情谷', year: 1260, characters: ['楊過'],
+      sources: ['https://zh.wikipedia.org/wiki/%E7%B5%95%E6%83%85%E8%B0%B7'] };
+    afterEach(() => window.history.replaceState(null, '', originalUrl));
+
+    function select<T>(store: Store<AppState>, selector: (state: AppState) => T): T {
+      let value!: T;
+      store.select(selector).subscribe(v => value = v).unsubscribe();
+      return value;
+    }
+
+    function toggle(fixture: { nativeElement: HTMLElement; detectChanges(): void }, label: string): void {
+      const button = Array.from(fixture.nativeElement.querySelectorAll<HTMLButtonElement>('app-view-mode-toggle button'))
+        .find(b => b.textContent?.trim() === label)!;
+      button.click();
+      fixture.detectChanges();
+    }
+
+    it('切換時更新網址參數但不新增瀏覽紀錄，地圖只隱藏不銷毀', fakeAsync(() => {
+      const { fixture, store } = setup();
+      const historyLength = window.history.length;
+      const map = fixture.debugElement.query(By.directive(MapStubComponent)).componentInstance;
+      toggle(fixture, '年表');
+      expect(new URLSearchParams(window.location.search).get('view')).toBe('chronicle');
+      expect(window.history.length).toBe(historyLength);
+      expect(select(store, Selectors.selectViewMode)).toBe('chronicle');
+      const layer: HTMLElement = fixture.nativeElement.querySelector('.map-layer');
+      expect(layer.style.visibility).toBe('hidden');
+      expect(fixture.nativeElement.querySelector('app-chronicle-list').textContent).toContain(event.title);
+      expect(fixture.nativeElement.querySelector('app-view-mode-toggle [aria-pressed="true"]').textContent).toContain('年表');
+
+      toggle(fixture, '地圖');
+      expect(window.location.search).not.toContain('view=');
+      expect(layer.style.visibility).toBe('');
+      expect(fixture.nativeElement.querySelector('app-chronicle-list')).toBeNull();
+      expect(fixture.debugElement.query(By.directive(MapStubComponent)).componentInstance).toBe(map);
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('網址帶 view=chronicle 時直接進入年表', fakeAsync(() => {
+      window.history.replaceState(null, '', '?view=chronicle');
+      const { fixture, store } = setup();
+      expect(select(store, Selectors.selectViewMode)).toBe('chronicle');
+      expect(fixture.nativeElement.querySelector('app-chronicle-list')).not.toBeNull();
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('點搜尋結果不縮時間範圍，只解除擋住的條件並捲到卡片', fakeAsync(() => {
+      const { fixture, store, app } = setup();
+      store.dispatch(Actions.loadEventsSuccess({ result: { data: [event, other] } }));
+      app.onNovelSelect(event.novel);
+      store.dispatch(Actions.setTimeRange({ startYear: 1240, endYear: 1255 }));
+      toggle(fixture, '年表');
+      const scroll = spyOn(Element.prototype, 'scrollIntoView');
+      app.onSearchResultClick(other);
+      fixture.detectChanges();
+      expect(select(store, Selectors.selectTimeRange)).toBeNull();
+      expect(select(store, Selectors.selectSelectedNovel)).toBeNull();
+      expect(select(store, Selectors.selectVisibleEvents).length).toBe(2);
+      expect(scroll).toHaveBeenCalled();
+      expect((scroll.calls.mostRecent().object as HTMLElement).dataset['eventId']).toBe(other.id);
+      expect(fixture.nativeElement.querySelector('.card.selected').dataset.eventId).toBe(other.id);
+      expect(fixture.nativeElement.querySelector('[role="status"]').textContent).toContain('已解除');
+      const map = fixture.debugElement.query(By.directive(MapStubComponent)).componentInstance as MapStubComponent;
+      expect(map.flyTo).not.toHaveBeenCalled();
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('事件在目前範圍內時保留範圍', fakeAsync(() => {
+      const { fixture, store, app } = setup();
+      store.dispatch(Actions.setTimeRange({ startYear: 1200, endYear: 1300 }));
+      toggle(fixture, '年表');
+      app.onSearchResultClick(event);
+      expect(select(store, Selectors.selectTimeRange)).toEqual({ startYear: 1200, endYear: 1300 });
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('卡片顯示維基外連，點卡片開詳情，在地圖上看會切回地圖並飛到事件', fakeAsync(() => {
+      const { fixture, store } = setup();
+      store.dispatch(Actions.loadEventsSuccess({ result: { data: [event, other] } }));
+      toggle(fixture, '年表');
+      const card: HTMLElement = fixture.nativeElement.querySelector(`[data-event-id="${other.id}"]`);
+      const link: HTMLAnchorElement = card.querySelector('.wiki-link')!;
+      expect(link.textContent).toContain('絕情谷');
+      expect(link.target).toBe('_blank');
+      expect(link.rel).toBe('noopener');
+      card.querySelector<HTMLElement>('.card-meta')!.click();
+      fixture.detectChanges();
+      expect(select(store, Selectors.selectSelectedEventId)).toBe(other.id);
+
+      card.querySelector<HTMLButtonElement>('.map-button')!.click();
+      fixture.detectChanges();
+      expect(select(store, Selectors.selectViewMode)).toBe('map');
+      const map = fixture.debugElement.query(By.directive(MapStubComponent)).componentInstance as MapStubComponent;
+      expect(map.flyTo).toHaveBeenCalledWith(other.lat, other.lng, 8, other.id);
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('返回上一步還原切換前的地圖模式', fakeAsync(() => {
+      const { fixture, store, app } = setup();
+      toggle(fixture, '年表');
+      expect(app.history.length).toBe(1);
+      app.goBack();
+      fixture.detectChanges();
+      expect(select(store, Selectors.selectViewMode)).toBe('map');
+      expect(window.location.search).not.toContain('view=');
+      fixture.destroy();
+      tick(400);
+    }));
+
+    it('追蹤人物時保留全部事件，只標示該人物並捲到第一筆', fakeAsync(() => {
+      const { fixture, store, app } = setup();
+      store.dispatch(Actions.loadEventsSuccess({ result: { data: [event, other] } }));
+      toggle(fixture, '年表');
+      const scroll = spyOn(Element.prototype, 'scrollIntoView');
+      app.onCharacterClick('郭靖');
+      fixture.detectChanges();
+      expect(fixture.nativeElement.querySelectorAll('.card').length).toBe(2);
+      expect(fixture.nativeElement.querySelector('.card.tracked').dataset.eventId).toBe(event.id);
+      expect(fixture.nativeElement.querySelector('.card.dimmed').dataset.eventId).toBe(other.id);
+      expect((scroll.calls.mostRecent().object as HTMLElement).dataset['eventId']).toBe(event.id);
+      expect(select(store, Selectors.selectViewMode)).toBe('chronicle');
+      fixture.destroy();
+      tick(400);
+    }));
+  });
 });

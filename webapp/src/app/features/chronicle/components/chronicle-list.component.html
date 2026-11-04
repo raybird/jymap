@@ -1,0 +1,72 @@
+<nav class="dynasty-nav" aria-label="朝代跳轉">
+  @for (section of sections; track section.key) {
+    <button type="button" (click)="scrollToSection(section.key)">{{ section.label }}</button>
+  }
+</nav>
+<div class="scroller" #scroller>
+  <div class="content">
+    @for (section of sections; track section.key) {
+      <section class="dynasty" [attr.data-section-key]="section.key" [attr.aria-labelledby]="'chronicle-' + section.key">
+        <h2 class="dynasty-title" [id]="'chronicle-' + section.key">
+          {{ section.label }}<span class="count">{{ section.count }} 件</span>
+        </h2>
+        @for (group of section.groups; track group.key) {
+          <div class="group">
+            <h3 class="group-title">
+              <span class="axis-dot" aria-hidden="true"></span>
+              <span>{{ group.label }}</span>
+              <span class="count">（{{ group.events.length }} 件）</span>
+              @if (section.estimated) { <span class="estimate-badge">推估</span> }
+            </h3>
+            @if (group.note) { <p class="group-note">{{ group.note }}</p> }
+            <ol class="cards">
+              @for (event of group.events; track event.id) {
+                <li>
+                  <article class="card" [attr.data-event-id]="event.id"
+                    [class.selected]="event.id === selectedEventId"
+                    [class.tracked]="isTracked(event)"
+                    [class.dimmed]="character !== null && !isTracked(event)"
+                    [style.--novel-color]="getNovelColor(event.novel)"
+                    (click)="onCardClick(event, $event)">
+                    <div class="card-head">
+                      <h4><button type="button" class="card-title" (click)="openEvent.emit(event)">{{ event.title }}</button></h4>
+                      <button type="button" class="novel-chip" (click)="novelClick.emit(event.novel)"
+                        [attr.aria-label]="'只看《' + event.novel + '》'">{{ event.novel }}</button>
+                    </div>
+                    <p class="card-meta">{{ getTimeText(event) }}・{{ getDynastyText(event) }}</p>
+                    @if (event.characters.length) {
+                      <div class="characters">
+                        @for (name of event.characters.slice(0, maxCharacters); track name) {
+                          <button type="button" class="character" (click)="characterClick.emit(name)"
+                            [attr.aria-label]="'追蹤 ' + name">{{ name }}</button>
+                        }
+                        @if (event.characters.length > maxCharacters) {
+                          <span class="more">等 {{ event.characters.length }} 人</span>
+                        }
+                      </div>
+                    }
+                    @if (event.summary || event.description; as text) {
+                      <p class="summary" [class.expanded]="expanded.has(event.id)">{{ text }}</p>
+                      @if (hasLongSummary(event)) {
+                        <button type="button" class="text-button" (click)="toggleSummary(event.id)"
+                          [attr.aria-expanded]="expanded.has(event.id)">{{ expanded.has(event.id) ? '收合' : '展開' }}</button>
+                      }
+                    }
+                    <div class="card-actions">
+                      @for (link of linksOf(event); track link.url) {
+                        <a class="wiki-link" [href]="link.url" target="_blank" rel="noopener"
+                          [attr.data-kind]="link.kind"
+                          [attr.aria-label]="'維基百科：' + link.title + '（另開分頁）'">維基：{{ link.title }}</a>
+                      }
+                      <button type="button" class="map-button" (click)="showOnMap.emit(event)">在地圖上看 →</button>
+                    </div>
+                  </article>
+                </li>
+              }
+            </ol>
+          </div>
+        }
+      </section>
+    }
+  </div>
+</div>

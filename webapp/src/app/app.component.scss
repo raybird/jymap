@@ -402,3 +402,11 @@ button:focus-visible {
   gap: 8px;
   button { margin-left: auto; min-width: 36px; min-height: 36px; cursor: pointer; }
 }
+
+// 桌面詳情面板固定在右側 420px：搜尋列與切換鈕改在面板左側的空間置中，避免被蓋住
+@media (min-width: 769px) and (min-height: 501px) {
+  .panel-open .top-overlay {
+    left: calc((100% - 420px) / 2);
+    width: min(720px, calc(100% - 452px));
+  }
+}

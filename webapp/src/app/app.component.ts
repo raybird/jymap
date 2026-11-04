@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild, OnDestroy, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild, OnDestroy, ElementRef, afterEveryRender } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { Store } from '@ngrx/store';
@@ -13,23 +13,31 @@ import { SearchResultsComponent } from './features/search/components/search-resu
 import { EventCardComponent } from './features/event-detail/components/event-card.component';
 import { CharacterPanelComponent } from './features/character-detail/components/character-panel.component';
 import { AppState } from './core/state/app.state';
-import { ExplorationState, TimeMapState } from './core/state/time-map.reducer';
+import { ExplorationState, TimeMapState, ViewMode } from './core/state/time-map.reducer';
 import * as TimeMapSelectors from './core/state/time-map.selectors';
 import * as TimeMapActions from './core/state/time-map.actions';
 import { SearchService, SearchResult } from './core/services/search.service';
 import { Logger } from './core/utils/logger';
 import { getInitialMapView, SheetState } from './core/utils/viewport';
 import { SheetHandleDirective } from './shared/sheet-handle.directive';
+import { ChronicleListComponent } from './features/chronicle/components/chronicle-list.component';
+import { ViewModeToggleComponent } from './features/chronicle/components/view-mode-toggle.component';
+
+/** 年表模式的網址參數：?view=chronicle */
+const VIEW_PARAM = 'view';
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, MatSidenavModule, SheetHandleDirective, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent],
+    imports: [CommonModule, MatSidenavModule, SheetHandleDirective, MapContainerComponent, TimelineContainerComponent, SearchBoxComponent, SearchResultsComponent, EventCardComponent, CharacterPanelComponent, ChronicleListComponent, ViewModeToggleComponent],
     templateUrl: './app.component.html',
     styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit, OnDestroy {
+export class AppComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MapContainerComponent) mapComponent!: MapContainerComponent;
   @ViewChild(TimelineContainerComponent) timelineComponent!: TimelineContainerComponent;
+  @ViewChild(ChronicleListComponent) chronicleComponent?: ChronicleListComponent;
+  @ViewChild('viewport', { static: true }) viewportRef!: ElementRef<HTMLElement>;
+  @ViewChild('topOverlay', { static: true }) topOverlayRef!: ElementRef<HTMLElement>;
 
   @ViewChild('eventSidenav', { read: ElementRef, static: true }) detailPanel!: ElementRef<HTMLElement>;
   readonly initialView = getInitialMapView();
@@ -37,6 +45,8 @@ export class AppComponent implements OnInit, OnDestroy {
   sheetState: SheetState = 'half';
   private sheetEventId: string | null = null;
   private viewportListeners = new AbortController();
+  private topOverlayObserver?: ResizeObserver;
+  viewMode: ViewMode = 'map';
   view$!: Observable<TimeMapState>;
   suggestions = { characters: [] as string[], novels: [] as string[] };
   browseCategory: 'novels' | 'characters' = 'novels';
@@ -74,6 +84,10 @@ export class AppComponent implements OnInit, OnDestroy {
     private store: Store<AppState>,
     private searchService: SearchService
   ) {
+    // 條件列會隨「返回上一步」、提示、搜尋與面板開關變高變矮，中間狀態 ResizeObserver 可能漏掉，每次重繪後核對
+    afterEveryRender(() => {
+      if (this.viewMode === 'chronicle') this.updateChronicleTop();
+    });
     this.timeRangeChange$.pipe(
       switchMap(range => timer(120).pipe(map(() => range), takeUntil(this.navigation$))),
       takeUntil(this.destroy$)
@@ -99,6 +113,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.selectedEvent$ = this.store.select(TimeMapSelectors.selectSelectedEvent);
     this.selectedNovel$ = this.store.select(TimeMapSelectors.selectSelectedNovel);
     this.selectedCharacter$ = this.store.select(TimeMapSelectors.selectSelectedCharacter);
+
+    const initialMode = new URLSearchParams(window.location.search).get(VIEW_PARAM);
+    if (initialMode === 'chronicle') this.store.dispatch(TimeMapActions.setViewMode({ mode: 'chronicle' }));
+    this.store.select(TimeMapSelectors.selectViewMode).pipe(takeUntil(this.destroy$)).subscribe(mode => {
+      this.viewMode = mode;
+      this.syncViewParam(mode);
+    });
 
     this.loadData();
 
@@ -142,6 +163,24 @@ export class AppComponent implements OnInit, OnDestroy {
     });
   }
 
+  // 年表接在搜尋列與條件列下方；視窗尺寸改變不一定觸發重繪，另外用 ResizeObserver 補
+  ngAfterViewInit(): void {
+    this.topOverlayObserver = new ResizeObserver(() => this.updateChronicleTop());
+    this.topOverlayObserver.observe(this.topOverlayRef.nativeElement);
+    this.updateChronicleTop();
+  }
+
+  /** 量搜尋列、條件列與提示的下緣；搜尋清單是浮在年表上的下拉，不算在內 */
+  private updateChronicleTop(): void {
+    const overlay = this.topOverlayRef.nativeElement;
+    const viewport = this.viewportRef.nativeElement;
+    const bottom = Array.from(overlay.children)
+      .filter(child => !child.classList.contains('search-results-overlay'))
+      .reduce((max, child) => Math.max(max, child.getBoundingClientRect().bottom), overlay.getBoundingClientRect().top);
+    const value = `${Math.ceil(bottom - viewport.getBoundingClientRect().top + 8)}px`;
+    if (viewport.style.getPropertyValue('--chronicle-top') !== value) viewport.style.setProperty('--chronicle-top', value);
+  }
+
   loadData(): void {
     // 透過 NgRx Effects 載入資料
     // 狀態會透過 Store 自動更新
@@ -151,6 +190,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.viewportListeners.abort();
+    this.topOverlayObserver?.disconnect();
     // 清理 debounce Subject
     this.destroy$.next();
     this.destroy$.complete();
@@ -235,13 +275,35 @@ export class AppComponent implements OnInit, OnDestroy {
 
   onNavigateToEvent(event: ValidatedEvent): void {
     this.rememberView();
+    if (this.viewMode === 'chronicle') {
+      this.focusInChronicle(event);
+    } else {
+      this.focusOnMap(event);
+    }
+  }
+
+  setViewMode(mode: ViewMode): void {
+    if (mode === this.viewMode) return;
+    this.rememberView();
+    this.store.dispatch(TimeMapActions.setViewMode({ mode }));
+
+  }
+
+  /** 年表卡片的「在地圖上看」：結果與在地圖上選取該事件相同 */
+  onShowOnMap(event: ValidatedEvent): void {
+    this.rememberView();
+    this.store.dispatch(TimeMapActions.setViewMode({ mode: 'map' }));
+    this.focusOnMap(event);
+  }
+
+  onChronicleEventOpen(event: ValidatedEvent): void {
+    this.rememberView();
     this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
-    this.store.select(TimeMapSelectors.selectSelectedNovel).pipe(take(1)).subscribe(novel => {
-      if (novel && novel !== event.novel) {
-        this.store.dispatch(TimeMapActions.setNovelFilter({ novel: null }));
-        this.notice = `已解除《${novel}》篩選，顯示《${event.novel}》的「${event.title}」。`;
-      }
-    });
+  }
+
+  private focusOnMap(event: ValidatedEvent): void {
+    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
+    this.clearConflictingNovel(event);
     this.isSearchFocused = false;
     const span = getEventSpan(event);
     this.store.dispatch(TimeMapActions.setTimeRange({
@@ -250,6 +312,30 @@ export class AppComponent implements OnInit, OnDestroy {
     }));
     this.timelineComponent?.scrollToYear(getEventFocusYear(event));
     this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
+  }
+
+  /** 年表不縮時間範圍，只解除擋住這個事件的條件，再捲到它的卡片 */
+  private focusInChronicle(event: ValidatedEvent): void {
+    this.store.dispatch(TimeMapActions.selectEvent({ eventId: event.id }));
+    this.clearConflictingNovel(event);
+    this.isSearchFocused = false;
+    this.store.select(TimeMapSelectors.selectTimeRange).pipe(take(1)).subscribe(range => {
+      if (range && !overlapsTimeRange(event, range)) {
+        this.store.dispatch(TimeMapActions.clearTimeRange());
+        this.timelineComponent?.clearRangeHighlight();
+      }
+    });
+    this.timelineComponent?.scrollToYear(getEventFocusYear(event));
+    this.chronicleComponent?.scrollToEvent(event.id);
+  }
+
+  private clearConflictingNovel(event: ValidatedEvent): void {
+    this.store.select(TimeMapSelectors.selectSelectedNovel).pipe(take(1)).subscribe(novel => {
+      if (novel && novel !== event.novel) {
+        this.store.dispatch(TimeMapActions.setNovelFilter({ novel: null }));
+        this.notice = `已解除《${novel}》篩選，顯示《${event.novel}》的「${event.title}」。`;
+      }
+    });
   }
 
   /**
@@ -311,7 +397,11 @@ export class AppComponent implements OnInit, OnDestroy {
       }
     });
     this.timelineComponent?.scrollToYear(getEventFocusYear(event));
-    this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
+    if (this.viewMode === 'chronicle') {
+      this.chronicleComponent?.scrollToEvent(event.id);
+    } else {
+      this.mapComponent?.flyTo(event.lat, event.lng, 8, event.id);
+    }
   }
 
   onSearchAreaFocusOut(event: FocusEvent): void {
@@ -349,13 +439,13 @@ export class AppComponent implements OnInit, OnDestroy {
     this.navigation$.next();
     this.notice = '';
     this.store.select(TimeMapSelectors.selectTimeMapState).pipe(take(1)).subscribe(state => {
-      const { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView } = state;
+      const { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView, viewMode } = state;
       const currentMap = this.mapComponent?.getMap?.();
       const savedMapView = currentMap
         ? { center: [currentMap.getCenter().lat, currentMap.getCenter().lng] as [number, number], zoom: currentMap.getZoom() }
         : mapView;
       this.history.push({
-        state: { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView: savedMapView },
+        state: { currentTimeRange, selectedNovel, selectedCharacter, selectedEventId, preCharacterSnapshot, mapView: savedMapView, viewMode },
         keyword: this.searchKeyword, results: this.searchResults,
         timelineLeft: this.timelineComponent?.getScrollPosition() ?? 0,
         searchOpen: this.isSearchFocused
@@ -375,7 +465,22 @@ export class AppComponent implements OnInit, OnDestroy {
     this.notice = '已返回上一個探索位置。';
     this.timelineComponent?.restoreScrollPosition(previous.timelineLeft);
     this.mapComponent?.restoreView(previous.state.mapView.center, previous.state.mapView.zoom);
-    if (previous.state.selectedEventId) this.mapComponent?.highlightMarker(previous.state.selectedEventId);
+    if (previous.state.selectedEventId) {
+      this.mapComponent?.highlightMarker(previous.state.selectedEventId);
+      if (previous.state.viewMode === 'chronicle') this.chronicleComponent?.scrollToEvent(previous.state.selectedEventId);
+    }
+  }
+
+  /** 只改網址參數，不新增瀏覽紀錄；GitHub Pages 的 /jymap/ 路徑原樣保留 */
+  private syncViewParam(mode: ViewMode): void {
+    const url = new URL(window.location.href);
+    if ((url.searchParams.get(VIEW_PARAM) === 'chronicle') === (mode === 'chronicle')) return;
+    if (mode === 'chronicle') {
+      url.searchParams.set(VIEW_PARAM, 'chronicle');
+    } else {
+      url.searchParams.delete(VIEW_PARAM);
+    }
+    window.history.replaceState(window.history.state, '', url);
   }
 
   // 直接改 class：同一輪接著 flyTo 要讀面板高度，等不到下一次變更偵測

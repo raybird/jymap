@@ -17,6 +17,8 @@ export const selectVisibleEvents = createSelector(
   (state) => state.visibleEvents
 );
 
+export const selectViewMode = createSelector(selectTimeMapState, (state) => state.viewMode);
+
 export const selectTimeline = createSelector(selectTimeMapState, (state) => state.timeline);
 
 export const selectTimeRange = createSelector(selectTimeMapState, (state) => state.currentTimeRange);
